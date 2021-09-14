@@ -5,7 +5,10 @@ This script forked from beck's script. https://greasyfork.org/en/scripts/395298-
 
 <h3>Additional fixed</h3>
 [Add] Add Target cleaned item urls.
-Fixes to be added
+[Fix] Google Takeout downloads, added takeout.google.com to the exclusions: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974
+[Fix] Resolved issue with Google search parameter sa, without it certain search links aren't able to redirect properly: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974
+[Add] Strip s parameter from Twitter post links: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/71892
+[Fix] Opening images from normal Google search now expands the selected image: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/87398
 <h3>Google</h3>
 Cleans Google search URL's
 A normal google search URL might look like this: https://www.google.com/search?num=100&q=google&oq=google&gs_l=serp.3..0l10.7976.8565.0.9999.6.6.0.0.0.0.358.617.2-1j1.2.0....0...1c.1.64.serp..4.2.615.BQ3ZvdzuPGE
