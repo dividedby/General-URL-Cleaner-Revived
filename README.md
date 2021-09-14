@@ -1,7 +1,7 @@
 <h1>General URL Cleaner Revived</h1>
 Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Pocket, Target
 
-This script forked from beck's script. https://greasyfork.org/en/scripts/395298-general-url-cleaner
+<br>This script forked from beck's script. https://greasyfork.org/en/scripts/395298-general-url-cleaner
 
 <h3>Additional fixed</h3>
 [Add] Add Target.com cleaned item urls, will look like this: https://www.target.com/p/A-[item-id]<br>
