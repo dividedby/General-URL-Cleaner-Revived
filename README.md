@@ -4,10 +4,10 @@ Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay,
 This script forked from beck's script. https://greasyfork.org/en/scripts/395298-general-url-cleaner
 
 <h3>Additional fixed</h3>
-[Add] Add Target cleaned item urls.
-[Fix] Google Takeout downloads, added takeout.google.com to the exclusions: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974
-[Fix] Resolved issue with Google search parameter sa, without it certain search links aren't able to redirect properly: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974
-[Add] Strip s parameter from Twitter post links: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/71892
+[Add] Add Target.com cleaned item urls, will look like this: https://www.target.com/p/A-[item-id]<br>
+[Fix] Google Takeout downloads, added takeout.google.com to the exclusions: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974<br>
+[Fix] Resolved issue with Google search parameter sa, without it certain search links aren't able to redirect properly: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974<br>
+[Add] Strip s parameter from Twitter post links: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/71892<br>
 [Fix] Opening images from normal Google search now expands the selected image: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/87398
 <h3>Google</h3>
 Cleans Google search URL's
