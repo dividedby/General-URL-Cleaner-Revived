@@ -4,6 +4,7 @@
 // @name:ja     General URL Cleaner Revived
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URL's from various popular sites.
+// @description:ja Cleans URL's from various popular sites.
 // @include     https://www.newegg.com/*
 // @include     https://www.newegg.ca/*
 // @include     https://www.bing.com/*
@@ -27,7 +28,7 @@
 // @exclude     https://calendar.google.com/*
 // @exclude     https://docs.google.com/spreadsheets/*
 // @exclude     https://takeout.google.com/*
-// @version     3.0.9
+// @version     4.0.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount 1
