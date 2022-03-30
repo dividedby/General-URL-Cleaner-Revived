@@ -28,11 +28,13 @@
 // @exclude     https://calendar.google.com/*
 // @exclude     https://docs.google.com/spreadsheets/*
 // @exclude     https://takeout.google.com/*
-// @version     4.0.1
+// @version     4.0.3
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
 // ==/UserScript==
+
+(() => {
 
 /*
  * Vars
@@ -582,3 +584,4 @@ function cleanUtm(url) {
 function cleanPocketRedir(url) {
     return decodeURIComponent(url.replace('https://getpocket.com/redirect?url=', ''));
 }
+})();
