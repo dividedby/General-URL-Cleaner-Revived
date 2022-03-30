@@ -428,6 +428,7 @@ function parserFacebook(a) {
 
 function parserDisqus(a) {
     if (a.host === 'disq.us' && a.pathname === '/url')
+        a.href = a.href.replace(/\:.*/,'');
         a.href = cleanGenericRedir(a.search);
 
     parserAll(a);
