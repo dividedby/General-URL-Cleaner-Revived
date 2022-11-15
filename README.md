@@ -1,7 +1,9 @@
 <h1>General URL Cleaner Revived</h1>
 Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Pocket, Target
 
-<br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived
+<br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived. 
+
+https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived
 
 This script forked from beck's script. https://greasyfork.org/en/scripts/395298-general-url-cleaner
 <h3>Additional fixed</h3>
