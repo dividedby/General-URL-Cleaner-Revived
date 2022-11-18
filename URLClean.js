@@ -5,30 +5,29 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URL's from various popular sites.
 // @description:ja Cleans URL's from various popular sites.
-// @include     https://www.newegg.com/*
-// @include     https://www.newegg.ca/*
-// @include     https://www.bing.com/*
+// @include     https://www.newegg.tld/*
+// @include     https://www.bing.tld/*
 // @include     https://www.youtube.com/*
 // @include     https://www.imdb.com/*
 // @include     https://www.facebook.com/*
 // @include     https://disqus.com/embed/comments/*
 // @include     https://www.target.com/*
-// @include     /^https://[a-z]+\.amazon(\.com?)?\.[a-z]{2,3}/.*$/
-// @include     /^https?://[a-z]+\.google(\.com?)?\.[a-z]{2,3}/.*$/
-// @include     /^https://[a-z.]+\.ebay(desc)?(\.com?)?\.[a-z]{2,3}/.*$/
+// @include     /^https://[a-z]+\.amazon(\.tld?)?\.[a-z]{2,3}/.*$/
+// @include     /^https?://[a-z]+\.google(\.tld?)?\.[a-z]{2,3}/.*$/
+// @include     /^https://[a-z.]+\.ebay(desc)?(\.tld?)?\.[a-z]{2,3}/.*$/
 // @include     /^https://[a-z0-9.]*twitter.com/.*$/
 // @include     /^https?://(www\.)?staticice\.com\.au/.*$/
 // @include     https://app.getpocket.com/*
-// @exclude     https://apis.google.com/*
-// @exclude     https://accounts.google.com/*
-// @exclude     https://support.google.com/*
-// @exclude     https://www.google.com/recaptcha/*
-// @exclude     https://hangouts.google.com/webchat/*
-// @exclude     https://gsuite.google.com/*
-// @exclude     https://calendar.google.com/*
-// @exclude     https://docs.google.com/spreadsheets/*
-// @exclude     https://takeout.google.com/*
-// @version     4.0.3
+// @exclude     https://apis.google.tld/*
+// @exclude     https://accounts.google.tld/*
+// @exclude     https://support.google.tld/*
+// @exclude     https://www.google.tld/recaptcha/*
+// @exclude     https://hangouts.google.tld/webchat/*
+// @exclude     https://gsuite.google.tld/*
+// @exclude     https://calendar.google.tld/*
+// @exclude     https://docs.google.tld/spreadsheets/*
+// @exclude     https://takeout.google.tld/*
+// @version     4.0.4
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
