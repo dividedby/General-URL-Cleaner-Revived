@@ -27,7 +27,7 @@
 // @exclude     https://calendar.google.tld/*
 // @exclude     https://docs.google.tld/spreadsheets/*
 // @exclude     https://takeout.google.tld/*
-// @version     4.0.4
+// @version     4.0.5
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -43,10 +43,10 @@ var currHost = location.host;
 var currPath = location.pathname;
 var currSearch = location.search;
 
-var ebay = /^[a-z.]+\.ebay(desc)?(\.com?)?\.[a-z]{2,3}$/;
-var amazon = /^[a-z]+\.amazon\.com?(\.[a-z]{2,3})?$/;
-var google = /^[a-z]+\.google\.com?(\.[a-z]{2,3})?$/;
-var target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
+var ebay = /^[a-z.]+\.ebay(desc)?(\.tld?)?\.[a-z]{2,3}$/;
+var amazon = /^[a-z]+\.amazon\.tld?(\.[a-z]{2,3})?$/;
+var google = /^[a-z]+\.google\.tld?(\.[a-z]{2,3})?$/;
+var target = /^[a-z]+\.target\.tld?(\.[a-z]{2,3})?$/;
 
 var amazonParams = /&(url|ie|pf_rd_[a-z]|bbn|rw_html_to_wsrp|ref_)=[^&#]*/;
 var neweggParams = /&(cm_sp|icid|ignorebbr)=[^&#]*/g;
@@ -57,6 +57,7 @@ var ebayParams = /&(_(o?sacat|odkw|from|trksid)|rt)=[^&#]*/g;
 var googleParams = /&(ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)=[^&#]*/g;
 var twitterParams = /&(src|ref_src|ref_url|vertical|s)=[^&#]*/g
 var targetParams = /&(preselect|lnk)=[^&#]*/g;
+var facebookParams = /&(set)=[^&#]*/g;
 
 /*
  * Main
@@ -173,6 +174,9 @@ if (currHost == 'twitter.com') {
 
 if (currHost == 'www.facebook.com') {
     cleanLinks(parserFacebook);
+    
+ else if (currSearch)
+     setCurrUrl(cleanFacebookParams(currSearch));
     return;
 }
 
@@ -510,6 +514,9 @@ function cleanNewegg(url) {
 function cleanTargetParams(url) {
     return url.replace('?','?&','#').replace(targetParams,'').replace('&','');
 }
+    
+function cleanFacebookParams(url) {
+    return url.replace('?','?&','#').replace(facebookParams,'').replace('&','');
 
 function cleanAmazonParams(url) {
     return url.replace('?','?&').replace(amazonParams,'').replace('&','').replace(/\?$/,'');
