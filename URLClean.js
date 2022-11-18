@@ -173,10 +173,10 @@ if (currHost == 'twitter.com') {
 }
 
 if (currHost == 'www.facebook.com') {
-    cleanLinks(parserFacebook);
+    if (currSearch)
+        setCurrUrl(cleanFacebookParams(currSearch));
     
- else if (currSearch)
-     setCurrUrl(cleanFacebookParams(currSearch));
+    cleanLinks(parserFacebook);
     return;
 }
 
