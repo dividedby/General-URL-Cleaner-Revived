@@ -5,29 +5,30 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URL's from various popular sites.
 // @description:ja Cleans URL's from various popular sites.
-// @include     https://www.newegg.tld/*
-// @include     https://www.bing.tld/*
+// @include     https://www.newegg.com/*
+// @include     https://www.newegg.ca/*
+// @include     https://www.bing.com/*
 // @include     https://www.youtube.com/*
 // @include     https://www.imdb.com/*
 // @include     https://www.facebook.com/*
 // @include     https://disqus.com/embed/comments/*
 // @include     https://www.target.com/*
-// @include     /^https://[a-z]+\.amazon(\.tld?)?\.[a-z]{2,3}/.*$/
-// @include     /^https?://[a-z]+\.google(\.tld?)?\.[a-z]{2,3}/.*$/
-// @include     /^https://[a-z.]+\.ebay(desc)?(\.tld?)?\.[a-z]{2,3}/.*$/
+// @include     /^https://[a-z]+\.amazon(\.com?)?\.[a-z]{2,3}/.*$/
+// @include     /^https?://[a-z]+\.google(\.com?)?\.[a-z]{2,3}/.*$/
+// @include     /^https://[a-z.]+\.ebay(desc)?(\.com?)?\.[a-z]{2,3}/.*$/
 // @include     /^https://[a-z0-9.]*twitter.com/.*$/
 // @include     /^https?://(www\.)?staticice\.com\.au/.*$/
 // @include     https://app.getpocket.com/*
-// @exclude     https://apis.google.tld/*
-// @exclude     https://accounts.google.tld/*
-// @exclude     https://support.google.tld/*
-// @exclude     https://www.google.tld/recaptcha/*
-// @exclude     https://hangouts.google.tld/webchat/*
-// @exclude     https://gsuite.google.tld/*
-// @exclude     https://calendar.google.tld/*
-// @exclude     https://docs.google.tld/spreadsheets/*
-// @exclude     https://takeout.google.tld/*
-// @version     4.0.5
+// @exclude     https://apis.google.com/*
+// @exclude     https://accounts.google.com/*
+// @exclude     https://support.google.com/*
+// @exclude     https://www.google.com/recaptcha/*
+// @exclude     https://hangouts.google.com/webchat/*
+// @exclude     https://gsuite.google.com/*
+// @exclude     https://calendar.google.com/*
+// @exclude     https://docs.google.com/spreadsheets/*
+// @exclude     https://takeout.google.com/*
+// @version     4.0.6
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -43,10 +44,10 @@ var currHost = location.host;
 var currPath = location.pathname;
 var currSearch = location.search;
 
-var ebay = /^[a-z.]+\.ebay(desc)?(\.tld?)?\.[a-z]{2,3}$/;
-var amazon = /^[a-z]+\.amazon\.tld?(\.[a-z]{2,3})?$/;
-var google = /^[a-z]+\.google\.tld?(\.[a-z]{2,3})?$/;
-var target = /^[a-z]+\.target\.tld?(\.[a-z]{2,3})?$/;
+var ebay = /^[a-z.]+\.ebay(desc)?(\.com?)?\.[a-z]{2,3}$/;
+var amazon = /^[a-z]+\.amazon\.com?(\.[a-z]{2,3})?$/;
+var google = /^[a-z]+\.google\.com?(\.[a-z]{2,3})?$/;
+var target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
 
 var amazonParams = /&(url|ie|pf_rd_[a-z]|bbn|rw_html_to_wsrp|ref_)=[^&#]*/;
 var neweggParams = /&(cm_sp|icid|ignorebbr)=[^&#]*/g;
@@ -55,9 +56,9 @@ var bingParams = /&(go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)=[^&#]*/g;
 var youtubeParams = /&(feature|src_vid|annotation_id|[gh]l)=[^&#]*/g;
 var ebayParams = /&(_(o?sacat|odkw|from|trksid)|rt)=[^&#]*/g;
 var googleParams = /&(ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)=[^&#]*/g;
-var twitterParams = /&(src|ref_src|ref_url|vertical|s)=[^&#]*/g
+var twitterParams = /&(src|ref_src|ref_url|vertical|s)=[^&#]*/g;
 var targetParams = /&(preselect|lnk)=[^&#]*/g;
-var facebookParams = /&(set)=[^&#]*/g;
+  var facebookParams = /&(set)=[^&#]*/g;
 
 /*
  * Main
@@ -173,9 +174,10 @@ if (currHost == 'twitter.com') {
 }
 
 if (currHost == 'www.facebook.com') {
+
     if (currSearch)
         setCurrUrl(cleanFacebookParams(currSearch));
-    
+
     cleanLinks(parserFacebook);
     return;
 }
@@ -514,9 +516,10 @@ function cleanNewegg(url) {
 function cleanTargetParams(url) {
     return url.replace('?','?&','#').replace(targetParams,'').replace('&','');
 }
-    
+
 function cleanFacebookParams(url) {
     return url.replace('?','?&','#').replace(facebookParams,'').replace('&','');
+}
 
 function cleanAmazonParams(url) {
     return url.replace('?','?&').replace(amazonParams,'').replace('&','').replace(/\?$/,'');
