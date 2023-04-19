@@ -1,7 +1,7 @@
 <h1>General URL Cleaner Revived</h1>
 Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Pocket, Target<br><br>
 It will clean these URLs regardless of what top level domain (.com, .ca, .fr, etc) or subdomain (unless excluded, various Google sites break easily like Docs, Hangouts, Takeout, etc)<br>
-<br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived. 
+<br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived.<br>
 https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived
 
 <h3>Recent fixes</h3>
