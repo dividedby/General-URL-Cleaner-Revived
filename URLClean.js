@@ -4,7 +4,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
 // @description:ja Cleans URLs from various popular sites.
-// @version     4.1.1
+// @version     4.1.2
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -16,8 +16,8 @@
 // @include     https://www.facebook.com/*
 // @include     https://disqus.com/embed/comments/*
 // @include     https://www.target.com/*
-// @include     /^https:\/\/[a-z]+\.amazon\.([a-z]{2,}|com?)\/.*$/
-// @include     /^https?:\/\/[a-z]+\.google\.([a-z]{2,}|com?)\/.*$/
+// @include     /^https:\/\/[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
+// @include     /^https?:\/\/[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
 // @include     /^https:\/\/[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
 // @include     /^https?:\/\/(www\.)?staticice\.com\.au\/.*$/
@@ -44,8 +44,8 @@
   const currSearch = location.search;
 
   const ebay = /^[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}$/;
-  const amazon = /^[a-z]+\.amazon\.([a-z]{2,}|com?)$/;
-  const google = /^[a-z]+\.google\.[a-z]{2,}(\.[a-z]{2,})?$/i;
+  const amazon = /^[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})$/;
+  const google = /^[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})(\.[a-z]{2,})?$/i;
   const target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
 
   const amazonParams = /&(crid|sprefix|ref|th|url|ie|pf_rd_[a-z]|bbn|rw_html_to_wsrp|ref_)=[^&#]*/;
@@ -589,7 +589,10 @@
   }
 
   function cleanTwitterParams(url) {
-    return url.replace("?", "?&").replace(twitterParams, "").replace("&", "");
+    return url
+      .replace("?", "?&")
+      .replace(twitterParams, "")
+      .replace("&", "");
   }
 
   function cleanEbayItem(a) {
