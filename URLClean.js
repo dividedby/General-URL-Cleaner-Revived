@@ -4,7 +4,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
 // @description:ja Cleans URLs from various popular sites.
-// @version     4.1.3
+// @version     4.1.4
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -47,11 +47,12 @@
   const amazon = /^[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})$/;
   const google = /^[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})(\.[a-z]{2,})?$/i;
   const target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
+  const bing = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
 
   const amazonParams = /&(crid|sprefix|ref|th|url|ie|pf_rd_[a-z]|bbn|rw_html_to_wsrp|ref_)(=[^&#]*)?($|&)/g;
   const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
   const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
-  const bingParams = /&(ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
+  const bingParams = /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
   const youtubeParams = /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?($|&)/g;
   const ebayParams = /&(_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?($|&)/g;
   const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?($|&)/g;
