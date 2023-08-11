@@ -4,7 +4,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
 // @description:ja Cleans URLs from various popular sites.
-// @version     4.1.5
+// @version     4.1.6
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -17,6 +17,7 @@
 // @include     https://disqus.com/embed/comments/*
 // @include     https://www.target.com/*
 // @include     https://www.linkedin.com/*
+// @include     https://www.etsy.com/*
 // @include     /^https:\/\/[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
 // @include     /^https?:\/\/[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
 // @include     /^https:\/\/[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}\/.*$/
@@ -61,6 +62,7 @@
   const facebookParams = /&(set)(=[^&#]*)?($|&)/g;
   const googleParams = /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
   const linkedinParams = /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
+  const etsyParams = /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click)(=[^&#]*)?($|&)/g;
 
   /*
    * Main
@@ -74,6 +76,12 @@
 
   if (currHost == "www.linkedin.com") {
     setCurrUrl(cleanLinkedin(currSearch));
+    cleanLinks(parserAll);
+    return;
+  }
+
+  if (currHost == "www.etsy.com") {
+    setCurrUrl(cleanEtsy(currSearch));
     cleanLinks(parserAll);
     return;
   }
@@ -543,6 +551,17 @@
     return url.replace("?", "?&").replace(linkedinParams, "").replace("&", "");
   }
 
+  function cleanEtsy(url) {
+    return url.replace("?", "?&").replace(etsyParams, "").replace("&", "");
+  }
+
+  function cleanTwitterParams(url) {
+    return url
+      .replace("?", "?&")
+      .replace(twitterParams, "")
+      .replace("&", "");
+  }
+
   function cleanYoutube(url) {
     return url.replace("?", "?&").replace(youtubeParams, "").replace("&", "");
   }
@@ -598,13 +617,6 @@
   function cleanAmazonItemdp(a) {
     let item = a.pathname.match(/\/dp(\/[A-Z0-9]{10})/)[1];
     return a.origin + "/dp" + item + a.hash;
-  }
-
-  function cleanTwitterParams(url) {
-    return url
-      .replace("?", "?&")
-      .replace(twitterParams, "")
-      .replace("&", "");
   }
 
   function cleanEbayItem(a) {
