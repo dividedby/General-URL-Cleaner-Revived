@@ -4,7 +4,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
 // @description:ja Cleans URLs from various popular sites.
-// @version     4.1.7
+// @version     4.1.8
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
@@ -19,6 +19,7 @@
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
 // @include     /^https:\/\/[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
+// @exclude     https://www.amazon.com/gp/buy/*
 // @include     /^https?:\/\/[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
 // @include     /^https:\/\/[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
@@ -34,6 +35,8 @@
 // @exclude     https://takeout.google.com/*
 // @run-at      document-idle
 
+// @downloadURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.user.js
+// @updateURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.meta.js
 // ==/UserScript==
 
 (() => {
