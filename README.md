@@ -5,6 +5,7 @@ It will clean these URLs regardless of what top level domain (.com, .ca, .fr, et
 https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived
 
 <h3>Recent fixes</h3>
+[Add] Properly support all Amazon TLDs: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/12
 [Add] Strip "sclient" parameter from Google search results: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/4<br>
 [Fix] Resolve issue with "undefined" being added to end of cleaned URLs: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/5<br>
 [Fix] Updated regex of site matching to better catch sites and any top level domain (.com, .co.uk. .fr, etc): https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived/discussions/143277<br>
