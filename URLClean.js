@@ -54,7 +54,7 @@
   const target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
   const bing = /^[a-z]+\.bing\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})$/;
 
-  const amazonParams = /&?(crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_)(=[^&#]*)?($|&)/g;
+  const amazonParams = /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
   const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
   const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
   const bingParams = /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
