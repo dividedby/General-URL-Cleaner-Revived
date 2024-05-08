@@ -4,7 +4,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
 // @description:ja Cleans URLs from various popular sites.
-// @version     4.1.9
+// @version     4.2.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount $1
