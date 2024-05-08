@@ -59,7 +59,7 @@
   const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
   const bingParams = /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
   const youtubeParams = /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?($|&)/g;
-  const ebayParams = /&(_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?($|&)/g;
+  const ebayParams = /[?&](_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?(?=&|$)/g;
   const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?($|&)/g;
   const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?($|&)/g;
   const facebookParams = /&(set)(=[^&#]*)?($|&)/g;
