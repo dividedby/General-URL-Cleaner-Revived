@@ -23,7 +23,6 @@
 // @include     /^https:\/\/[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
-// @include     /^https?:\/\/(www\.)?staticice\.com\.au\/.*$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
 // @exclude     https://support.google.com/*
@@ -177,11 +176,6 @@
 
     cleanLinks(parserAmazon);
     onhashchange = deleteHash();
-    return;
-  }
-
-  if (currHost.endsWith("staticice.com.au")) {
-    cleanLinks(parserStaticice);
     return;
   }
 
@@ -484,58 +478,6 @@
     a.href = cleanGenericRedir(a.search);
 
     parserAll(a);
-  }
-
-  function parserStaticice(a) {
-    if (a.host.endsWith("staticice.com.au")) {
-      if (a.pathname.startsWith("/cgi-bin/www.")) {
-        a.href = "http://" + a.pathname.slice(9);
-      } else if (a.pathname !== "/cgi-bin/redirect.cgi") {
-        return;
-      }
-
-      a.href = cleanGenericRedir(a.search);
-    }
-
-    if (a.host === "www.clixgalore.com" && a.pathname === "/PSale.aspx") {
-      a.href = cleanGenericRedir2(a.search);
-    }
-
-    if (a.host === "t.dgm-au.com" || a.host === "www.kqzyfj.com") {
-      console.log(a.href);
-      a.href = cleanGenericRedir(a.search);
-    }
-
-    if (a.host === "t.cfjump.com") {
-      parserStaticiceTCF(a);
-    }
-
-    if (a.search) {
-      a.search = cleanUtm(a.search);
-    }
-  }
-
-  function parserStaticiceTCF(a) {
-    if (a.search) {
-      a.href = cleanGenericRedir(a.search);
-      return;
-    }
-
-    if (a.innerText.startsWith("$")) {
-      return;
-    }
-
-    let siteText = a.parentNode;
-    let itemLink = siteText.parentNode.parentNode.firstChild.firstChild;
-    if (itemLink.host !== "t.cfjump.com") {
-      a.href = itemLink.origin;
-      return;
-    }
-
-    let origin = "https://" + siteText.innerText.split(/ +\| +/)[1];
-    let itemPath = itemLink.pathname.match(/^\/t\/\d+\/\d+(\/.+)/).pop();
-    a.href = origin;
-    itemLink.href = origin + itemPath;
   }
 
   /*
