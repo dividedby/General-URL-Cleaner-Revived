@@ -10,7 +10,7 @@
 // @contributionAmount $1
 // @include     https://www.newegg.com/*
 // @include     https://www.newegg.ca/*
-// @include     /^https:\/\/[a-z]+\.bing\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
+// @include     /^https:\/\/[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     https://www.youtube.com/*
 // @include     https://www.imdb.com/*
 // @include     https://www.facebook.com/*
@@ -18,10 +18,10 @@
 // @include     https://www.target.com/*
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
-// @include     /^https:\/\/[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2,3}\.[a-z]{2})\/.*$/
+// @include     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @exclude     https://www.amazon.com/gp/buy/*
-// @include     /^https?:\/\/[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})\/.*$/
-// @include     /^https:\/\/[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}\/.*$/
+// @include     /^https:\/\/[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
 // @include     /^https?:\/\/(www\.)?staticice\.com\.au\/.*$/
 // @exclude     https://apis.google.com/*
@@ -48,11 +48,11 @@
   const currPath = location.pathname;
   const currSearch = location.search;
 
-  const ebay = /^[a-z.]+\.ebay(desc)?(\.[a-z]{2,3})?\.[a-z]{2,}$/;
-  const amazon = /^[a-z]+\.amazon\.(?:[a-z]{2,3}|[a-z]{2,3}\.[a-z]{2})$/;
-  const google = /^[a-z]+\.google\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})(\.[a-z]{2,})?$/i;
-  const target = /^[a-z]+\.target\.com?(\.[a-z]{2,3})?$/;
-  const bing = /^[a-z]+\.bing\.(?:[a-z]{2,3}|[a-z]{2}\.[a-z]{2})$/;
+  const ebay = /^[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?$/;
+  const amazon = /^[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?$/;
+  const google = /^[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?$/;
+  const target = /^[a-z.]*\.?target\.com$/;
+  const bing = /^[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?$/;
 
   const amazonParams = /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
   const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
