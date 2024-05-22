@@ -16,12 +16,12 @@
 // @include     https://www.target.com/*
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
-// @include     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
-// @exclude     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/gp\/cart.*$/
-// @exclude     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/gp\/buy.*$/
+// @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/cart.*$/
+// @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/buy.*$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
 // @exclude     https://support.google.com/*
