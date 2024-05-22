@@ -1,13 +1,11 @@
 // ==UserScript==
 // @name        General URL Cleaner Revived
-// @name:ja     General URL Cleaner Revived
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @description Cleans URLs from various popular sites.
-// @description:ja Cleans URLs from various popular sites.
-// @version     4.2.1
+// @version     4.2.2
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
-// @contributionURL https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
-// @contributionAmount $1
+// @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
+// @contributionAmount  $1
 // @include     https://www.newegg.com/*
 // @include     https://www.newegg.ca/*
 // @include     /^https:\/\/[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
@@ -19,10 +17,11 @@
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
 // @include     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
-// @exclude     https://www.amazon.com/gp/buy/*
 // @include     /^https:\/\/[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
+// @exclude     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/gp\/cart.*$/
+// @exclude     /^https:\/\/[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?\/gp\/buy.*$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
 // @exclude     https://support.google.com/*
@@ -53,18 +52,24 @@
   const target = /^[a-z.]*\.?target\.com$/;
   const bing = /^[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?$/;
 
-  const amazonParams = /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
+  const amazonParams =
+    /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
   const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
   const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
-  const bingParams = /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
-  const youtubeParams = /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?($|&)/g;
+  const bingParams =
+    /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
+  const youtubeParams =
+    /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?($|&)/g;
   const ebayParams = /[?&](_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?(?=&|$)/g;
   const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?($|&)/g;
   const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?($|&)/g;
   const facebookParams = /&(set)(=[^&#]*)?($|&)/g;
-  const googleParams = /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
-  const linkedinParams = /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
-  const etsyParams = /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?($|&)/g;
+  const googleParams =
+    /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
+  const linkedinParams =
+    /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
+  const etsyParams =
+    /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?($|&)/g;
 
   /*
    * Main
@@ -489,7 +494,11 @@
   }
 
   function cleanBing(url) {
-    return url.replace("?", "?&").replace(bingParams, "").replace("&", "").replace(/\?$/, "");
+    return url
+      .replace("?", "?&")
+      .replace(bingParams, "")
+      .replace("&", "")
+      .replace(/\?$/, "");
   }
 
   function cleanLinkedin(url) {
@@ -501,10 +510,7 @@
   }
 
   function cleanTwitterParams(url) {
-    return url
-      .replace("?", "?&")
-      .replace(twitterParams, "")
-      .replace("&", "");
+    return url.replace("?", "?&").replace(twitterParams, "").replace("&", "");
   }
 
   function cleanYoutube(url) {
