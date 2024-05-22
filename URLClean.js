@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name        General URL Cleaner Revived
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
-// @description Cleans URLs from various popular sites.
-// @version     4.2.2
+// @author      dividedby
+// @description Cleans URLs from various popular sites and removes tracking parameters
+// @version     4.2.3
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -33,8 +34,6 @@
 // @exclude     https://takeout.google.com/*
 // @run-at      document-idle
 
-// @downloadURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.user.js
-// @updateURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.meta.js
 // ==/UserScript==
 
 (() => {
