@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     4.2.3
+// @version     4.2.4
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -23,6 +23,10 @@
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/cart.*$/
 // @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/buy.*$/
+// @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/css.*$/
+// @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/legacy.*$/
+// @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/gp\/your-account.*$/
+// @exclude     /^https:\/\/[a-z.0-9]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/sspa.*$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
 // @exclude     https://support.google.com/*
