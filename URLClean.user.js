@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     4.2.5
+// @version     4.2.6
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -17,6 +17,7 @@
 // @include     https://www.target.com/*
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
+// @include     https://www.yahoo.com/*
 // @include     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
@@ -68,6 +69,7 @@
     /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
   const etsyParams =
     /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?($|&)/g;
+  const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?($|&)/g;
 
   /*
    * Main
@@ -87,6 +89,12 @@
 
   if (currHost == "www.etsy.com") {
     setCurrUrl(cleanEtsy(currSearch));
+    cleanLinks(parserAll);
+    return;
+  }
+
+  if (currHost == "www.yahoo.com") {
+    setCurrUrl(cleanYahoo(currSearch));
     cleanLinks(parserAll);
     return;
   }
@@ -505,6 +513,10 @@
 
   function cleanEtsy(url) {
     return url.replace("?", "?&").replace(etsyParams, "").replace("&", "");
+  }
+
+  function cleanYahoo(url) {
+    return url.replace("?", "?&").replace(yahooParams, "").replace("&", "");
   }
 
   function cleanTwitterParams(url) {
