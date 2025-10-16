@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     4.2.6
+// @version     4.3.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbyerror@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -19,7 +19,7 @@
 // @include     https://www.etsy.com/*
 // @include     https://www.yahoo.com/*
 // @include     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https://\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
@@ -33,7 +33,8 @@
 // @exclude     https://docs.google.com/spreadsheets/*
 // @exclude     https://takeout.google.com/*
 // @run-at      document-idle
-
+// @downloadURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.user.js
+// @updateURL https://update.greasyfork.org/scripts/432387/General%20URL%20Cleaner%20Revived.meta.js
 // ==/UserScript==
 
 (() => {
@@ -52,7 +53,7 @@
   const bing = /^[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?$/;
 
   const amazonParams =
-    /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
+    /&?_?(encoding|ref|th|url|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
   const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
   const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
   const bingParams =
@@ -64,7 +65,7 @@
   const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?($|&)/g;
   const facebookParams = /&(set)(=[^&#]*)?($|&)/g;
   const googleParams =
-    /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|authuser|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
+    /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
   const linkedinParams =
     /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
   const etsyParams =
@@ -127,7 +128,7 @@
     }
 
     cleanLinks(parserIMDB);
-    onhashchange = deleteHash();
+    onhashchange = deleteHash;
     return;
   }
 
@@ -186,7 +187,7 @@
     }
 
     cleanLinks(parserAmazon);
-    onhashchange = deleteHash();
+    onhashchange = deleteHash;
     return;
   }
 
@@ -223,11 +224,13 @@
    */
 
   function setCurrUrl(url) {
-    history.replaceState(null, null, url);
+    if (location.pathname + location.search !== url) {
+      history.replaceState(null, null, url);
+    }
   }
 
   function deleteHash() {
-    history.replaceState(null, null, " ");
+    history.replaceState(null, null, location.pathname + location.search);
   }
 
   function observe(func) {
@@ -239,7 +242,7 @@
 
   // Clean links once, mark as cleaned, then ignore them
   function cleanLinks(linkParser) {
-    observe(function () {
+    observe(function() {
       for (let a of document.links) {
         if (a.cleaned) {
           continue;
@@ -256,7 +259,7 @@
 
   // Always clean links
   function cleanLinksAlways(linkParser) {
-    observe(function () {
+    observe(function() {
       for (let a of document.links)
         if (a.protocol && a.protocol.startsWith("http")) {
           linkParser(a);
@@ -287,11 +290,11 @@
     history.realPushState = history.pushState;
     history.realReplaceState = history.replaceState;
 
-    history.pushState = function () {
+    history.pushState = function() {
       history.realPushState(null, null, mod(arguments[2]));
     };
 
-    history.replaceState = function () {
+    history.replaceState = function() {
       history.realReplaceState(null, null, mod(arguments[2]));
     };
   }
@@ -313,7 +316,6 @@
       } else if (a.search) {
         a.search = cleanGoogle(a.search);
       }
-
       return;
     }
 
@@ -323,7 +325,6 @@
       } else if (path === "/redirect") {
         a.href = cleanYoutubeRedir(a.search);
       }
-
       a.cleaned = 1;
       return;
     }
@@ -358,7 +359,6 @@
   function parserGoogleImages(a) {
     let jsaction = a.getAttribute("jsaction");
     if (jsaction && jsaction.includes("down:irc.rl")) {
-      console.log(a);
       a.removeAttribute("jsaction");
     }
 
@@ -405,7 +405,7 @@
       a.href = cleanGenericRedir(a.search);
       a.search = "";
     } else if (a.search) {
-      a.href = cleanAmazonParams(a.href);
+      a.search = cleanAmazonParams(a.search);
     }
 
     if (a.pathname.includes("/ref=")) {
@@ -603,23 +603,35 @@
     return decodeURIComponent(url.match(/[?&](new|img)?u(rl)?=([^&]+)/i).pop());
   }
 
-  function cleanGenericRedir2(url) {
-    return decodeURIComponent(url.match(/[?&]\w*url=([^&]+)/i).pop());
-  }
-
   function cleanUtm(url) {
-    var urlparts = url.split("?");
-    if (urlparts.length >= 2) {
-      var pars = urlparts[1].split(/[&;]/g);
-      //reverse iteration as may be destructive
-      for (var i = pars.length; (i -= 1) > 0; ) {
-        if (/^utm_/.test(pars[i])) {
-          pars.splice(i, 1);
-        }
-      }
-      return urlparts[0] + (pars.length > 0 ? "?" + pars.join("&") : "");
+    // A hash string can also contain search-like params, so handle both cases
+    const isHash = url.startsWith('#');
+    const [pathPart, queryPart] = isHash ? url.substring(1).split('?') : [null, url];
+    const query = queryPart || pathPart;
+  
+    // Don't process if it's not a valid search/query string
+    if (!query || (!query.includes('?') && !isHash)) {
+      return url;
     }
-    return url;
+  
+    const params = new URLSearchParams(query.startsWith('?') ? query.substring(1) : query);
+    const trackersToRemove = ['gclid', 'fbclid', 'msclkid'];
+  
+    // Iterate over a copy of the keys, as deleting modifies the collection
+    for (const key of [...params.keys()]) {
+      if (key.startsWith('utm_') || trackersToRemove.includes(key)) {
+        params.delete(key);
+      }
+    }
+  
+    const newParams = params.toString();
+    const newQueryString = newParams ? '?' + newParams : '';
+  
+    if (isHash) {
+      // Reconstruct the hash, preserving any path-like part of the original hash
+      return '#' + (queryPart ? `${pathPart}${newQueryString}` : newQueryString);
+    }
+    return newQueryString;
   }
 
   function cleanPocketRedir(url) {
