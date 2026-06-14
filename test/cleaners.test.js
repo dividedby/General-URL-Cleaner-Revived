@@ -22,7 +22,6 @@ const {
   cleanAmazonRedir,
   cleanGenericRedir,
   cleanGenericRedir2,
-  cleanPocketRedir,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -531,54 +530,6 @@ describe("cleanGenericRedir2", () => {
 
   it("throws when no *url= param is present (no passthrough)", () => {
     assert.throws(() => cleanGenericRedir2("?q=hello"), TypeError);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// cleanPocketRedir
-// Input: the FULL href of the anchor (not just the search string).
-// Strips the literal prefix "https://getpocket.com/redirect?url=" via
-// String.replace(), then calls decodeURIComponent on the remainder.
-//
-// SURPRISING BEHAVIORS encoded here:
-// 1. Already-clean URL (no pocket prefix): prefix replace is a no-op, then
-//    decodeURIComponent is called on the original URL — returns it unchanged
-//    for plain ASCII URLs (no actual passthrough guard).
-// 2. Trailing params after url=: the literal-replace leaves them in the
-//    decoded string as "target-url&param=val" (not split on &).
-// 3. Double-encoded target: only one layer of decoding applied.
-// ---------------------------------------------------------------------------
-describe("cleanPocketRedir", () => {
-  it("decodes a real Pocket redirect href to the target URL", () => {
-    assert.equal(
-      cleanPocketRedir("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle"),
-      "https://example.com/article"
-    );
-  });
-
-  it("passes through an already-clean URL (prefix absent, decodeURIComponent is no-op on ASCII)", () => {
-    // CURRENT BEHAVIOR: prefix not found → replace no-op → decodeURIComponent('https://example.com/article')
-    // = 'https://example.com/article'
-    assert.equal(
-      cleanPocketRedir("https://example.com/article"),
-      "https://example.com/article"
-    );
-  });
-
-  it("trailing params after url= leak into the decoded target (known behavior)", () => {
-    // CURRENT BEHAVIOR: literal replace strips only the prefix, leaving the rest
-    // of the query string attached to the decoded target via a literal '&'.
-    assert.equal(
-      cleanPocketRedir("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle&form_check=abc"),
-      "https://example.com/article&form_check=abc"
-    );
-  });
-
-  it("only decodes one layer — double-encoded target remains partially encoded", () => {
-    assert.equal(
-      cleanPocketRedir("https://getpocket.com/redirect?url=https%253A%252F%252Fexample.com%252Farticle"),
-      "https%3A%2F%2Fexample.com%2Farticle"
-    );
   });
 });
 

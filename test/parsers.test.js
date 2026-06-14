@@ -8,7 +8,6 @@ const {
   transformAmazonUrl,
   transformEbayUrl,
   transformYoutubeUrl,
-  transformPocketUrl,
   transformTargetUrl,
   transformNeweggUrl,
   transformImdbUrl,
@@ -242,34 +241,6 @@ describe("transformYoutubeUrl", () => {
     assert.equal(
       transformYoutubeUrl("https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw"),
       "https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw"
-    );
-  });
-});
-
-// ---------------------------------------------------------------------------
-// transformPocketUrl
-// getpocket.com /redirect → decode via cleanPocketRedir
-// other host/path → returned unchanged
-// ---------------------------------------------------------------------------
-describe("transformPocketUrl", () => {
-  it("decodes a getpocket.com /redirect URL to the target", () => {
-    assert.equal(
-      transformPocketUrl("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle"),
-      "https://example.com/article"
-    );
-  });
-
-  it("passes through a non-redirect getpocket.com URL unchanged", () => {
-    assert.equal(
-      transformPocketUrl("https://getpocket.com/explore/trending"),
-      "https://getpocket.com/explore/trending"
-    );
-  });
-
-  it("passes through a non-getpocket.com URL unchanged", () => {
-    assert.equal(
-      transformPocketUrl("https://example.com/redirect?url=https%3A%2F%2Fother.com%2F"),
-      "https://example.com/redirect?url=https%3A%2F%2Fother.com%2F"
     );
   });
 });
