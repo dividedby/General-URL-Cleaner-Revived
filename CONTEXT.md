@@ -71,3 +71,10 @@ cleaning) on every site, independent of any dedicated Site handler.
 ### Site dispatch
 The routing step that detects the current Site from the host and selects which
 Cleaners and Link adapters apply.
+
+### Site table
+The data-driven `SITES` array of rows (host list or host regex, plus a Parameter
+registry pattern or custom Cleaner) that a single dispatch loop iterates for
+uniform param-strip Sites — those that only need `cleanParams` + `parserAll` with
+no item-path or redirect logic. Sites with more complex dispatch (Amazon, eBay,
+Target, Google, YouTube, etc.) keep explicit dispatch arms instead.

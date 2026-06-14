@@ -8,10 +8,6 @@ const {
   cleanEbayParams,
   cleanAmazonParams,
   cleanAudible,
-  cleanYahoo,
-  cleanLinkedin,
-  cleanBing,
-  cleanEtsy,
   cleanYoutube,
   cleanImdb,
   cleanNewegg,
@@ -22,15 +18,19 @@ const {
   cleanYoutubeRedir,
   cleanAmazonRedir,
   cleanGenericRedir,
-  cleanGenericRedir2,
-  cleanSpotify,
-  cleanReddit,
-  cleanTwitch,
-  cleanThreads,
-  cleanAliexpress,
-  cleanWalmart,
-  cleanBestbuy,
-  cleanTiktok,
+  cleanParams,
+  bingParams,
+  linkedinParams,
+  etsyParams,
+  yahooParams,
+  spotifyParams,
+  redditParams,
+  twitchParams,
+  threadsParams,
+  aliexpressParams,
+  walmartParams,
+  bestbuyParams,
+  tiktokParams,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -285,17 +285,17 @@ describe("cleanYahoo", () => {
   it("strips guccounter/guce_referrer/guce_referrer_sig, keeping p", () => {
     // all three guce* params are tracking and removed; kept param p survives
     assert.equal(
-      cleanYahoo("?p=news&guccounter=1&guce_referrer=abc&guce_referrer_sig=xyz"),
+      cleanParams("?p=news&guccounter=1&guce_referrer=abc&guce_referrer_sig=xyz", yahooParams),
       "?p=news"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
-    assert.equal(cleanYahoo("?p=finance&fr=yfp-t"), "?p=finance&fr=yfp-t");
+    assert.equal(cleanParams("?p=finance&fr=yfp-t", yahooParams), "?p=finance&fr=yfp-t");
   });
 
   it("strips lone guccounter", () => {
-    assert.equal(cleanYahoo("?p=news&guccounter=2"), "?p=news");
+    assert.equal(cleanParams("?p=news&guccounter=2", yahooParams), "?p=news");
   });
 });
 
@@ -313,7 +313,7 @@ describe("cleanLinkedin", () => {
     // After ?→?&: ?&trk=abc&keywords=engineer
     // &trk=abc& matched, & consumed -> ?keywords=engineer after .replace("&","")
     assert.equal(
-      cleanLinkedin("?trk=abc&keywords=engineer"),
+      cleanParams("?trk=abc&keywords=engineer", linkedinParams),
       "?keywords=engineer"
     );
   });
@@ -321,14 +321,14 @@ describe("cleanLinkedin", () => {
   it("strips trk and refId at the end, keeping keywords and location", () => {
     // trk and refId removed; kept params keywords and location stay joined by &
     assert.equal(
-      cleanLinkedin("?keywords=engineer&location=Austin&trk=abc&refId=xyz"),
+      cleanParams("?keywords=engineer&location=Austin&trk=abc&refId=xyz", linkedinParams),
       "?keywords=engineer&location=Austin"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanLinkedin("?keywords=developer&location=Remote"),
+      cleanParams("?keywords=developer&location=Remote", linkedinParams),
       "?keywords=developer&location=Remote"
     );
   });
@@ -508,41 +508,6 @@ describe("cleanGenericRedir", () => {
 });
 
 // ---------------------------------------------------------------------------
-// cleanGenericRedir2
-// Input: a search string. Matches [?&]\w*url= (case-insensitive) — any
-// word-character prefix before "url=", including empty (plain url=).
-// Returns decodeURIComponent of the captured value.
-// No pass-through: throws when no matching param exists.
-// ---------------------------------------------------------------------------
-describe("cleanGenericRedir2", () => {
-  it("decodes redirecturl= (Disqus / generic redirect form)", () => {
-    assert.equal(
-      cleanGenericRedir2("?redirecturl=https%3A%2F%2Fexample.com%2Fpath"),
-      "https://example.com/path"
-    );
-  });
-
-  it("decodes plain url= (\\w* matches empty prefix)", () => {
-    assert.equal(
-      cleanGenericRedir2("?url=https%3A%2F%2Fother.com"),
-      "https://other.com"
-    );
-  });
-
-  it("decodes a numeric-prefixed param — \\w includes digits", () => {
-    // CURRENT BEHAVIOR: \w* matches '123', so '123url=X' is a valid redirect param
-    assert.equal(
-      cleanGenericRedir2("?123url=https%3A%2F%2Fexample.com"),
-      "https://example.com"
-    );
-  });
-
-  it("throws when no *url= param is present (no passthrough)", () => {
-    assert.throws(() => cleanGenericRedir2("?q=hello"), TypeError);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // cleanBing
 // Strips: qs, form, FORM, cvid, pq, go, filt, sc, sp, sk, qpvt, redig,
 //         toWww, ghpl, lq, ghc, ghsh, ghacc (matches bingParams regex)
@@ -552,21 +517,21 @@ describe("cleanGenericRedir2", () => {
 describe("cleanBing", () => {
   it("strips qs and form while keeping q", () => {
     assert.equal(
-      cleanBing("?q=cats&qs=AS&form=QBRE"),
+      cleanParams("?q=cats&qs=AS&form=QBRE", bingParams, true),
       "?q=cats"
     );
   });
 
   it("strips cvid at end while keeping q", () => {
     assert.equal(
-      cleanBing("?q=dogs&cvid=abc123"),
+      cleanParams("?q=dogs&cvid=abc123", bingParams, true),
       "?q=dogs"
     );
   });
 
   it("strips pq (previous query tracking) while keeping q", () => {
     assert.equal(
-      cleanBing("?q=news&pq=old+query"),
+      cleanParams("?q=news&pq=old+query", bingParams, true),
       "?q=news"
     );
   });
@@ -574,14 +539,14 @@ describe("cleanBing", () => {
   it("removes trailing ? when all params are stripped", () => {
     // bingParams strips form and qs; ?→?& then & stripped; ?$ cleaned up
     assert.equal(
-      cleanBing("?form=QBRE&qs=AS"),
+      cleanParams("?form=QBRE&qs=AS", bingParams, true),
       ""
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanBing("?q=javascript&filters=ex1%3A%22ez5%22"),
+      cleanParams("?q=javascript&filters=ex1%3A%22ez5%22", bingParams, true),
       "?q=javascript&filters=ex1%3A%22ez5%22"
     );
   });
@@ -596,28 +561,28 @@ describe("cleanBing", () => {
 describe("cleanEtsy", () => {
   it("strips ref and ga_order while keeping q", () => {
     assert.equal(
-      cleanEtsy("?q=vintage+lamp&ref=search_bar&ga_order=most_relevant"),
+      cleanParams("?q=vintage+lamp&ref=search_bar&ga_order=most_relevant", etsyParams),
       "?q=vintage+lamp"
     );
   });
 
   it("strips sts (session tracking) while keeping search_query and page", () => {
     assert.equal(
-      cleanEtsy("?search_query=ring&sts=listing_card&page=2"),
+      cleanParams("?search_query=ring&sts=listing_card&page=2", etsyParams),
       "?search_query=ring&page=2"
     );
   });
 
   it("strips organic_search_click and plkey while keeping q", () => {
     assert.equal(
-      cleanEtsy("?q=candle&organic_search_click=1&plkey=abc"),
+      cleanParams("?q=candle&organic_search_click=1&plkey=abc", etsyParams),
       "?q=candle"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanEtsy("?q=earrings&page=3"),
+      cleanParams("?q=earrings&page=3", etsyParams),
       "?q=earrings&page=3"
     );
   });
@@ -1287,7 +1252,7 @@ describe("cleanGlobalParams", () => {
 describe("cleanSpotify", () => {
   it("strips si while keeping no other params", () => {
     assert.equal(
-      cleanSpotify("?si=abc123"),
+      cleanParams("?si=abc123", spotifyParams),
       "?"
     );
   });
@@ -1295,34 +1260,34 @@ describe("cleanSpotify", () => {
   it("strips si while keeping a hypothetical functional param", () => {
     // Verify separator fixup: functional param before si survives intact
     assert.equal(
-      cleanSpotify("?go=1&si=abc123"),
+      cleanParams("?go=1&si=abc123", spotifyParams),
       "?go=1"
     );
   });
 
   it("strips si at start, keeps trailing functional param", () => {
     assert.equal(
-      cleanSpotify("?si=abc123&go=1"),
+      cleanParams("?si=abc123&go=1", spotifyParams),
       "?go=1"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanSpotify("?go=1"),
+      cleanParams("?go=1", spotifyParams),
       "?go=1"
     );
   });
 
   it("passes through a URL with no query string unchanged", () => {
     assert.equal(
-      cleanSpotify("https://open.spotify.com/track/123"),
+      cleanParams("https://open.spotify.com/track/123", spotifyParams),
       "https://open.spotify.com/track/123"
     );
   });
 
   it("is idempotent on an already-clean search string", () => {
-    assert.equal(cleanSpotify("?go=1"), "?go=1");
+    assert.equal(cleanParams("?go=1", spotifyParams), "?go=1");
   });
 });
 
@@ -1336,49 +1301,49 @@ describe("cleanSpotify", () => {
 describe("cleanReddit", () => {
   it("strips share_id while keeping q and sort", () => {
     assert.equal(
-      cleanReddit("?q=cats&sort=new&share_id=XYZ"),
+      cleanParams("?q=cats&sort=new&share_id=XYZ", redditParams),
       "?q=cats&sort=new"
     );
   });
 
   it("strips correlation_id while keeping sort and t", () => {
     assert.equal(
-      cleanReddit("?sort=top&t=week&correlation_id=abc"),
+      cleanParams("?sort=top&t=week&correlation_id=abc", redditParams),
       "?sort=top&t=week"
     );
   });
 
   it("strips ref_campaign and ref_source, keeps q", () => {
     assert.equal(
-      cleanReddit("?q=dogs&ref_campaign=email&ref_source=newsletter"),
+      cleanParams("?q=dogs&ref_campaign=email&ref_source=newsletter", redditParams),
       "?q=dogs"
     );
   });
 
   it("preserves functional sort and t params", () => {
     assert.equal(
-      cleanReddit("?sort=hot&t=all"),
+      cleanParams("?sort=hot&t=all", redditParams),
       "?sort=hot&t=all"
     );
   });
 
   it("preserves plain ref param (functional, not stripped)", () => {
     assert.equal(
-      cleanReddit("?ref=sidebar&q=news"),
+      cleanParams("?ref=sidebar&q=news", redditParams),
       "?ref=sidebar&q=news"
     );
   });
 
   it("strips all four tracking params, leaves bare ?", () => {
     assert.equal(
-      cleanReddit("?correlation_id=a&ref_campaign=b&ref_source=c&share_id=d"),
+      cleanParams("?correlation_id=a&ref_campaign=b&ref_source=c&share_id=d", redditParams),
       "?"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanReddit("?q=programming&sort=new&t=week"),
+      cleanParams("?q=programming&sort=new&t=week", redditParams),
       "?q=programming&sort=new&t=week"
     );
   });
@@ -1392,35 +1357,35 @@ describe("cleanReddit", () => {
 describe("cleanTwitch", () => {
   it("strips tt_medium while keeping a functional param", () => {
     assert.equal(
-      cleanTwitch("?channel=streamer&tt_medium=social"),
+      cleanParams("?channel=streamer&tt_medium=social", twitchParams),
       "?channel=streamer"
     );
   });
 
   it("strips tt_content while keeping a functional param", () => {
     assert.equal(
-      cleanTwitch("?channel=streamer&tt_content=banner"),
+      cleanParams("?channel=streamer&tt_content=banner", twitchParams),
       "?channel=streamer"
     );
   });
 
   it("strips both tt_medium and tt_content, keeps functional params", () => {
     assert.equal(
-      cleanTwitch("?quality=auto&tt_medium=email&tt_content=hero"),
+      cleanParams("?quality=auto&tt_medium=email&tt_content=hero", twitchParams),
       "?quality=auto"
     );
   });
 
   it("strips both when they are the only params, leaves bare ?", () => {
     assert.equal(
-      cleanTwitch("?tt_medium=social&tt_content=banner"),
+      cleanParams("?tt_medium=social&tt_content=banner", twitchParams),
       "?"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanTwitch("?channel=streamer&quality=auto"),
+      cleanParams("?channel=streamer&quality=auto", twitchParams),
       "?channel=streamer&quality=auto"
     );
   });
@@ -1436,35 +1401,35 @@ describe("cleanTwitch", () => {
 describe("cleanThreads", () => {
   it("strips xmt while keeping a functional param", () => {
     assert.equal(
-      cleanThreads("?igshid=abc&xmt=xyz"),
+      cleanParams("?igshid=abc&xmt=xyz", threadsParams),
       "?igshid=abc"
     );
   });
 
   it("strips xmt when it is the only param, leaves bare ?", () => {
     assert.equal(
-      cleanThreads("?xmt=xyz"),
+      cleanParams("?xmt=xyz", threadsParams),
       "?"
     );
   });
 
   it("strips xmt at start, keeps trailing functional param", () => {
     assert.equal(
-      cleanThreads("?xmt=xyz&ref=home"),
+      cleanParams("?xmt=xyz&ref=home", threadsParams),
       "?ref=home"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanThreads("?igshid=abc"),
+      cleanParams("?igshid=abc", threadsParams),
       "?igshid=abc"
     );
   });
 
   it("passes through a URL with no query string unchanged", () => {
     assert.equal(
-      cleanThreads("https://www.threads.net/@user/post/abc"),
+      cleanParams("https://www.threads.net/@user/post/abc", threadsParams),
       "https://www.threads.net/@user/post/abc"
     );
   });
@@ -1479,57 +1444,58 @@ describe("cleanThreads", () => {
 describe("cleanAliexpress", () => {
   it("strips algo_pvid and algo_exp_id while keeping id", () => {
     assert.equal(
-      cleanAliexpress("?id=12345&algo_pvid=abc&algo_exp_id=xyz"),
+      cleanParams("?id=12345&algo_pvid=abc&algo_exp_id=xyz", aliexpressParams),
       "?id=12345"
     );
   });
 
   it("strips pdp_ext_f and pdp_npi while keeping skuId", () => {
     assert.equal(
-      cleanAliexpress("?skuId=999&pdp_ext_f=foo&pdp_npi=bar"),
+      cleanParams("?skuId=999&pdp_ext_f=foo&pdp_npi=bar", aliexpressParams),
       "?skuId=999"
     );
   });
 
   it("strips curPageLogUid while keeping category", () => {
     assert.equal(
-      cleanAliexpress("?category=tools&curPageLogUid=abc123"),
+      cleanParams("?category=tools&curPageLogUid=abc123", aliexpressParams),
       "?category=tools"
     );
   });
 
   it("strips utparam-url (param name contains a literal hyphen)", () => {
     assert.equal(
-      cleanAliexpress("?id=1&utparam-url=scene%3Asearch"),
+      cleanParams("?id=1&utparam-url=scene%3Asearch", aliexpressParams),
       "?id=1"
     );
   });
 
   it("strips aem_p4p_detail and search_p4p_id while keeping keyword", () => {
     assert.equal(
-      cleanAliexpress("?keyword=shoes&aem_p4p_detail=abc&search_p4p_id=xyz"),
+      cleanParams("?keyword=shoes&aem_p4p_detail=abc&search_p4p_id=xyz", aliexpressParams),
       "?keyword=shoes"
     );
   });
 
   it("preserves _ga (functional — must NOT be stripped)", () => {
     assert.equal(
-      cleanAliexpress("?id=1&_ga=2.abc.123.456&algo_pvid=xyz"),
+      cleanParams("?id=1&_ga=2.abc.123.456&algo_pvid=xyz", aliexpressParams),
       "?id=1&_ga=2.abc.123.456"
     );
   });
 
   it("preserves _ga when it is the only remaining param after stripping", () => {
     assert.equal(
-      cleanAliexpress("?algo_pvid=abc&_ga=2.abc.1.1"),
+      cleanParams("?algo_pvid=abc&_ga=2.abc.1.1", aliexpressParams),
       "?_ga=2.abc.1.1"
     );
   });
 
   it("strips all eight tracking params together", () => {
     assert.equal(
-      cleanAliexpress(
-        "?algo_pvid=a&algo_exp_id=b&pdp_ext_f=c&pdp_npi=d&curPageLogUid=e&utparam-url=f&aem_p4p_detail=g&search_p4p_id=h"
+      cleanParams(
+        "?algo_pvid=a&algo_exp_id=b&pdp_ext_f=c&pdp_npi=d&curPageLogUid=e&utparam-url=f&aem_p4p_detail=g&search_p4p_id=h",
+        aliexpressParams
       ),
       "?"
     );
@@ -1537,7 +1503,7 @@ describe("cleanAliexpress", () => {
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanAliexpress("?id=12345&skuId=99"),
+      cleanParams("?id=12345&skuId=99", aliexpressParams),
       "?id=12345&skuId=99"
     );
   });
@@ -1553,42 +1519,42 @@ describe("cleanAliexpress", () => {
 describe("cleanWalmart", () => {
   it("strips u1 while keeping query", () => {
     assert.equal(
-      cleanWalmart("?query=shoes&u1=abc"),
+      cleanParams("?query=shoes&u1=abc", walmartParams),
       "?query=shoes"
     );
   });
 
   it("strips from while keeping query and page", () => {
     assert.equal(
-      cleanWalmart("?query=tv&page=2&from=searchPage"),
+      cleanParams("?query=tv&page=2&from=searchPage", walmartParams),
       "?query=tv&page=2"
     );
   });
 
   it("strips variantFieldId while keeping query", () => {
     assert.equal(
-      cleanWalmart("?query=shirt&variantFieldId=actual_color"),
+      cleanParams("?query=shirt&variantFieldId=actual_color", walmartParams),
       "?query=shirt"
     );
   });
 
   it("strips multiple ath* family params (athbdg and athena_pgtype) — prefix family", () => {
     assert.equal(
-      cleanWalmart("?query=laptop&athbdg=BTN&athena_pgtype=search"),
+      cleanParams("?query=laptop&athbdg=BTN&athena_pgtype=search", walmartParams),
       "?query=laptop"
     );
   });
 
   it("strips athcpid (another ath* variant) while keeping query", () => {
     assert.equal(
-      cleanWalmart("?query=monitor&athcpid=abc123"),
+      cleanParams("?query=monitor&athcpid=abc123", walmartParams),
       "?query=monitor"
     );
   });
 
   it("strips u1 and multiple ath* params together while keeping functional params", () => {
     assert.equal(
-      cleanWalmart("?query=headphones&page=1&u1=x&athbdg=BTN&athena_pgtype=browse&athcpid=abc"),
+      cleanParams("?query=headphones&page=1&u1=x&athbdg=BTN&athena_pgtype=browse&athcpid=abc", walmartParams),
       "?query=headphones&page=1"
     );
   });
@@ -1596,14 +1562,14 @@ describe("cleanWalmart", () => {
   it("preserves a non-ath param that merely contains 'ath' mid-string (functional)", () => {
     // 'mathematics' starts with 'm', not 'ath', so it is NOT caught by ath[^&#=]*
     assert.equal(
-      cleanWalmart("?category=mathematics&u1=x"),
+      cleanParams("?category=mathematics&u1=x", walmartParams),
       "?category=mathematics"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanWalmart("?query=coffee&page=3"),
+      cleanParams("?query=coffee&page=3", walmartParams),
       "?query=coffee&page=3"
     );
   });
@@ -1619,35 +1585,35 @@ describe("cleanWalmart", () => {
 describe("cleanBestbuy", () => {
   it("strips irclickid while keeping q", () => {
     assert.equal(
-      cleanBestbuy("?q=laptop&irclickid=abc123"),
+      cleanParams("?q=laptop&irclickid=abc123", bestbuyParams),
       "?q=laptop"
     );
   });
 
   it("strips loc while keeping q", () => {
     assert.equal(
-      cleanBestbuy("?q=tv&loc=BBYHomePg"),
+      cleanParams("?q=tv&loc=BBYHomePg", bestbuyParams),
       "?q=tv"
     );
   });
 
   it("strips acampID and mpid while keeping skuId", () => {
     assert.equal(
-      cleanBestbuy("?skuId=12345&acampID=affiliate&mpid=partner"),
+      cleanParams("?skuId=12345&acampID=affiliate&mpid=partner", bestbuyParams),
       "?skuId=12345"
     );
   });
 
   it("strips intl while keeping q and skuId", () => {
     assert.equal(
-      cleanBestbuy("?q=monitor&skuId=99&intl=nosplash"),
+      cleanParams("?q=monitor&skuId=99&intl=nosplash", bestbuyParams),
       "?q=monitor&skuId=99"
     );
   });
 
   it("strips all five tracked params together", () => {
     assert.equal(
-      cleanBestbuy("?irclickid=a&loc=b&acampID=c&mpid=d&intl=e"),
+      cleanParams("?irclickid=a&loc=b&acampID=c&mpid=d&intl=e", bestbuyParams),
       "?"
     );
   });
@@ -1655,14 +1621,14 @@ describe("cleanBestbuy", () => {
   it("does NOT strip irgwc (handled globally, not here)", () => {
     // irgwc must be absent from bestbuyParams — this test confirms it passes through
     assert.equal(
-      cleanBestbuy("?q=tv&irgwc=1"),
+      cleanParams("?q=tv&irgwc=1", bestbuyParams),
       "?q=tv&irgwc=1"
     );
   });
 
   it("passes through a URL with no tracked params unchanged", () => {
     assert.equal(
-      cleanBestbuy("?q=headphones&skuId=77777"),
+      cleanParams("?q=headphones&skuId=77777", bestbuyParams),
       "?q=headphones&skuId=77777"
     );
   });
@@ -1678,28 +1644,28 @@ describe("cleanBestbuy", () => {
 describe("cleanTiktok", () => {
   it("strips u_code while keeping a functional param", () => {
     assert.equal(
-      cleanTiktok("?item_id=123&u_code=abc"),
+      cleanParams("?item_id=123&u_code=abc", tiktokParams),
       "?item_id=123"
     );
   });
 
   it("strips share_app_name and share_iid while keeping item_id", () => {
     assert.equal(
-      cleanTiktok("?item_id=456&share_app_name=tiktok&share_iid=xyz"),
+      cleanParams("?item_id=456&share_app_name=tiktok&share_iid=xyz", tiktokParams),
       "?item_id=456"
     );
   });
 
   it("strips user_id and source while keeping item_id", () => {
     assert.equal(
-      cleanTiktok("?item_id=789&user_id=111&source=h5_m"),
+      cleanParams("?item_id=789&user_id=111&source=h5_m", tiktokParams),
       "?item_id=789"
     );
   });
 
   it("strips timestamp while keeping item_id", () => {
     assert.equal(
-      cleanTiktok("?item_id=1&timestamp=1700000000"),
+      cleanParams("?item_id=1&timestamp=1700000000", tiktokParams),
       "?item_id=1"
     );
   });
@@ -1708,36 +1674,37 @@ describe("cleanTiktok", () => {
     // _t must match only the param named exactly _t, not a longer param
     // whose name merely starts with _t (e.g. _type is NOT in the strip list).
     assert.equal(
-      cleanTiktok("?item_id=1&_t=abc&_type=video"),
+      cleanParams("?item_id=1&_t=abc&_type=video", tiktokParams),
       "?item_id=1&_type=video"
     );
   });
 
   it("strips both _t and timestamp as separate params (both are in the strip list)", () => {
     assert.equal(
-      cleanTiktok("?item_id=1&_t=abc&timestamp=1700000000"),
+      cleanParams("?item_id=1&_t=abc&timestamp=1700000000", tiktokParams),
       "?item_id=1"
     );
   });
 
   it("strips _r without eating a longer param name", () => {
     assert.equal(
-      cleanTiktok("?item_id=2&_r=1&referer=home"),
+      cleanParams("?item_id=2&_r=1&referer=home", tiktokParams),
       "?item_id=2&referer=home"
     );
   });
 
   it("strips _d without eating a longer param name", () => {
     assert.equal(
-      cleanTiktok("?item_id=3&_d=abc&description=fun"),
+      cleanParams("?item_id=3&_d=abc&description=fun", tiktokParams),
       "?item_id=3&description=fun"
     );
   });
 
   it("strips all nine tracked params together", () => {
     assert.equal(
-      cleanTiktok(
-        "?u_code=a&_d=b&_t=c&_r=d&timestamp=e&user_id=f&share_app_name=g&share_iid=h&source=i"
+      cleanParams(
+        "?u_code=a&_d=b&_t=c&_r=d&timestamp=e&user_id=f&share_app_name=g&share_iid=h&source=i",
+        tiktokParams
       ),
       "?"
     );
@@ -1745,14 +1712,14 @@ describe("cleanTiktok", () => {
 
   it("preserves a functional param when no tracked params present", () => {
     assert.equal(
-      cleanTiktok("?item_id=12345"),
+      cleanParams("?item_id=12345", tiktokParams),
       "?item_id=12345"
     );
   });
 
   it("preserves item_id (functional) alongside mixed tracked params", () => {
     assert.equal(
-      cleanTiktok("?item_id=9&_t=abc&user_id=111&share_iid=xyz"),
+      cleanParams("?item_id=9&_t=abc&user_id=111&share_iid=xyz", tiktokParams),
       "?item_id=9"
     );
   });
