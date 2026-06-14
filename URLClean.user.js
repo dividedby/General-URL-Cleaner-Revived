@@ -22,7 +22,6 @@
 // @include     /^https:\/\/[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
 // @include     *
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
@@ -68,7 +67,6 @@
   const youtubeParams =
     /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?(?=$|&)/g;
   const ebayParams = /[?&](_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?(?=&|$)/g;
-  const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?(?=$|&)/g;
   const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?(?=$|&)/g;
   const facebookParams = /&(set)(=[^&#]*)?(?=$|&)/g;
   const googleParams =
@@ -206,15 +204,6 @@
       }
 
       cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost == "twitter.com") {
-      if (currSearch) {
-        setCurrUrl(cleanTwitterParams(currSearch));
-      }
-
-      cleanLinks(parserTwitter);
       return;
     }
 
@@ -487,30 +476,6 @@
     a.cleaned = 1;
   }
 
-  function parserTwitter(a) {
-    if (a.host !== "t.co") {
-      return;
-    }
-
-    let fake = "t.co" + a.pathname;
-    let real = a.getAttribute("data-expanded-url");
-    if (real) {
-      a.href = real;
-      a.removeAttribute("data-expanded-url");
-      sessionStorage.setItem(fake, real);
-      return;
-    }
-
-    if (!a.classList.contains("TwitterCard-container")) {
-      return;
-    }
-
-    real = sessionStorage.getItem(fake);
-    if (real) {
-      a.href = real;
-    }
-  }
-
   function parserFacebook(a) {
     let onclick = a.getAttribute("onclick");
     if (!onclick || !onclick.startsWith("LinkshimAsyncLink")) {
@@ -561,10 +526,6 @@
 
   function cleanYahoo(url) {
     return url.replace("?", "?&").replace(yahooParams, "").replace("&", "");
-  }
-
-  function cleanTwitterParams(url) {
-    return url.replace("?", "?&").replace(twitterParams, "").replace("&", "");
   }
 
   function cleanYoutube(url) {
@@ -693,11 +654,11 @@
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
       cleanGoogle, cleanBing, cleanLinkedin, cleanEtsy, cleanYahoo,
-      cleanTwitterParams, cleanYoutube, cleanImdb, cleanNewegg,
+      cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
-      bingParams, youtubeParams, twitterParams, targetParams,
+      bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams,
     };
   }
