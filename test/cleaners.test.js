@@ -110,10 +110,8 @@ describe("cleanEbayParams", () => {
 // Strips: ref, crid, sprefix, encoding, th, pf_rd_*, pd_rd_*, etc.
 // Keeps:  keywords, k, i, s, and other functional search params
 //
-// KNOWN BEHAVIOR: the ($|&) group in amazonParams CONSUMES the trailing &
-// when a stripped param is not at the end of the string, causing the
-// following param to lose its & separator (they are joined without &).
-// These tests encode that actual current behavior.
+// amazonParams uses a non-consuming lookahead (?=$|&), so stripping a param in
+// the middle of the string leaves the following param's & separator intact.
 // ---------------------------------------------------------------------------
 describe("cleanAmazonParams", () => {
   it("strips ref while keeping k", () => {
