@@ -346,16 +346,25 @@ describe("transformFacebookUrl", () => {
 });
 
 // ---------------------------------------------------------------------------
-// transformDisqusUrl — characterization of CURRENT (broken) behavior
-// disq.us /url: original code strips href from first colon → a.search becomes ""
-//   → cleanGenericRedir("") throws TypeError (null.pop)
+// transformDisqusUrl
+// disq.us /url: decode redirect param then strip trailing :cid suffix
+// disq.us /url with no redirect param: passthrough (no throw)
 // other disqus links: cleanGenericRedir(search) runs on original search
 // ---------------------------------------------------------------------------
 describe("transformDisqusUrl", () => {
-  it("throws TypeError for disq.us/url links (characterizes current broken behavior)", () => {
-    assert.throws(
-      () => transformDisqusUrl("https://disq.us/url?url=https%3A%2F%2Fexample.com%2Fpage&cuid=123"),
-      TypeError
+  it("decodes disq.us/url and strips trailing :key suffix", () => {
+    // ?url=https%3A%2F%2Fexample.com%2Fpage%3A1234567 decodes to
+    // https://example.com/page:1234567 → strip :1234567 → https://example.com/page
+    assert.equal(
+      transformDisqusUrl("https://disq.us/url?url=https%3A%2F%2Fexample.com%2Fpage%3A1234567"),
+      "https://example.com/page"
+    );
+  });
+
+  it("passes through disq.us/url with no redirect param unchanged", () => {
+    assert.equal(
+      transformDisqusUrl("https://disq.us/url?foo=bar"),
+      "https://disq.us/url?foo=bar"
     );
   });
 
