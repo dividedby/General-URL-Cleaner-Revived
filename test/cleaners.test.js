@@ -148,10 +148,8 @@ describe("cleanAmazonParams", () => {
 
 // ---------------------------------------------------------------------------
 // cleanAudible
-// Strips: ref, ref_pageloadid, pf_rd_*, plink, pageLoadId, creativeId
-// Keeps:  node and other functional params
-// Uses lookahead (?=&|$|#) so it does NOT consume the trailing separator;
-// adjacent functional params therefore retain their & correctly.
+// Allowlist: keeps ONLY "keywords"; strips everything else.
+// Returns "" when no allowlisted params remain.
 // ---------------------------------------------------------------------------
 describe("cleanAudible", () => {
   it("strips all Audible trackers from a full homepage query string", () => {
@@ -197,11 +195,21 @@ describe("cleanAudible", () => {
     );
   });
 
-  it("keeps functional node param while stripping ref", () => {
+  it("keeps keywords from a real search URL, strips all tracking params", () => {
     assert.equal(
-      cleanAudible("?node=18580518011&ref=a_x"),
-      "?node=18580518011"
+      cleanAudible(
+        "?keywords=project+hail+mary&k=project+hail+mary&crid=c28ae76dfa3945afb5a79f90119b52bf&sprefix=project+hail+mar%2Cna-audible-us%2C225&i=na-audible-us&url=search-alias%3Dna-audible-us&ref=nb_sb_noss_1"
+      ),
+      "?keywords=project+hail+mary"
     );
+  });
+
+  it("keeps keywords and strips ref", () => {
+    assert.equal(cleanAudible("?keywords=foo&ref=bar"), "?keywords=foo");
+  });
+
+  it("returns empty string when only non-allowlisted params present", () => {
+    assert.equal(cleanAudible("?ref=bar"), "");
   });
 });
 

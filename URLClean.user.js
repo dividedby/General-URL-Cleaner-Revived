@@ -73,7 +73,6 @@
   const etsyParams =
     /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?($|&)/g;
   const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?($|&)/g;
-  const audibleParams = /&(ref(_pageloadid)?|pf_rd_[^&#]*|plink|pageLoadId|creativeId)(=[^&#]*)?(?=&|$|#)/g;
 
   /*
    * Main
@@ -578,11 +577,13 @@
   }
 
   function cleanAudible(url) {
-    return url
-      .replace("?", "?&")
-      .replace(audibleParams, "")
-      .replace("&", "")
-      .replace(/\?$/, "");
+    const keep = ["keywords"];
+    const parts = url.split("?");
+    if (parts.length < 2) return url;
+    const kept = parts[1]
+      .split(/[&;]/g)
+      .filter((p) => keep.includes(p.split("=")[0]));
+    return parts[0] + (kept.length ? "?" + kept.join("&") : "");
   }
 
   function cleanEbayParams(url) {
@@ -661,7 +662,7 @@
       cleanEbayParams, cleanUtm,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, twitterParams, targetParams,
-      facebookParams, linkedinParams, etsyParams, yahooParams, audibleParams,
+      facebookParams, linkedinParams, etsyParams, yahooParams,
     };
   }
 })();
