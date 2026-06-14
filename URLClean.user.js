@@ -384,6 +384,7 @@
 
   function parserGoogle(a) {
     a.removeAttribute("onmousedown");
+    a.removeAttribute("ping");
     parserAll(a);
   }
 
@@ -395,6 +396,7 @@
     }
 
     a.removeAttribute("onmousedown");
+    a.removeAttribute("ping");
     parserAll(a);
   }
 
