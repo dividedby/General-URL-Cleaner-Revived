@@ -363,30 +363,57 @@
     });
   }
 
-  // Clean links once, mark as cleaned, then ignore them
-  function cleanLinks(linkParser) {
-    observe(function () {
-      for (let a of document.links) {
-        if (a.cleaned) {
-          continue;
+  // Collect anchor elements from a MutationRecord list (added nodes only).
+  function addedAnchors(records) {
+    let anchors = [];
+    for (let record of records) {
+      for (let node of record.addedNodes) {
+        if (node.nodeType !== 1) continue; // Element nodes only
+        if (node.tagName === "A") {
+          anchors.push(node);
         }
-
-        if (a.protocol && a.protocol.startsWith("http")) {
-          linkParser(a);
+        for (let a of node.querySelectorAll("a")) {
+          anchors.push(a);
         }
+      }
+    }
+    return anchors;
+  }
 
+  // Process an iterable of anchors: skip cleaned ones, call linkParser for http links.
+  // mark=true sets a.cleaned=1 after processing (used by cleanLinks, not cleanLinksAlways).
+  function processAnchors(anchors, linkParser, mark) {
+    for (let a of anchors) {
+      if (a.cleaned) {
+        continue;
+      }
+
+      if (a.protocol && a.protocol.startsWith("http")) {
+        linkParser(a);
+      }
+
+      if (mark) {
         a.cleaned = 1;
       }
+    }
+  }
+
+  // Clean links once, mark as cleaned, then ignore them.
+  // Runs an initial sweep over document.links (already in DOM at document-idle),
+  // then processes only added nodes for subsequent mutations.
+  function cleanLinks(linkParser) {
+    processAnchors(document.links, linkParser, true);
+    observe(function (records) {
+      processAnchors(addedAnchors(records), linkParser, true);
     });
   }
 
-  // Always clean links
+  // Clean newly-added links; skip already-cleaned nodes.
+  // Runs an initial sweep over document.links, then handles mutations via added nodes.
   function cleanLinksAlways(linkParser) {
-    observe(function () {
-      for (let a of document.links)
-        if (a.protocol && a.protocol.startsWith("http")) {
-          linkParser(a);
-        }
+    processAnchors(document.links, linkParser, false);
+    observe(function (records) {
+      processAnchors(addedAnchors(records), linkParser, false);
     });
   }
 
