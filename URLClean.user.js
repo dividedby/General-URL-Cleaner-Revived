@@ -242,7 +242,9 @@
     // page; opt out via GLOBAL_STRIP.
     if (GLOBAL_STRIP) {
       if (currSearch) {
-        setCurrUrl(cleanUtm(currSearch));
+        // explicit path so an all-utm query is actually cleared from the bar
+        // (replaceState("") would no-op and leave the query in place)
+        setCurrUrl(currPath + cleanUtm(currSearch) + location.hash);
       }
       cleanLinks(parserGlobal);
     }
