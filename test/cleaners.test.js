@@ -23,6 +23,10 @@ const {
   cleanAmazonRedir,
   cleanGenericRedir,
   cleanGenericRedir2,
+  cleanSpotify,
+  cleanReddit,
+  cleanTwitch,
+  cleanThreads,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -1267,6 +1271,197 @@ describe("cleanGlobalParams", () => {
     assert.equal(
       cleanGlobalParams("https://example.com/?fbclid=x&gclid=y"),
       "https://example.com/"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanSpotify
+// Strips: si (Spotify share/session identity token)
+// Keeps:  functional params (no known functional params share the name "si")
+// ---------------------------------------------------------------------------
+describe("cleanSpotify", () => {
+  it("strips si while keeping no other params", () => {
+    assert.equal(
+      cleanSpotify("?si=abc123"),
+      "?"
+    );
+  });
+
+  it("strips si while keeping a hypothetical functional param", () => {
+    // Verify separator fixup: functional param before si survives intact
+    assert.equal(
+      cleanSpotify("?go=1&si=abc123"),
+      "?go=1"
+    );
+  });
+
+  it("strips si at start, keeps trailing functional param", () => {
+    assert.equal(
+      cleanSpotify("?si=abc123&go=1"),
+      "?go=1"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanSpotify("?go=1"),
+      "?go=1"
+    );
+  });
+
+  it("passes through a URL with no query string unchanged", () => {
+    assert.equal(
+      cleanSpotify("https://open.spotify.com/track/123"),
+      "https://open.spotify.com/track/123"
+    );
+  });
+
+  it("is idempotent on an already-clean search string", () => {
+    assert.equal(cleanSpotify("?go=1"), "?go=1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanReddit
+// Strips: correlation_id, ref_campaign, ref_source, share_id
+// Keeps:  q, sort, t, after (functional pagination/search/sort params)
+// Note: plain `ref` is NOT stripped — it is functional on Reddit (subreddit
+// context); only ref_campaign and ref_source (campaign-tracking variants) are.
+// ---------------------------------------------------------------------------
+describe("cleanReddit", () => {
+  it("strips share_id while keeping q and sort", () => {
+    assert.equal(
+      cleanReddit("?q=cats&sort=new&share_id=XYZ"),
+      "?q=cats&sort=new"
+    );
+  });
+
+  it("strips correlation_id while keeping sort and t", () => {
+    assert.equal(
+      cleanReddit("?sort=top&t=week&correlation_id=abc"),
+      "?sort=top&t=week"
+    );
+  });
+
+  it("strips ref_campaign and ref_source, keeps q", () => {
+    assert.equal(
+      cleanReddit("?q=dogs&ref_campaign=email&ref_source=newsletter"),
+      "?q=dogs"
+    );
+  });
+
+  it("preserves functional sort and t params", () => {
+    assert.equal(
+      cleanReddit("?sort=hot&t=all"),
+      "?sort=hot&t=all"
+    );
+  });
+
+  it("preserves plain ref param (functional, not stripped)", () => {
+    assert.equal(
+      cleanReddit("?ref=sidebar&q=news"),
+      "?ref=sidebar&q=news"
+    );
+  });
+
+  it("strips all four tracking params, leaves bare ?", () => {
+    assert.equal(
+      cleanReddit("?correlation_id=a&ref_campaign=b&ref_source=c&share_id=d"),
+      "?"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanReddit("?q=programming&sort=new&t=week"),
+      "?q=programming&sort=new&t=week"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanTwitch
+// Strips: tt_medium, tt_content (Twitch campaign tracking params)
+// Keeps:  functional params (channel, quality, volume, etc.)
+// ---------------------------------------------------------------------------
+describe("cleanTwitch", () => {
+  it("strips tt_medium while keeping a functional param", () => {
+    assert.equal(
+      cleanTwitch("?channel=streamer&tt_medium=social"),
+      "?channel=streamer"
+    );
+  });
+
+  it("strips tt_content while keeping a functional param", () => {
+    assert.equal(
+      cleanTwitch("?channel=streamer&tt_content=banner"),
+      "?channel=streamer"
+    );
+  });
+
+  it("strips both tt_medium and tt_content, keeps functional params", () => {
+    assert.equal(
+      cleanTwitch("?quality=auto&tt_medium=email&tt_content=hero"),
+      "?quality=auto"
+    );
+  });
+
+  it("strips both when they are the only params, leaves bare ?", () => {
+    assert.equal(
+      cleanTwitch("?tt_medium=social&tt_content=banner"),
+      "?"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanTwitch("?channel=streamer&quality=auto"),
+      "?channel=streamer&quality=auto"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanThreads
+// Strips: xmt (Threads share token)
+// Keeps:  functional params
+// Note: igshid/igsh are handled globally by cleanGlobalParams — not added here
+// to avoid redundancy, but this cleaner handles the Threads-specific xmt param.
+// ---------------------------------------------------------------------------
+describe("cleanThreads", () => {
+  it("strips xmt while keeping a functional param", () => {
+    assert.equal(
+      cleanThreads("?igshid=abc&xmt=xyz"),
+      "?igshid=abc"
+    );
+  });
+
+  it("strips xmt when it is the only param, leaves bare ?", () => {
+    assert.equal(
+      cleanThreads("?xmt=xyz"),
+      "?"
+    );
+  });
+
+  it("strips xmt at start, keeps trailing functional param", () => {
+    assert.equal(
+      cleanThreads("?xmt=xyz&ref=home"),
+      "?ref=home"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanThreads("?igshid=abc"),
+      "?igshid=abc"
+    );
+  });
+
+  it("passes through a URL with no query string unchanged", () => {
+    assert.equal(
+      cleanThreads("https://www.threads.net/@user/post/abc"),
+      "https://www.threads.net/@user/post/abc"
     );
   });
 });
