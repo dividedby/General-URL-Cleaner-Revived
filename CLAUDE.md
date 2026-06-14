@@ -5,9 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~630 lines) that strips tracking
-parameters from URLs on shopping/search/social sites. There is **no build, lint, or test tooling** — no
-`package.json`, no bundler, no test framework. The `.user.js` file is the deliverable; it installs directly
-into Tampermonkey and is distributed via GreasyFork. Testing is manual in-browser.
+parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/ampersand.test.mjs`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs these tests on Node 20 for all pushes and PRs. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
 
 ## Architecture
 
