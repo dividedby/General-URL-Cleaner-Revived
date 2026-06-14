@@ -7,6 +7,7 @@ const {
   cleanGoogle,
   cleanEbayParams,
   cleanAmazonParams,
+  cleanAudible,
   cleanYahoo,
   cleanLinkedin,
   cleanUtm,
@@ -146,31 +147,69 @@ describe("cleanAmazonParams", () => {
 });
 
 // ---------------------------------------------------------------------------
-// cleanAmazonParams (Audible)
-// Audible shares Amazon's tracking-param structure; the dispatch branch reuses
-// cleanAmazonParams directly, so these cases prove the shared cleaner works on
-// Audible-style query strings.
-// Strips: ref, pf_rd_*  (matched by amazonParams)
-// Keeps:  node and other functional params
+// cleanAudible
+// Allowlist: keeps ONLY "keywords"; strips everything else.
+// Returns "" when no allowlisted params remain.
 // ---------------------------------------------------------------------------
-describe("cleanAmazonParams (Audible tracking params)", () => {
-  it("strips ref and pf_rd_r while keeping node", () => {
-    // ?ref=foo&pf_rd_r=bar&node=123
-    // After ?→?&: ?&ref=foo&pf_rd_r=bar&node=123
-    // &ref=foo& matched → stripped (trailing & consumed) → ?&pf_rd_r=bar&node=123
-    // &pf_rd_r=bar& matched → stripped (trailing & consumed) → ?&node=123
-    // .replace("&","") removes first &: ?node=123
+describe("cleanAudible", () => {
+  it("strips all Audible trackers from a full homepage query string", () => {
     assert.equal(
-      cleanAmazonParams("?ref=foo&pf_rd_r=bar&node=123"),
-      "?node=123"
+      cleanAudible(
+        "?ref=a_hp_c0_zing_B0F14RVHWN&ref_pageloadid=not_applicable&pf_rd_p=287daf1c-0b0d-49e1-8d76-d8e828f6ef63&pf_rd_r=GDMYEX6CJ7XCCA521D96&plink=aLuFSCw36GOGy8v8&pageLoadId=0hoe3mvrqCMKxOml&creativeId=4c415279-88c9-4438-9f46-1b70cf84c022"
+      ),
+      ""
     );
   });
 
-  it("strips ref alone from an Audible-style query string", () => {
+  it("strips a bare ref param", () => {
     assert.equal(
-      cleanAmazonParams("?node=123&ref=nb_sb_noss"),
-      "?node=123"
+      cleanAudible("?ref=a_pd_Harry-_nhe_library"),
+      ""
     );
+  });
+
+  it("strips all trackers from a library-item query string (ref last)", () => {
+    assert.equal(
+      cleanAudible(
+        "?ref_pageloadid=not_applicable&pf_rd_p=80765e81-b10a-4f33-b1d3-ffb87793d047&pf_rd_r=14VXXGHM402RW1HXH1ES&plink=v5ktpok5PKtOmx4M&pageLoadId=jkpV3ITvGrGr2FJG&creativeId=4ee810cf-ac8e-4eeb-8b79-40e176d0a225&ref=a_library_t_c5_libItem_B0FVYGBRPJ_0"
+      ),
+      ""
+    );
+  });
+
+  it("strips all trackers from a pd-page query string (ref last)", () => {
+    assert.equal(
+      cleanAudible(
+        "?ref_pageloadid=jkpV3ITvGrGr2FJG&pf_rd_p=694d5b3e-7636-4b98-94db-f39c6800419b&pf_rd_r=MSMHNQNPMH66AFKVQZZT&plink=lVnTwjqIJ1wYsGQa&pageLoadId=C8S919ItBJuGCazG&creativeId=0e5797a6-2dec-4ca4-a423-727d8382d5c3&ref=a_pd_Merry-_psu_bc"
+      ),
+      ""
+    );
+  });
+
+  it("strips all trackers from a category-row query string (ref last)", () => {
+    assert.equal(
+      cleanAudible(
+        "?ref_pageloadid=C8S919ItBJuGCazG&pf_rd_p=a42cf646-f122-4591-b559-3ccb83a8451d&pf_rd_r=41ASJVCP9STB85AYRJD2&plink=RAEPGrQhExdwwImI&pageLoadId=BAuDOAey3W9t9QSt&creativeId=71e736a2-f5af-4055-8e42-08cd0ea9e642&ref=a_cat_Roman_n1_rowitem"
+      ),
+      ""
+    );
+  });
+
+  it("keeps keywords from a real search URL, strips all tracking params", () => {
+    assert.equal(
+      cleanAudible(
+        "?keywords=project+hail+mary&k=project+hail+mary&crid=c28ae76dfa3945afb5a79f90119b52bf&sprefix=project+hail+mar%2Cna-audible-us%2C225&i=na-audible-us&url=search-alias%3Dna-audible-us&ref=nb_sb_noss_1"
+      ),
+      "?keywords=project+hail+mary"
+    );
+  });
+
+  it("keeps keywords and strips ref", () => {
+    assert.equal(cleanAudible("?keywords=foo&ref=bar"), "?keywords=foo");
+  });
+
+  it("returns empty string when only non-allowlisted params present", () => {
+    assert.equal(cleanAudible("?ref=bar"), "");
   });
 });
 

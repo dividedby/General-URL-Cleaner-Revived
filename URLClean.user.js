@@ -197,7 +197,7 @@
     if (/^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/.test(currHost)) {
       // ponytail: param-strip only; product-path rewrite deferred pending live Audible URL verification
       if (currSearch) {
-        setCurrUrl(cleanAmazonParams(currSearch));
+        setCurrUrl(cleanAudible(currSearch));
       }
 
       cleanLinks(parserAll);
@@ -576,6 +576,16 @@
       .replace(/\?$/, "");
   }
 
+  function cleanAudible(url) {
+    const keep = ["keywords"];
+    const parts = url.split("?");
+    if (parts.length < 2) return url;
+    const kept = parts[1]
+      .split(/[&;]/g)
+      .filter((p) => keep.includes(p.split("=")[0]));
+    return parts[0] + (kept.length ? "?" + kept.join("&") : "");
+  }
+
   function cleanEbayParams(url) {
     return url.replace("?", "?&").replace(ebayParams, "").replace("&", "");
   }
@@ -648,7 +658,7 @@
     module.exports = {
       cleanGoogle, cleanBing, cleanLinkedin, cleanEtsy, cleanYahoo,
       cleanTwitterParams, cleanYoutube, cleanImdb, cleanNewegg,
-      cleanTargetParams, cleanFacebookParams, cleanAmazonParams,
+      cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, twitterParams, targetParams,
