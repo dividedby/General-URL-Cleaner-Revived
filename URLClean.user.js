@@ -526,6 +526,7 @@
 
   function cleanEbayItem(a) {
     let item = a.pathname.match(/\/[0-9]{12}/);
+    if (!item) return a.href;
     let origList = a.search.replace(/&/g, "?").match(/\?orig_cvip=[^?]+/) || "";
     return a.origin + "/itm" + item + origList + a.hash;
   }

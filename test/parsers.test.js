@@ -226,6 +226,17 @@ describe("transformEbayUrl", () => {
       "https://www.ebay.com/sch/i.html?_nkw=keyboard"
     );
   });
+
+  it("passes through an /itm/ URL unchanged when no 12-digit id is present", () => {
+    // bug fix: previously emitted /itmnull; now leaves href unchanged
+    assert.equal(
+      transformEbayUrl(
+        "https://www.ebay.com/itm/wireless-headphones?_trksid=p4375.c101",
+        "https://www.ebay.com"
+      ),
+      "https://www.ebay.com/itm/wireless-headphones?_trksid=p4375.c101"
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------
