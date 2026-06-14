@@ -89,6 +89,25 @@ describe("transformAmazonUrl", () => {
     );
   });
 
+  it("canonicalises a /dp/product/<ASIN> URL (ASIN not immediately after /dp/)", () => {
+    assert.equal(
+      transformAmazonUrl(
+        "https://www.amazon.com/dp/product/B07XYZ1234/ref=sr_1_1?keywords=widget"
+      ),
+      "https://www.amazon.com/dp/B07XYZ1234"
+    );
+  });
+
+  it("returns href unchanged when /dp/ path contains no ASIN (no TypeError)", () => {
+    assert.doesNotThrow(() =>
+      transformAmazonUrl("https://www.amazon.com/dp/product/")
+    );
+    assert.equal(
+      transformAmazonUrl("https://www.amazon.com/dp/product/"),
+      "https://www.amazon.com/dp/product/"
+    );
+  });
+
   it("canonicalises a /gp/product URL", () => {
     assert.equal(
       transformAmazonUrl(
