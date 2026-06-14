@@ -41,9 +41,11 @@
    * Vars
    */
 
-  const currHost = location.host;
-  const currPath = location.pathname;
-  const currSearch = location.search;
+  const _domAvailable = typeof location !== "undefined" && typeof document !== "undefined";
+
+  const currHost = _domAvailable ? location.host : "";
+  const currPath = _domAvailable ? location.pathname : "";
+  const currSearch = _domAvailable ? location.search : "";
 
   const ebay = /^[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?$/;
   const amazon = /^[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?$/;
@@ -75,147 +77,149 @@
    * Main
    */
 
-  if (bing.test(currHost)) {
-    setCurrUrl(cleanBing(currSearch));
-    cleanLinks(parserAll);
-    return;
-  }
-
-  if (currHost == "www.linkedin.com") {
-    setCurrUrl(cleanLinkedin(currSearch));
-    cleanLinks(parserAll);
-    return;
-  }
-
-  if (currHost == "www.etsy.com") {
-    setCurrUrl(cleanEtsy(currSearch));
-    cleanLinks(parserAll);
-    return;
-  }
-
-  if (currHost == "www.yahoo.com") {
-    setCurrUrl(cleanYahoo(currSearch));
-    cleanLinks(parserAll);
-    return;
-  }
-
-  if (currHost === "www.youtube.com") {
-    if (currPath === "/redirect") {
-      location.href = cleanYoutubeRedir(currSearch);
-    }
-
-    if (currPath === "/watch") {
-      setCurrUrl(cleanYoutube(currSearch));
-    }
-
-    cleanLinks(parserYoutube);
-    return;
-  }
-
-  if (currHost.endsWith(".newegg.com") || currHost.endsWith(".newegg.ca")) {
-    if (currSearch) {
-      setCurrUrl(cleanNewegg(currSearch));
-    }
-
-    cleanLinks(parserNewegg);
-    return;
-  }
-
-  if (currHost === "www.imdb.com") {
-    if (currSearch) {
-      setCurrUrl(cleanImdb(currSearch));
-    }
-
-    cleanLinks(parserIMDB);
-    onhashchange = deleteHash();
-    return;
-  }
-
-  if (google.test(currHost)) {
-    if (currPath === "/url" || currPath === "/imgres") {
-      location.href = cleanGenericRedir(currSearch);
-    }
-
-    if (!currSearch && !/[&#]q=/.test(location.hash)) {
+  if (_domAvailable) {
+    if (bing.test(currHost)) {
+      setCurrUrl(cleanBing(currSearch));
+      cleanLinks(parserAll);
       return;
     }
 
-    setCurrUrl(cleanGoogle(currPath + currSearch));
-    changeState(googleInstant);
-
-    if (currSearch.includes("tbm=isch")) {
-      cleanLinksAlways(parserGoogleImages);
-    } else {
-      cleanLinks(parserGoogle);
+    if (currHost == "www.linkedin.com") {
+      setCurrUrl(cleanLinkedin(currSearch));
+      cleanLinks(parserAll);
+      return;
     }
 
-    return;
-  }
-
-  if (ebay.test(currHost)) {
-    if (currPath.includes("/itm/")) {
-      setCurrUrl(cleanEbayItem(location));
-    } else if (currSearch) {
-      setCurrUrl(cleanEbayParams(currSearch));
+    if (currHost == "www.etsy.com") {
+      setCurrUrl(cleanEtsy(currSearch));
+      cleanLinks(parserAll);
+      return;
     }
 
-    cleanLinks(parserEbay);
-    onhashchange = deleteHash;
-    return;
-  }
-
-  if (target.test(currHost)) {
-    if (currPath.includes("/p/")) {
-      setCurrUrl(cleanTargetItemp(location));
-    } else if (currSearch) {
-      setCurrUrl(cleanTargetParams(currSearch));
+    if (currHost == "www.yahoo.com") {
+      setCurrUrl(cleanYahoo(currSearch));
+      cleanLinks(parserAll);
+      return;
     }
 
-    cleanLinks(parserTarget);
-    onhashchange = deleteHash;
-    return;
-  }
+    if (currHost === "www.youtube.com") {
+      if (currPath === "/redirect") {
+        location.href = cleanYoutubeRedir(currSearch);
+      }
 
-  if (amazon.test(currHost)) {
-    if (currPath.includes("/dp/")) {
-      setCurrUrl(cleanAmazonItemdp(location));
-    } else if (currPath.includes("/gp/product")) {
-      setCurrUrl(cleanAmazonItemgp(location));
-    } else if (currSearch) {
-      setCurrUrl(cleanAmazonParams(currSearch));
+      if (currPath === "/watch") {
+        setCurrUrl(cleanYoutube(currSearch));
+      }
+
+      cleanLinks(parserYoutube);
+      return;
     }
 
-    cleanLinks(parserAmazon);
-    onhashchange = deleteHash();
-    return;
-  }
+    if (currHost.endsWith(".newegg.com") || currHost.endsWith(".newegg.ca")) {
+      if (currSearch) {
+        setCurrUrl(cleanNewegg(currSearch));
+      }
 
-  if (currHost == "twitter.com") {
-    if (currSearch) {
-      setCurrUrl(cleanTwitterParams(currSearch));
+      cleanLinks(parserNewegg);
+      return;
     }
 
-    cleanLinks(parserTwitter);
-    return;
-  }
+    if (currHost === "www.imdb.com") {
+      if (currSearch) {
+        setCurrUrl(cleanImdb(currSearch));
+      }
 
-  if (currHost == "www.facebook.com") {
-    if (currSearch) {
-      setCurrUrl(cleanFacebookParams(currSearch));
+      cleanLinks(parserIMDB);
+      onhashchange = deleteHash();
+      return;
     }
 
-    cleanLinks(parserFacebook);
-    return;
-  }
+    if (google.test(currHost)) {
+      if (currPath === "/url" || currPath === "/imgres") {
+        location.href = cleanGenericRedir(currSearch);
+      }
 
-  if (currHost == "disqus.com") {
-    cleanLinks(parserDisqus);
-    return;
-  }
+      if (!currSearch && !/[&#]q=/.test(location.hash)) {
+        return;
+      }
 
-  if (currHost === "app.getpocket.com") {
-    cleanLinks(parserAll);
-    return;
+      setCurrUrl(cleanGoogle(currPath + currSearch));
+      changeState(googleInstant);
+
+      if (currSearch.includes("tbm=isch")) {
+        cleanLinksAlways(parserGoogleImages);
+      } else {
+        cleanLinks(parserGoogle);
+      }
+
+      return;
+    }
+
+    if (ebay.test(currHost)) {
+      if (currPath.includes("/itm/")) {
+        setCurrUrl(cleanEbayItem(location));
+      } else if (currSearch) {
+        setCurrUrl(cleanEbayParams(currSearch));
+      }
+
+      cleanLinks(parserEbay);
+      onhashchange = deleteHash;
+      return;
+    }
+
+    if (target.test(currHost)) {
+      if (currPath.includes("/p/")) {
+        setCurrUrl(cleanTargetItemp(location));
+      } else if (currSearch) {
+        setCurrUrl(cleanTargetParams(currSearch));
+      }
+
+      cleanLinks(parserTarget);
+      onhashchange = deleteHash;
+      return;
+    }
+
+    if (amazon.test(currHost)) {
+      if (currPath.includes("/dp/")) {
+        setCurrUrl(cleanAmazonItemdp(location));
+      } else if (currPath.includes("/gp/product")) {
+        setCurrUrl(cleanAmazonItemgp(location));
+      } else if (currSearch) {
+        setCurrUrl(cleanAmazonParams(currSearch));
+      }
+
+      cleanLinks(parserAmazon);
+      onhashchange = deleteHash();
+      return;
+    }
+
+    if (currHost == "twitter.com") {
+      if (currSearch) {
+        setCurrUrl(cleanTwitterParams(currSearch));
+      }
+
+      cleanLinks(parserTwitter);
+      return;
+    }
+
+    if (currHost == "www.facebook.com") {
+      if (currSearch) {
+        setCurrUrl(cleanFacebookParams(currSearch));
+      }
+
+      cleanLinks(parserFacebook);
+      return;
+    }
+
+    if (currHost == "disqus.com") {
+      cleanLinks(parserDisqus);
+      return;
+    }
+
+    if (currHost === "app.getpocket.com") {
+      cleanLinks(parserAll);
+      return;
+    }
   }
 
   /*
@@ -626,5 +630,18 @@
     return decodeURIComponent(
       url.replace("https://getpocket.com/redirect?url=", "")
     );
+  }
+
+  // ponytail: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = {
+      cleanGoogle, cleanBing, cleanLinkedin, cleanEtsy, cleanYahoo,
+      cleanTwitterParams, cleanYoutube, cleanImdb, cleanNewegg,
+      cleanTargetParams, cleanFacebookParams, cleanAmazonParams,
+      cleanEbayParams, cleanUtm,
+      googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
+      bingParams, youtubeParams, twitterParams, targetParams,
+      facebookParams, linkedinParams, etsyParams, yahooParams,
+    };
   }
 })();
