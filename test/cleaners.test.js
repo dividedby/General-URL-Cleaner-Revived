@@ -44,6 +44,18 @@ describe("cleanGoogle", () => {
       "?q=shoes&tbm=shop"
     );
   });
+
+  it("retains authuser (functional) while stripping ved (tracking)", () => {
+    // authuser selects the signed-in Google account and must not be stripped.
+    // Input:  ?q=hello&authuser=1&ved=abc
+    // After ?→?&:  ?&q=hello&authuser=1&ved=abc
+    // &ved=abc matched at end (lookahead $) → stripped
+    // After .replace("&","") removes first &: ?q=hello&authuser=1
+    assert.equal(
+      cleanGoogle("?q=hello&authuser=1&ved=abc"),
+      "?q=hello&authuser=1"
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------
