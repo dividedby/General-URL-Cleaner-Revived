@@ -145,7 +145,9 @@ describe("cleanAmazonParams", () => {
 
 // ---------------------------------------------------------------------------
 // cleanAudible
-// Allowlist: keeps ONLY "keywords"; strips everything else.
+// Allowlist: keeps functional nav params (keywords, node, page, sort,
+// publication_date, audible_programs, searchNarrator, searchAuthor) and any
+// param whose name ends with _browse-bin; strips everything else.
 // Returns "" when no allowlisted params remain.
 // ---------------------------------------------------------------------------
 describe("cleanAudible", () => {
@@ -207,6 +209,47 @@ describe("cleanAudible", () => {
 
   it("returns empty string when only non-allowlisted params present", () => {
     assert.equal(cleanAudible("?ref=bar"), "");
+  });
+
+  it("keeps all functional nav params intact (multi-param search/pagination URL)", () => {
+    assert.equal(
+      cleanAudible(
+        "?keywords=mystery&node=18573211011&sort=pubdate-desc-rank&page=2"
+      ),
+      "?keywords=mystery&node=18573211011&sort=pubdate-desc-rank&page=2"
+    );
+  });
+
+  it("keeps a _browse-bin suffixed param and strips tracking params", () => {
+    assert.equal(
+      cleanAudible("?keywords=x&feature_six_browse-bin=123&ref=trackme"),
+      "?keywords=x&feature_six_browse-bin=123"
+    );
+  });
+
+  it("keeps publication_date, audible_programs, searchNarrator, searchAuthor; strips qid and sr", () => {
+    assert.equal(
+      cleanAudible(
+        "?publication_date=last30days&audible_programs=10004&searchNarrator=Weir&searchAuthor=Sanderson&qid=123&sr=1-1"
+      ),
+      "?publication_date=last30days&audible_programs=10004&searchNarrator=Weir&searchAuthor=Sanderson"
+    );
+  });
+
+  it("keeps searchAuthor and strips qid and sr", () => {
+    assert.equal(
+      cleanAudible("?searchAuthor=Sanderson&qid=123&sr=1-1"),
+      "?searchAuthor=Sanderson"
+    );
+  });
+
+  it("keeps multiple _browse-bin variants and strips tracking", () => {
+    assert.equal(
+      cleanAudible(
+        "?feature_ten_browse-bin=1&feature_twenty-two_browse-bin=2&plink=abc"
+      ),
+      "?feature_ten_browse-bin=1&feature_twenty-two_browse-bin=2"
+    );
   });
 });
 
