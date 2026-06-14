@@ -1,5 +1,5 @@
 <h1>General URL Cleaner Revived</h1>
-Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Pocket, Target<br><br>
+Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Target<br><br>
 It will clean these URLs regardless of what top level domain (.com, .ca, .fr, etc) or subdomain (unless excluded, various Google sites break easily like Docs, Hangouts, Takeout, etc)<br>
 <br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived<br><br>
 https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived
@@ -42,9 +42,6 @@ Cleaned url always looks like this: http://www.newegg.com/Product/Product.aspx?I
 <h3>Ebay</h3>
 Cleaned url always looks like this: http://www.ebay.com/itm/[item-id]<br>
 Works with international sites (not just .com)
-
-<h3>Pocket</h3>
-Removes redirection of Pocket links
 
 <h3>Target</h3>
 Target product URLs must be reloaded when coming from search results as they load in via code and not a page refresh<br>

@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     4.2.6
+// @version     4.2.7
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -221,11 +221,6 @@
       return;
     }
 
-    if (currHost === "app.getpocket.com") {
-      cleanLinks(parserAll);
-      return;
-    }
-
     // ponytail: no dedicated handler for this host — strip generic trackers
     // everywhere unless the user opted out. Ceiling: one MutationObserver per
     // page; opt out via GLOBAL_STRIP.
@@ -336,10 +331,6 @@
       a.href = transformYoutubeUrl(a.href);
       a.cleaned = 1;
       return;
-    }
-
-    if (host === "getpocket.com") {
-      a.href = transformPocketUrl(a.href);
     }
 
     parserAmazon(a);
@@ -578,12 +569,6 @@
     return url;
   }
 
-  function cleanPocketRedir(url) {
-    return decodeURIComponent(
-      url.replace("https://getpocket.com/redirect?url=", "")
-    );
-  }
-
   function transformGoogleUrl(href) {
     var u = new URL(href);
     if (u.pathname === "/imgres" || u.pathname === "/url") {
@@ -643,14 +628,6 @@
       return u.href;
     } else if (u.pathname === "/redirect") {
       return cleanYoutubeRedir(u.search);
-    }
-    return href;
-  }
-
-  function transformPocketUrl(href) {
-    var u = new URL(href);
-    if (u.host === "getpocket.com" && u.pathname === "/redirect") {
-      return cleanPocketRedir(href);
     }
     return href;
   }
@@ -723,11 +700,11 @@
       cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm,
-      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2, cleanPocketRedir,
+      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
       cleanTargetItemp,
       transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
-      transformYoutubeUrl, transformPocketUrl, transformTargetUrl,
+      transformYoutubeUrl, transformTargetUrl,
       transformNeweggUrl, transformImdbUrl, transformFacebookUrl,
       transformDisqusUrl, transformGlobalUrl,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
