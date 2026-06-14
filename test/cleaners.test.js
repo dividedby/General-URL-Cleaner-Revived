@@ -27,6 +27,10 @@ const {
   cleanReddit,
   cleanTwitch,
   cleanThreads,
+  cleanAliexpress,
+  cleanWalmart,
+  cleanBestbuy,
+  cleanTiktok,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -1462,6 +1466,294 @@ describe("cleanThreads", () => {
     assert.equal(
       cleanThreads("https://www.threads.net/@user/post/abc"),
       "https://www.threads.net/@user/post/abc"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanAliexpress
+// Strips: algo_pvid, algo_exp_id, pdp_ext_f, pdp_npi, curPageLogUid,
+//         utparam-url (literal hyphen), aem_p4p_detail, search_p4p_id
+// Keeps:  _ga (functional — GA cookie, explicitly excluded from strip list)
+// ---------------------------------------------------------------------------
+describe("cleanAliexpress", () => {
+  it("strips algo_pvid and algo_exp_id while keeping id", () => {
+    assert.equal(
+      cleanAliexpress("?id=12345&algo_pvid=abc&algo_exp_id=xyz"),
+      "?id=12345"
+    );
+  });
+
+  it("strips pdp_ext_f and pdp_npi while keeping skuId", () => {
+    assert.equal(
+      cleanAliexpress("?skuId=999&pdp_ext_f=foo&pdp_npi=bar"),
+      "?skuId=999"
+    );
+  });
+
+  it("strips curPageLogUid while keeping category", () => {
+    assert.equal(
+      cleanAliexpress("?category=tools&curPageLogUid=abc123"),
+      "?category=tools"
+    );
+  });
+
+  it("strips utparam-url (param name contains a literal hyphen)", () => {
+    assert.equal(
+      cleanAliexpress("?id=1&utparam-url=scene%3Asearch"),
+      "?id=1"
+    );
+  });
+
+  it("strips aem_p4p_detail and search_p4p_id while keeping keyword", () => {
+    assert.equal(
+      cleanAliexpress("?keyword=shoes&aem_p4p_detail=abc&search_p4p_id=xyz"),
+      "?keyword=shoes"
+    );
+  });
+
+  it("preserves _ga (functional — must NOT be stripped)", () => {
+    assert.equal(
+      cleanAliexpress("?id=1&_ga=2.abc.123.456&algo_pvid=xyz"),
+      "?id=1&_ga=2.abc.123.456"
+    );
+  });
+
+  it("preserves _ga when it is the only remaining param after stripping", () => {
+    assert.equal(
+      cleanAliexpress("?algo_pvid=abc&_ga=2.abc.1.1"),
+      "?_ga=2.abc.1.1"
+    );
+  });
+
+  it("strips all eight tracking params together", () => {
+    assert.equal(
+      cleanAliexpress(
+        "?algo_pvid=a&algo_exp_id=b&pdp_ext_f=c&pdp_npi=d&curPageLogUid=e&utparam-url=f&aem_p4p_detail=g&search_p4p_id=h"
+      ),
+      "?"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanAliexpress("?id=12345&skuId=99"),
+      "?id=12345&skuId=99"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanWalmart
+// Strips: u1, from, variantFieldId, and the ath* prefix family
+//         (e.g. athbdg, athena_pgtype, athcpid — any param starting with "ath")
+// Keeps:  query, page, and other functional params
+// The ath* prefix uses ath[^&#=]* mirroring the pf_rd_[^&#]*? idiom in amazonParams.
+// ---------------------------------------------------------------------------
+describe("cleanWalmart", () => {
+  it("strips u1 while keeping query", () => {
+    assert.equal(
+      cleanWalmart("?query=shoes&u1=abc"),
+      "?query=shoes"
+    );
+  });
+
+  it("strips from while keeping query and page", () => {
+    assert.equal(
+      cleanWalmart("?query=tv&page=2&from=searchPage"),
+      "?query=tv&page=2"
+    );
+  });
+
+  it("strips variantFieldId while keeping query", () => {
+    assert.equal(
+      cleanWalmart("?query=shirt&variantFieldId=actual_color"),
+      "?query=shirt"
+    );
+  });
+
+  it("strips multiple ath* family params (athbdg and athena_pgtype) — prefix family", () => {
+    assert.equal(
+      cleanWalmart("?query=laptop&athbdg=BTN&athena_pgtype=search"),
+      "?query=laptop"
+    );
+  });
+
+  it("strips athcpid (another ath* variant) while keeping query", () => {
+    assert.equal(
+      cleanWalmart("?query=monitor&athcpid=abc123"),
+      "?query=monitor"
+    );
+  });
+
+  it("strips u1 and multiple ath* params together while keeping functional params", () => {
+    assert.equal(
+      cleanWalmart("?query=headphones&page=1&u1=x&athbdg=BTN&athena_pgtype=browse&athcpid=abc"),
+      "?query=headphones&page=1"
+    );
+  });
+
+  it("preserves a non-ath param that merely contains 'ath' mid-string (functional)", () => {
+    // 'mathematics' starts with 'm', not 'ath', so it is NOT caught by ath[^&#=]*
+    assert.equal(
+      cleanWalmart("?category=mathematics&u1=x"),
+      "?category=mathematics"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanWalmart("?query=coffee&page=3"),
+      "?query=coffee&page=3"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanBestbuy
+// Strips: irclickid, loc, acampID, mpid, intl
+// Keeps:  q, skuId, and other functional params
+// NOTE: irgwc is NOT listed here — it is already stripped globally by
+// cleanGlobalParams (via globalParams). Adding it here would be double-handling.
+// ---------------------------------------------------------------------------
+describe("cleanBestbuy", () => {
+  it("strips irclickid while keeping q", () => {
+    assert.equal(
+      cleanBestbuy("?q=laptop&irclickid=abc123"),
+      "?q=laptop"
+    );
+  });
+
+  it("strips loc while keeping q", () => {
+    assert.equal(
+      cleanBestbuy("?q=tv&loc=BBYHomePg"),
+      "?q=tv"
+    );
+  });
+
+  it("strips acampID and mpid while keeping skuId", () => {
+    assert.equal(
+      cleanBestbuy("?skuId=12345&acampID=affiliate&mpid=partner"),
+      "?skuId=12345"
+    );
+  });
+
+  it("strips intl while keeping q and skuId", () => {
+    assert.equal(
+      cleanBestbuy("?q=monitor&skuId=99&intl=nosplash"),
+      "?q=monitor&skuId=99"
+    );
+  });
+
+  it("strips all five tracked params together", () => {
+    assert.equal(
+      cleanBestbuy("?irclickid=a&loc=b&acampID=c&mpid=d&intl=e"),
+      "?"
+    );
+  });
+
+  it("does NOT strip irgwc (handled globally, not here)", () => {
+    // irgwc must be absent from bestbuyParams — this test confirms it passes through
+    assert.equal(
+      cleanBestbuy("?q=tv&irgwc=1"),
+      "?q=tv&irgwc=1"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanBestbuy("?q=headphones&skuId=77777"),
+      "?q=headphones&skuId=77777"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanTiktok
+// Strips: u_code, _d, _t, _r, timestamp, user_id, share_app_name,
+//         share_iid, source
+// Keeps:  functional params; short params must NOT eat longer param names
+// The short params _d/_t/_r are whole-name anchored via the &...(?=$|&) idiom.
+// ---------------------------------------------------------------------------
+describe("cleanTiktok", () => {
+  it("strips u_code while keeping a functional param", () => {
+    assert.equal(
+      cleanTiktok("?item_id=123&u_code=abc"),
+      "?item_id=123"
+    );
+  });
+
+  it("strips share_app_name and share_iid while keeping item_id", () => {
+    assert.equal(
+      cleanTiktok("?item_id=456&share_app_name=tiktok&share_iid=xyz"),
+      "?item_id=456"
+    );
+  });
+
+  it("strips user_id and source while keeping item_id", () => {
+    assert.equal(
+      cleanTiktok("?item_id=789&user_id=111&source=h5_m"),
+      "?item_id=789"
+    );
+  });
+
+  it("strips timestamp while keeping item_id", () => {
+    assert.equal(
+      cleanTiktok("?item_id=1&timestamp=1700000000"),
+      "?item_id=1"
+    );
+  });
+
+  it("strips _t but does NOT eat a hypothetical _type param (whole-name anchor)", () => {
+    // _t must match only the param named exactly _t, not a longer param
+    // whose name merely starts with _t (e.g. _type is NOT in the strip list).
+    assert.equal(
+      cleanTiktok("?item_id=1&_t=abc&_type=video"),
+      "?item_id=1&_type=video"
+    );
+  });
+
+  it("strips both _t and timestamp as separate params (both are in the strip list)", () => {
+    assert.equal(
+      cleanTiktok("?item_id=1&_t=abc&timestamp=1700000000"),
+      "?item_id=1"
+    );
+  });
+
+  it("strips _r without eating a longer param name", () => {
+    assert.equal(
+      cleanTiktok("?item_id=2&_r=1&referer=home"),
+      "?item_id=2&referer=home"
+    );
+  });
+
+  it("strips _d without eating a longer param name", () => {
+    assert.equal(
+      cleanTiktok("?item_id=3&_d=abc&description=fun"),
+      "?item_id=3&description=fun"
+    );
+  });
+
+  it("strips all nine tracked params together", () => {
+    assert.equal(
+      cleanTiktok(
+        "?u_code=a&_d=b&_t=c&_r=d&timestamp=e&user_id=f&share_app_name=g&share_iid=h&source=i"
+      ),
+      "?"
+    );
+  });
+
+  it("preserves a functional param when no tracked params present", () => {
+    assert.equal(
+      cleanTiktok("?item_id=12345"),
+      "?item_id=12345"
+    );
+  });
+
+  it("preserves item_id (functional) alongside mixed tracked params", () => {
+    assert.equal(
+      cleanTiktok("?item_id=9&_t=abc&user_id=111&share_iid=xyz"),
+      "?item_id=9"
     );
   });
 });
