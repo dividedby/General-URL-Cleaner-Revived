@@ -519,8 +519,9 @@
   }
 
   function cleanAmazonItemdp(a) {
-    let item = a.pathname.match(/\/dp(\/[A-Z0-9]{10})/)[1];
-    return a.origin + "/dp" + item + a.hash;
+    let m = a.pathname.match(/\/([A-Z0-9]{10})(?=[/?]|$)/);
+    if (!m) return a.href;
+    return a.origin + "/dp/" + m[1] + a.hash;
   }
 
   function cleanEbayItem(a) {
