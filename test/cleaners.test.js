@@ -10,6 +10,13 @@ const {
   cleanAudible,
   cleanYahoo,
   cleanLinkedin,
+  cleanBing,
+  cleanEtsy,
+  cleanYoutube,
+  cleanImdb,
+  cleanNewegg,
+  cleanTargetParams,
+  cleanFacebookParams,
   cleanUtm,
   cleanYoutubeRedir,
   cleanAmazonRedir,
@@ -571,6 +578,272 @@ describe("cleanPocketRedir", () => {
     assert.equal(
       cleanPocketRedir("https://getpocket.com/redirect?url=https%253A%252F%252Fexample.com%252Farticle"),
       "https%3A%2F%2Fexample.com%2Farticle"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanBing
+// Strips: qs, form, FORM, cvid, pq, go, filt, sc, sp, sk, qpvt, redig,
+//         toWww, ghpl, lq, ghc, ghsh, ghacc (matches bingParams regex)
+// Keeps:  q, p, and other functional search params
+// Also removes a trailing bare ? when all params are stripped.
+// ---------------------------------------------------------------------------
+describe("cleanBing", () => {
+  it("strips qs and form while keeping q", () => {
+    assert.equal(
+      cleanBing("?q=cats&qs=AS&form=QBRE"),
+      "?q=cats"
+    );
+  });
+
+  it("strips cvid at end while keeping q", () => {
+    assert.equal(
+      cleanBing("?q=dogs&cvid=abc123"),
+      "?q=dogs"
+    );
+  });
+
+  it("strips pq (previous query tracking) while keeping q", () => {
+    assert.equal(
+      cleanBing("?q=news&pq=old+query"),
+      "?q=news"
+    );
+  });
+
+  it("removes trailing ? when all params are stripped", () => {
+    // bingParams strips form and qs; ?→?& then & stripped; ?$ cleaned up
+    assert.equal(
+      cleanBing("?form=QBRE&qs=AS"),
+      ""
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanBing("?q=javascript&filters=ex1%3A%22ez5%22"),
+      "?q=javascript&filters=ex1%3A%22ez5%22"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanEtsy
+// Strips: click_key, click_sum, ref, pro, frs, ga_order, ga_search_type,
+//         ga_view_type, ga_search_query, sts, organic_search_click, plkey
+// Keeps:  q, search_query, page, and other functional params
+// ---------------------------------------------------------------------------
+describe("cleanEtsy", () => {
+  it("strips ref and ga_order while keeping q", () => {
+    assert.equal(
+      cleanEtsy("?q=vintage+lamp&ref=search_bar&ga_order=most_relevant"),
+      "?q=vintage+lamp"
+    );
+  });
+
+  it("strips sts (session tracking) while keeping search_query and page", () => {
+    assert.equal(
+      cleanEtsy("?search_query=ring&sts=listing_card&page=2"),
+      "?search_query=ring&page=2"
+    );
+  });
+
+  it("strips organic_search_click and plkey while keeping q", () => {
+    assert.equal(
+      cleanEtsy("?q=candle&organic_search_click=1&plkey=abc"),
+      "?q=candle"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanEtsy("?q=earrings&page=3"),
+      "?q=earrings&page=3"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanYoutube
+// Strips: feature, src_vid, annotation_id, hl (host language), gl (geo)
+// Keeps:  v (video id), t (timestamp), and other functional params
+// ---------------------------------------------------------------------------
+describe("cleanYoutube", () => {
+  it("strips feature while keeping v", () => {
+    assert.equal(
+      cleanYoutube("?v=dQw4w9WgXcQ&feature=youtu.be"),
+      "?v=dQw4w9WgXcQ"
+    );
+  });
+
+  it("strips hl and gl while keeping v and t", () => {
+    assert.equal(
+      cleanYoutube("?v=abc123&t=42&hl=en&gl=US"),
+      "?v=abc123&t=42"
+    );
+  });
+
+  it("strips annotation_id while keeping v", () => {
+    assert.equal(
+      cleanYoutube("?v=abc123&annotation_id=annotation_123456"),
+      "?v=abc123"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanYoutube("?v=dQw4w9WgXcQ&t=30"),
+      "?v=dQw4w9WgXcQ&t=30"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanImdb
+// Strips: pf_rd_[a-z] (pf_rd_r, pf_rd_p, etc.), ref_
+// Keeps:  ref (without underscore), q, and other functional params
+// Also removes trailing bare ? when all params are stripped.
+// Note: ref_ (with trailing underscore) IS matched; plain ref is NOT.
+// ---------------------------------------------------------------------------
+describe("cleanImdb", () => {
+  it("strips pf_rd_r and pf_rd_p while keeping q", () => {
+    assert.equal(
+      cleanImdb("?q=inception&pf_rd_r=ABC123&pf_rd_p=XYZ789"),
+      "?q=inception"
+    );
+  });
+
+  it("strips ref_ (with underscore) while keeping q", () => {
+    assert.equal(
+      cleanImdb("?q=godfather&ref_=fn_al_tt_1"),
+      "?q=godfather"
+    );
+  });
+
+  it("removes trailing ? when only tracking params were present", () => {
+    assert.equal(
+      cleanImdb("?pf_rd_r=ABC&ref_=fn_al_tt_1"),
+      ""
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanImdb("?q=pulp+fiction&s=tt"),
+      "?q=pulp+fiction&s=tt"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanNewegg
+// Strips: cm_sp, icid, ignorebbr
+// Keeps:  Item, Description, and other functional product/search params
+// ---------------------------------------------------------------------------
+describe("cleanNewegg", () => {
+  it("strips cm_sp while keeping Item", () => {
+    assert.equal(
+      cleanNewegg("?Item=9SIABC1234&cm_sp=Homepage-_-TopSeller-_-NA"),
+      "?Item=9SIABC1234"
+    );
+  });
+
+  it("strips icid while keeping Description", () => {
+    assert.equal(
+      cleanNewegg("?Description=gpu&icid=HOM-LUC-082123001"),
+      "?Description=gpu"
+    );
+  });
+
+  it("strips ignorebbr while keeping Item", () => {
+    assert.equal(
+      cleanNewegg("?Item=12345&ignorebbr=1"),
+      "?Item=12345"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanNewegg("?Item=9SIABC1234&Tpk=my+item"),
+      "?Item=9SIABC1234&Tpk=my+item"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanTargetParams
+// Strips: lnk, tref, searchTermRaw
+// Keeps:  searchTerm, category, and other functional params
+// Note: cleanTargetParams receives the full URL string (origin + path + query),
+// not just the search string — matching cleanTargetItemp vs cleanTargetParams
+// dispatch in the source. The regex only touches the query portion.
+// ---------------------------------------------------------------------------
+describe("cleanTargetParams", () => {
+  it("strips lnk and tref while keeping searchTerm", () => {
+    assert.equal(
+      cleanTargetParams("?searchTerm=laptop&lnk=snav_slinks_6&tref=typeAheadTerm"),
+      "?searchTerm=laptop"
+    );
+  });
+
+  it("strips searchTermRaw while keeping searchTerm", () => {
+    assert.equal(
+      cleanTargetParams("?searchTerm=shoes&searchTermRaw=shoes"),
+      "?searchTerm=shoes"
+    );
+  });
+
+  it("strips tref at end while keeping searchTerm and category", () => {
+    assert.equal(
+      cleanTargetParams("?searchTerm=tv&category=Electronics&tref=typeAheadTerm"),
+      "?searchTerm=tv&category=Electronics"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanTargetParams("?searchTerm=headphones&sortBy=priceAsc"),
+      "?searchTerm=headphones&sortBy=priceAsc"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanFacebookParams
+// Strips: set (the only param in facebookParams)
+// Keeps:  id, type, and other functional params
+// Note: only `set` is in the regex — other Facebook params (e.g. __xts__) are
+// NOT stripped by this cleaner.
+// ---------------------------------------------------------------------------
+describe("cleanFacebookParams", () => {
+  it("strips set while keeping id", () => {
+    assert.equal(
+      cleanFacebookParams("?id=123456789&set=a.987654321"),
+      "?id=123456789"
+    );
+  });
+
+  it("strips set at start while keeping id and type", () => {
+    // set is first param: ?→?& makes it ?&set=…&id=…&type=…
+    // &set=… matched; after stripping and .replace("&","") → ?id=…&type=…
+    assert.equal(
+      cleanFacebookParams("?set=a.100&id=999&type=3"),
+      "?id=999&type=3"
+    );
+  });
+
+  it("passes through a URL with no tracked params unchanged", () => {
+    assert.equal(
+      cleanFacebookParams("?id=123456789&type=3"),
+      "?id=123456789&type=3"
+    );
+  });
+
+  it("passes through a URL with no query string unchanged", () => {
+    // No ? → ?→?& replace is no-op → nothing matches → unchanged
+    assert.equal(
+      cleanFacebookParams("https://www.facebook.com/photo"),
+      "https://www.facebook.com/photo"
     );
   });
 });
