@@ -472,8 +472,7 @@
   }
 
   function parserFacebook(a) {
-    let onclick = a.getAttribute("onclick");
-    if (!onclick || !onclick.startsWith("LinkshimAsyncLink")) {
+    if (a.host !== "l.facebook.com" || a.pathname !== "/l.php") {
       return;
     }
 
