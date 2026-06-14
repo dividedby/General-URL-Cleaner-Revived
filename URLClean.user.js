@@ -657,6 +657,7 @@
       cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm,
+      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2, cleanPocketRedir,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams,

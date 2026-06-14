@@ -11,6 +11,11 @@ const {
   cleanYahoo,
   cleanLinkedin,
   cleanUtm,
+  cleanYoutubeRedir,
+  cleanAmazonRedir,
+  cleanGenericRedir,
+  cleanGenericRedir2,
+  cleanPocketRedir,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -359,6 +364,213 @@ describe("cleanUtm", () => {
     assert.equal(
       cleanUtm("https://example.com/?utm_source=email"),
       "https://example.com/"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanYoutubeRedir
+// Input: the search string of a /redirect page (e.g. "?q=<encoded-target>&redir_token=…").
+// Extracts the q param value and returns decodeURIComponent of it.
+// No pass-through: a missing q param throws (null.pop()).
+// Double-encoded target: only one layer of decoding is applied.
+// ---------------------------------------------------------------------------
+describe("cleanYoutubeRedir", () => {
+  it("decodes a real YouTube redirect search string to the target URL", () => {
+    assert.equal(
+      cleanYoutubeRedir("?q=https%3A%2F%2Fwww.example.com%2Fvideo%3Ft%3D42&redir_token=QUFyy5"),
+      "https://www.example.com/video?t=42"
+    );
+  });
+
+  it("decodes q when it is the only param", () => {
+    assert.equal(
+      cleanYoutubeRedir("?q=https%3A%2F%2Fexample.com%2Fvideo"),
+      "https://example.com/video"
+    );
+  });
+
+  it("decodes q when preceded by another param", () => {
+    assert.equal(
+      cleanYoutubeRedir("?v=abc&q=https%3A%2F%2Fyoutube.com%2Fwatch%3Fv%3Dtest"),
+      "https://youtube.com/watch?v=test"
+    );
+  });
+
+  it("only decodes one layer — double-encoded target is not fully decoded", () => {
+    // CURRENT BEHAVIOR: decodeURIComponent('https%253A%252F%252Fexample.com')
+    // = 'https%3A%2F%2Fexample.com'  (still encoded after one pass)
+    assert.equal(
+      cleanYoutubeRedir("?q=https%253A%252F%252Fexample.com"),
+      "https%3A%2F%2Fexample.com"
+    );
+  });
+
+  it("throws when q param is absent (no passthrough for non-redirect URLs)", () => {
+    assert.throws(() => cleanYoutubeRedir("?v=dQw4w9WgXcQ"), TypeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanAmazonRedir
+// Input: a string with redirectUrl= param (in practice the search string of
+// a black-curtain page).
+// Extracts redirectUrl param value and returns decodeURIComponent of it.
+// No pass-through: missing redirectUrl param throws (null.pop()).
+// ---------------------------------------------------------------------------
+describe("cleanAmazonRedir", () => {
+  it("decodes a redirectUrl search string to the Amazon product URL", () => {
+    assert.equal(
+      cleanAmazonRedir("?redirectUrl=https%3A%2F%2Fwww.amazon.com%2Fdp%2FB07XYZ"),
+      "https://www.amazon.com/dp/B07XYZ"
+    );
+  });
+
+  it("decodes redirectUrl when followed by additional params", () => {
+    assert.equal(
+      cleanAmazonRedir("?redirectUrl=https%3A%2F%2Famazon.com%2Fdp%2FABC&ref=123"),
+      "https://amazon.com/dp/ABC"
+    );
+  });
+
+  it("only decodes one layer — double-encoded target remains partially encoded", () => {
+    assert.equal(
+      cleanAmazonRedir("?redirectUrl=https%253A%252F%252Famazon.com%252Fdp%252FTEST"),
+      "https%3A%2F%2Famazon.com%2Fdp%2FTEST"
+    );
+  });
+
+  it("throws when redirectUrl param is absent (no passthrough)", () => {
+    assert.throws(() => cleanAmazonRedir("?ref=nav_logo"), TypeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanGenericRedir
+// Input: a search string. Matches [?&](new|img)?u(rl)?= (case-insensitive).
+// Captures: u=, url=, newu=, newurl=, imgu=, imgurl= — returns the value decoded.
+// No pass-through: throws when no matching param exists.
+// ---------------------------------------------------------------------------
+describe("cleanGenericRedir", () => {
+  it("decodes url= (Google /url redirect)", () => {
+    assert.equal(
+      cleanGenericRedir("?url=https%3A%2F%2Fexample.com"),
+      "https://example.com"
+    );
+  });
+
+  it("decodes u= (Facebook l.facebook.com short form)", () => {
+    assert.equal(
+      cleanGenericRedir("?u=https%3A%2F%2Fexample.com%2Fpage"),
+      "https://example.com/page"
+    );
+  });
+
+  it("decodes imgurl= (Google Images)", () => {
+    assert.equal(
+      cleanGenericRedir("?imgurl=https%3A%2F%2Fimages.example.com%2Fphoto.jpg"),
+      "https://images.example.com/photo.jpg"
+    );
+  });
+
+  it("decodes newurl= (Google /url alternate form)", () => {
+    assert.equal(
+      cleanGenericRedir("?q=foo&newurl=https%3A%2F%2Fnew.example.com"),
+      "https://new.example.com"
+    );
+  });
+
+  it("stops at & — trailing params do not leak into the decoded target", () => {
+    assert.equal(
+      cleanGenericRedir("?url=https%3A%2F%2Fexample.com&extra=123"),
+      "https://example.com"
+    );
+  });
+
+  it("throws when no matching param is present (no passthrough)", () => {
+    assert.throws(() => cleanGenericRedir("?q=hello&ref=123"), TypeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanGenericRedir2
+// Input: a search string. Matches [?&]\w*url= (case-insensitive) — any
+// word-character prefix before "url=", including empty (plain url=).
+// Returns decodeURIComponent of the captured value.
+// No pass-through: throws when no matching param exists.
+// ---------------------------------------------------------------------------
+describe("cleanGenericRedir2", () => {
+  it("decodes redirecturl= (Disqus / generic redirect form)", () => {
+    assert.equal(
+      cleanGenericRedir2("?redirecturl=https%3A%2F%2Fexample.com%2Fpath"),
+      "https://example.com/path"
+    );
+  });
+
+  it("decodes plain url= (\\w* matches empty prefix)", () => {
+    assert.equal(
+      cleanGenericRedir2("?url=https%3A%2F%2Fother.com"),
+      "https://other.com"
+    );
+  });
+
+  it("decodes a numeric-prefixed param — \\w includes digits", () => {
+    // CURRENT BEHAVIOR: \w* matches '123', so '123url=X' is a valid redirect param
+    assert.equal(
+      cleanGenericRedir2("?123url=https%3A%2F%2Fexample.com"),
+      "https://example.com"
+    );
+  });
+
+  it("throws when no *url= param is present (no passthrough)", () => {
+    assert.throws(() => cleanGenericRedir2("?q=hello"), TypeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanPocketRedir
+// Input: the FULL href of the anchor (not just the search string).
+// Strips the literal prefix "https://getpocket.com/redirect?url=" via
+// String.replace(), then calls decodeURIComponent on the remainder.
+//
+// SURPRISING BEHAVIORS encoded here:
+// 1. Already-clean URL (no pocket prefix): prefix replace is a no-op, then
+//    decodeURIComponent is called on the original URL — returns it unchanged
+//    for plain ASCII URLs (no actual passthrough guard).
+// 2. Trailing params after url=: the literal-replace leaves them in the
+//    decoded string as "target-url&param=val" (not split on &).
+// 3. Double-encoded target: only one layer of decoding applied.
+// ---------------------------------------------------------------------------
+describe("cleanPocketRedir", () => {
+  it("decodes a real Pocket redirect href to the target URL", () => {
+    assert.equal(
+      cleanPocketRedir("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle"),
+      "https://example.com/article"
+    );
+  });
+
+  it("passes through an already-clean URL (prefix absent, decodeURIComponent is no-op on ASCII)", () => {
+    // CURRENT BEHAVIOR: prefix not found → replace no-op → decodeURIComponent('https://example.com/article')
+    // = 'https://example.com/article'
+    assert.equal(
+      cleanPocketRedir("https://example.com/article"),
+      "https://example.com/article"
+    );
+  });
+
+  it("trailing params after url= leak into the decoded target (known behavior)", () => {
+    // CURRENT BEHAVIOR: literal replace strips only the prefix, leaving the rest
+    // of the query string attached to the decoded target via a literal '&'.
+    assert.equal(
+      cleanPocketRedir("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle&form_check=abc"),
+      "https://example.com/article&form_check=abc"
+    );
+  });
+
+  it("only decodes one layer — double-encoded target remains partially encoded", () => {
+    assert.equal(
+      cleanPocketRedir("https://getpocket.com/redirect?url=https%253A%252F%252Fexample.com%252Farticle"),
+      "https%3A%2F%2Fexample.com%2Farticle"
     );
   });
 });
