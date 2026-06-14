@@ -31,6 +31,15 @@
 // @include     https://threads.net/*
 // @include     https://www.threads.com/*
 // @include     https://threads.com/*
+// @include     https://www.aliexpress.com/*
+// @include     https://*.aliexpress.com/*
+// @include     https://www.walmart.com/*
+// @include     https://walmart.com/*
+// @include     https://www.bestbuy.com/*
+// @include     https://bestbuy.com/*
+// @include     https://www.tiktok.com/*
+// @include     https://tiktok.com/*
+// @include     https://vm.tiktok.com/*
 // @include     *
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
@@ -89,6 +98,14 @@
   const redditParams = /&(correlation_id|ref_campaign|ref_source|share_id)(=[^&#]*)?(?=$|&)/g;
   const twitchParams = /&(tt_medium|tt_content)(=[^&#]*)?(?=$|&)/g;
   const threadsParams = /&(xmt)(=[^&#]*)?(?=$|&)/g;
+  const aliexpressParams =
+    /&(algo_pvid|algo_exp_id|pdp_ext_f|pdp_npi|curPageLogUid|utparam-url|aem_p4p_detail|search_p4p_id)(=[^&#]*)?(?=$|&)/g;
+  const walmartParams =
+    /&(u1|from|variantFieldId|ath[^&#=]*)(=[^&#]*)?(?=$|&)/g;
+  const bestbuyParams =
+    /&(irclickid|loc|acampID|mpid|intl)(=[^&#]*)?(?=$|&)/g;
+  const tiktokParams =
+    /&(u_code|_d|_t|_r|timestamp|user_id|share_app_name|share_iid|source)(=[^&#]*)?(?=$|&)/g;
   // Universal click-id / email-tracking params safe to strip on every site.
   // Sourced from AdGuard URL Tracking filter, ClearURLs, and Brave's query-string filter.
   // Excludes: _gl (GA4 cross-domain stitching), mkt_tok (Marketo unsubscribe path),
@@ -271,6 +288,43 @@
         currHost === "www.threads.com" || currHost === "threads.com") {
       if (currSearch) {
         setCurrUrl(cleanThreads(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.aliexpress.com" || currHost.endsWith(".aliexpress.com")) {
+      if (currSearch) {
+        setCurrUrl(cleanAliexpress(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.walmart.com" || currHost === "walmart.com") {
+      if (currSearch) {
+        setCurrUrl(cleanWalmart(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.bestbuy.com" || currHost === "bestbuy.com") {
+      if (currSearch) {
+        setCurrUrl(cleanBestbuy(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.tiktok.com" || currHost === "tiktok.com" ||
+        currHost === "vm.tiktok.com") {
+      if (currSearch) {
+        setCurrUrl(cleanTiktok(currSearch));
       }
 
       cleanLinks(parserAll);
@@ -554,6 +608,22 @@
     return cleanParams(url, threadsParams);
   }
 
+  function cleanAliexpress(url) {
+    return cleanParams(url, aliexpressParams);
+  }
+
+  function cleanWalmart(url) {
+    return cleanParams(url, walmartParams);
+  }
+
+  function cleanBestbuy(url) {
+    return cleanParams(url, bestbuyParams);
+  }
+
+  function cleanTiktok(url) {
+    return cleanParams(url, tiktokParams);
+  }
+
   function cleanAmazonParams(url) {
     return cleanParams(url, amazonParams, true);
   }
@@ -791,6 +861,7 @@
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm, cleanGlobalParams,
       cleanSpotify, cleanReddit, cleanTwitch, cleanThreads,
+      cleanAliexpress, cleanWalmart, cleanBestbuy, cleanTiktok,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
       cleanTargetItemp,
@@ -802,6 +873,7 @@
       bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams, globalParams,
       spotifyParams, redditParams, twitchParams, threadsParams,
+      aliexpressParams, walmartParams, bestbuyParams, tiktokParams,
     };
   }
 })();
