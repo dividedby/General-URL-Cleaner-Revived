@@ -7,6 +7,14 @@ const {
   transformGoogleUrl,
   transformAmazonUrl,
   transformEbayUrl,
+  transformYoutubeUrl,
+  transformPocketUrl,
+  transformTargetUrl,
+  transformNeweggUrl,
+  transformImdbUrl,
+  transformFacebookUrl,
+  transformDisqusUrl,
+  transformGlobalUrl,
 } = require("../URLClean.user.js");
 
 // ---------------------------------------------------------------------------
@@ -198,6 +206,229 @@ describe("transformEbayUrl", () => {
         "https://www.ebay.com"
       ),
       "https://www.ebay.com/sch/i.html?_nkw=keyboard"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformYoutubeUrl
+// /watch → strip tracking params via cleanYoutube
+// /redirect → decode q= param via cleanYoutubeRedir
+// other path → returned unchanged
+// ---------------------------------------------------------------------------
+describe("transformYoutubeUrl", () => {
+  it("strips tracking params from a /watch URL", () => {
+    assert.equal(
+      transformYoutubeUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=share&gl=US"),
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    );
+  });
+
+  it("decodes a /redirect URL to the target", () => {
+    assert.equal(
+      transformYoutubeUrl("https://www.youtube.com/redirect?q=https%3A%2F%2Fexample.com%2Fpage&event=video_description"),
+      "https://example.com/page"
+    );
+  });
+
+  it("passes through a /watch URL with no tracked params", () => {
+    assert.equal(
+      transformYoutubeUrl("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    );
+  });
+
+  it("passes through a non-watch/redirect path unchanged", () => {
+    assert.equal(
+      transformYoutubeUrl("https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw"),
+      "https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformPocketUrl
+// getpocket.com /redirect → decode via cleanPocketRedir
+// other host/path → returned unchanged
+// ---------------------------------------------------------------------------
+describe("transformPocketUrl", () => {
+  it("decodes a getpocket.com /redirect URL to the target", () => {
+    assert.equal(
+      transformPocketUrl("https://getpocket.com/redirect?url=https%3A%2F%2Fexample.com%2Farticle"),
+      "https://example.com/article"
+    );
+  });
+
+  it("passes through a non-redirect getpocket.com URL unchanged", () => {
+    assert.equal(
+      transformPocketUrl("https://getpocket.com/explore/trending"),
+      "https://getpocket.com/explore/trending"
+    );
+  });
+
+  it("passes through a non-getpocket.com URL unchanged", () => {
+    assert.equal(
+      transformPocketUrl("https://example.com/redirect?url=https%3A%2F%2Fother.com%2F"),
+      "https://example.com/redirect?url=https%3A%2F%2Fother.com%2F"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformTargetUrl
+// pathname includes /p/ → canonicalise via cleanTargetItemp (strips slug/query)
+// else search present → strip tracking params via cleanTargetParams
+// clean URL → returned unchanged
+// ---------------------------------------------------------------------------
+describe("transformTargetUrl", () => {
+  it("canonicalises a /p/ product URL by stripping slug and query", () => {
+    assert.equal(
+      transformTargetUrl("https://www.target.com/p/some-product-name/-/A-12345678?lnk=sametab&preselect=12345678"),
+      "https://www.target.com/p/A-12345678"
+    );
+  });
+
+  it("strips tracked query params from a non-product URL (trailing ? is preserved by cleanTargetParams)", () => {
+    assert.equal(
+      transformTargetUrl("https://www.target.com/c/toys/-/N-5xtg3?lnk=snav_ta_toys&tref=homepage"),
+      "https://www.target.com/c/toys/-/N-5xtg3?"
+    );
+  });
+
+  it("passes through a clean URL with no tracked params unchanged", () => {
+    assert.equal(
+      transformTargetUrl("https://www.target.com/c/toys/-/N-5xtg3"),
+      "https://www.target.com/c/toys/-/N-5xtg3"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformNeweggUrl
+// search and no /marketplace/ → strip tracking params via cleanNewegg
+// /marketplace/ → passthrough even with search
+// no search → passthrough
+// ---------------------------------------------------------------------------
+describe("transformNeweggUrl", () => {
+  it("strips tracking params from a product URL", () => {
+    assert.equal(
+      transformNeweggUrl("https://www.newegg.com/p/N82E16834234989?Item=N82E16834234989&cm_sp=Top+Sellers-_-2-_-N82E16834234989&icid=LSSA_8B734_0019"),
+      "https://www.newegg.com/p/N82E16834234989?Item=N82E16834234989"
+    );
+  });
+
+  it("passes through a /marketplace/ URL unchanged even with tracked params", () => {
+    assert.equal(
+      transformNeweggUrl("https://www.newegg.com/marketplace/seller/profile/abc?cm_sp=track&icid=xyz"),
+      "https://www.newegg.com/marketplace/seller/profile/abc?cm_sp=track&icid=xyz"
+    );
+  });
+
+  it("passes through a URL with no search params unchanged", () => {
+    assert.equal(
+      transformNeweggUrl("https://www.newegg.com/p/N82E16834234989"),
+      "https://www.newegg.com/p/N82E16834234989"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformImdbUrl
+// search present → strip tracking params via cleanImdb
+// no search → passthrough
+// ---------------------------------------------------------------------------
+describe("transformImdbUrl", () => {
+  it("strips tracking params from an IMDB URL", () => {
+    assert.equal(
+      transformImdbUrl("https://www.imdb.com/title/tt0111161/?pf_rd_m=A2FGELUUNOQJNL&ref_=nv_sr_srsg_0"),
+      "https://www.imdb.com/title/tt0111161/"
+    );
+  });
+
+  it("passes through a clean IMDB URL unchanged", () => {
+    assert.equal(
+      transformImdbUrl("https://www.imdb.com/title/tt0111161/"),
+      "https://www.imdb.com/title/tt0111161/"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformFacebookUrl
+// l.facebook.com host → decode via cleanGenericRedir
+// other host → passthrough
+// ---------------------------------------------------------------------------
+describe("transformFacebookUrl", () => {
+  it("decodes an l.facebook.com redirect to the target URL", () => {
+    assert.equal(
+      transformFacebookUrl("https://l.facebook.com/l.php?u=https%3A%2F%2Fexample.com%2Fpage&h=AT0abc"),
+      "https://example.com/page"
+    );
+  });
+
+  it("passes through a non-l.facebook.com URL unchanged", () => {
+    assert.equal(
+      transformFacebookUrl("https://www.facebook.com/someprofile?ref=bookmark"),
+      "https://www.facebook.com/someprofile?ref=bookmark"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformDisqusUrl — characterization of CURRENT (broken) behavior
+// disq.us /url: original code strips href from first colon → a.search becomes ""
+//   → cleanGenericRedir("") throws TypeError (null.pop)
+// other disqus links: cleanGenericRedir(search) runs on original search
+// ---------------------------------------------------------------------------
+describe("transformDisqusUrl", () => {
+  it("throws TypeError for disq.us/url links (characterizes current broken behavior)", () => {
+    assert.throws(
+      () => transformDisqusUrl("https://disq.us/url?url=https%3A%2F%2Fexample.com%2Fpage&cuid=123"),
+      TypeError
+    );
+  });
+
+  it("decodes a non-/url disqus link via cleanGenericRedir", () => {
+    assert.equal(
+      transformDisqusUrl("https://disq.us/somepath?url=https%3A%2F%2Fexample.com%2Fpage"),
+      "https://example.com/page"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformGlobalUrl
+// utm_ params in search → stripped
+// utm_ params in hash → stripped
+// non-utm params → preserved
+// clean URL → passthrough
+// ---------------------------------------------------------------------------
+describe("transformGlobalUrl", () => {
+  it("strips utm_ params from search while preserving non-utm params", () => {
+    assert.equal(
+      transformGlobalUrl("https://example.com/page?ref=newsletter&utm_source=email&utm_medium=cpc&q=test"),
+      "https://example.com/page?ref=newsletter&q=test"
+    );
+  });
+
+  it("strips utm_ params from a hash", () => {
+    assert.equal(
+      transformGlobalUrl("https://example.com/page#section?utm_source=twitter&utm_campaign=launch"),
+      "https://example.com/page#section"
+    );
+  });
+
+  it("passes through a URL with no utm_ params unchanged", () => {
+    assert.equal(
+      transformGlobalUrl("https://example.com/page?q=hello&page=2"),
+      "https://example.com/page?q=hello&page=2"
+    );
+  });
+
+  it("passes through a URL with no search or hash unchanged", () => {
+    assert.equal(
+      transformGlobalUrl("https://example.com/page"),
+      "https://example.com/page"
     );
   });
 });

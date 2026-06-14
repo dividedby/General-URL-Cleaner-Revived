@@ -323,7 +323,6 @@
 
   function parserAll(a) {
     let host = a.host;
-    let path = a.pathname;
     if (a.cleaned) {
       return;
     }
@@ -334,20 +333,13 @@
     }
 
     if (host === "www.youtube.com") {
-      if (path === "/watch") {
-        a.search = cleanYoutube(a.search);
-      } else if (path === "/redirect") {
-        a.href = cleanYoutubeRedir(a.search);
-      }
-
+      a.href = transformYoutubeUrl(a.href);
       a.cleaned = 1;
       return;
     }
 
     if (host === "getpocket.com") {
-      if (path === "/redirect") {
-        a.href = cleanPocketRedir(a.href);
-      }
+      a.href = transformPocketUrl(a.href);
     }
 
     parserAmazon(a);
@@ -355,14 +347,7 @@
     parserNewegg(a);
     parserIMDB(a);
 
-    if (a.search) {
-      a.search = cleanUtm(a.search);
-    }
-
-    if (a.hash) {
-      a.hash = cleanUtm(a.hash);
-    }
-
+    a.href = transformGlobalUrl(a.href);
     a.cleaned = 1;
   }
 
@@ -401,11 +386,7 @@
       return;
     }
 
-    if (a.pathname.includes("/p/")) {
-      a.href = cleanTargetItemp(a);
-    } else if (a.search) {
-      a.href = cleanTargetParams(a.href);
-    }
+    a.href = transformTargetUrl(a.href);
   }
 
   function parserAmazon(a) {
@@ -429,24 +410,17 @@
       return;
     }
 
-    if (a.search && !a.pathname.includes("/marketplace/")) {
-      a.search = cleanNewegg(a.search);
-    }
+    a.href = transformNeweggUrl(a.href);
   }
 
   function parserIMDB(a) {
-    if (a.host === "www.imdb.com" && a.search) {
-      a.search = cleanImdb(a.search);
+    if (a.host === "www.imdb.com") {
+      a.href = transformImdbUrl(a.href);
     }
   }
 
   function parserGlobal(a) {
-    if (a.search) {
-      a.search = cleanUtm(a.search);
-    }
-    if (a.hash) {
-      a.hash = cleanUtm(a.hash);
-    }
+    a.href = transformGlobalUrl(a.href);
     a.cleaned = 1;
   }
 
@@ -456,21 +430,13 @@
       return;
     }
 
-    if (a.host !== "l.facebook.com") {
-      return;
-    }
-
-    a.href = cleanGenericRedir(a.search);
+    a.href = transformFacebookUrl(a.href);
     a.removeAttribute("onclick");
     a.removeAttribute("onmouseover");
   }
 
   function parserDisqus(a) {
-    if (a.host === "disq.us" && a.pathname === "/url") {
-      a.href = a.href.replace(/\:.*/, "");
-    }
-    a.href = cleanGenericRedir(a.search);
-
+    a.href = transformDisqusUrl(a.href);
     parserAll(a);
   }
 
@@ -670,6 +636,86 @@
     return href;
   }
 
+  function transformYoutubeUrl(href) {
+    var u = new URL(href);
+    if (u.pathname === "/watch") {
+      u.search = cleanYoutube(u.search);
+      return u.href;
+    } else if (u.pathname === "/redirect") {
+      return cleanYoutubeRedir(u.search);
+    }
+    return href;
+  }
+
+  function transformPocketUrl(href) {
+    var u = new URL(href);
+    if (u.host === "getpocket.com" && u.pathname === "/redirect") {
+      return cleanPocketRedir(href);
+    }
+    return href;
+  }
+
+  function transformTargetUrl(href) {
+    var u = new URL(href);
+    if (u.pathname.includes("/p/")) {
+      return cleanTargetItemp(u);
+    } else if (u.search) {
+      return cleanTargetParams(href);
+    }
+    return href;
+  }
+
+  function transformNeweggUrl(href) {
+    var u = new URL(href);
+    if (u.search && !u.pathname.includes("/marketplace/")) {
+      u.search = cleanNewegg(u.search);
+      return u.href;
+    }
+    return href;
+  }
+
+  function transformImdbUrl(href) {
+    var u = new URL(href);
+    if (u.search) {
+      u.search = cleanImdb(u.search);
+      return u.href;
+    }
+    return href;
+  }
+
+  function transformFacebookUrl(href) {
+    var u = new URL(href);
+    if (u.host !== "l.facebook.com") {
+      return href;
+    }
+    return cleanGenericRedir(u.search);
+  }
+
+  // transformDisqusUrl reproduces the CURRENT (broken) parserDisqus behavior exactly.
+  // For disq.us/url: the original sets a.href = a.href.replace(/\:.*/, "") which
+  // strips from the first colon, leaving only "https" — a.search then becomes "",
+  // so cleanGenericRedir("") throws TypeError (null match).
+  // Non-disq.us/url links fall straight to cleanGenericRedir(search) which works.
+  // ponytail: bug — disq.us/url branch always throws; tracked separately for fixing.
+  function transformDisqusUrl(href) {
+    var u = new URL(href);
+    if (u.host === "disq.us" && u.pathname === "/url") {
+      return cleanGenericRedir("");
+    }
+    return cleanGenericRedir(u.search);
+  }
+
+  function transformGlobalUrl(href) {
+    var u = new URL(href);
+    if (u.search) {
+      u.search = cleanUtm(u.search);
+    }
+    if (u.hash) {
+      u.hash = cleanUtm(u.hash);
+    }
+    return u.href;
+  }
+
   // ponytail: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
@@ -679,7 +725,11 @@
       cleanEbayParams, cleanUtm,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2, cleanPocketRedir,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
+      cleanTargetItemp,
       transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
+      transformYoutubeUrl, transformPocketUrl, transformTargetUrl,
+      transformNeweggUrl, transformImdbUrl, transformFacebookUrl,
+      transformDisqusUrl, transformGlobalUrl,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams,
