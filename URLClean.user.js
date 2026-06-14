@@ -613,20 +613,24 @@
     return location.origin + "/itm/" + item;
   }
 
+  function cleanRedir(pattern, url) {
+    return decodeURIComponent(url.match(pattern).pop());
+  }
+
   function cleanYoutubeRedir(url) {
-    return decodeURIComponent(url.match(/[?&]q=([^&]+)/).pop());
+    return cleanRedir(/[?&]q=([^&]+)/, url);
   }
 
   function cleanAmazonRedir(url) {
-    return decodeURIComponent(url.match(/[?&]redirectUrl=([^&]+)/).pop());
+    return cleanRedir(/[?&]redirectUrl=([^&]+)/, url);
   }
 
   function cleanGenericRedir(url) {
-    return decodeURIComponent(url.match(/[?&](new|img)?u(rl)?=([^&]+)/i).pop());
+    return cleanRedir(/[?&](new|img)?u(rl)?=([^&]+)/i, url);
   }
 
   function cleanGenericRedir2(url) {
-    return decodeURIComponent(url.match(/[?&]\w*url=([^&]+)/i).pop());
+    return cleanRedir(/[?&]\w*url=([^&]+)/i, url);
   }
 
   function cleanUtm(url) {
