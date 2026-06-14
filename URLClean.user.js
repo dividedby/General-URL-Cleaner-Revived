@@ -76,6 +76,12 @@
   const etsyParams =
     /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?(?=$|&)/g;
   const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?(?=$|&)/g;
+  // Universal click-id / email-tracking params safe to strip on every site.
+  // Sourced from AdGuard URL Tracking filter, ClearURLs, and Brave's query-string filter.
+  // Excludes: _gl (GA4 cross-domain stitching), mkt_tok (Marketo unsubscribe path),
+  // clickid (too generic / server-side functional), gbraid/wbraid (aggregate-only, revisit separately).
+  const globalParams =
+    /^(fbclid|gclid|dclid|gclsrc|gad_source|gad_campaignid|msclkid|twclid|ttclid|fbadid|igshid|igsh|mc_eid|mc_cid|_hsenc|_hsmi|__hstc|__hssc|__hsfp|hsCtaTracking|vero_id|vero_conv|oly_anon_id|oly_enc_id|__s|yclid|ysclid|_openstat|srsltid|irgwc|cjevent|cjdata|awc|wickedid|rb_clickid|tduid|iclid|s_cid|_branch_referrer|_branch_match_id|ml_subscriber|ml_subscriber_hash|bsft_clkid|bsft_eid|bsft_mid|bsft_uid|admitad_uid|mtm_[^=&]*|pk_[^=&]*)(=|$)/;
 
   /*
    * Main
@@ -228,7 +234,7 @@
       if (currSearch) {
         // explicit path so an all-utm query is actually cleared from the bar
         // (replaceState("") would no-op and leave the query in place)
-        setCurrUrl(currPath + cleanUtm(currSearch) + location.hash);
+        setCurrUrl(currPath + cleanGlobalParams(cleanUtm(currSearch)) + location.hash);
       }
       cleanLinks(parserGlobal);
     }
@@ -571,6 +577,21 @@
     return url;
   }
 
+  function cleanGlobalParams(url) {
+    var urlparts = url.split("?");
+    if (urlparts.length >= 2) {
+      var pars = urlparts[1].split(/[&;]/g);
+      //reverse iteration as may be destructive
+      for (var i = pars.length; (i -= 1) >= 0; ) {
+        if (globalParams.test(pars[i])) {
+          pars.splice(i, 1);
+        }
+      }
+      return urlparts[0] + (pars.length > 0 ? "?" + pars.join("&") : "");
+    }
+    return url;
+  }
+
   function transformGoogleUrl(href) {
     var u = new URL(href);
     if (u.pathname === "/imgres" || u.pathname === "/url") {
@@ -689,10 +710,10 @@
   function transformGlobalUrl(href) {
     var u = new URL(href);
     if (u.search) {
-      u.search = cleanUtm(u.search);
+      u.search = cleanGlobalParams(cleanUtm(u.search));
     }
     if (u.hash) {
-      u.hash = cleanUtm(u.hash);
+      u.hash = cleanGlobalParams(cleanUtm(u.hash));
     }
     return u.href;
   }
@@ -703,7 +724,7 @@
       cleanGoogle, cleanBing, cleanLinkedin, cleanEtsy, cleanYahoo,
       cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
-      cleanEbayParams, cleanUtm,
+      cleanEbayParams, cleanUtm, cleanGlobalParams,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
       cleanTargetItemp,
@@ -713,7 +734,7 @@
       transformDisqusUrl, transformGlobalUrl,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, targetParams,
-      facebookParams, linkedinParams, etsyParams, yahooParams,
+      facebookParams, linkedinParams, etsyParams, yahooParams, globalParams,
     };
   }
 })();
