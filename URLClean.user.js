@@ -604,12 +604,19 @@
   }
 
   function cleanAudible(url) {
-    const keep = ["keywords"];
+    // Keep-list derived from a live Audible session (issue #39).
+    const keep = [
+      "keywords", "node", "page", "sort", "publication_date",
+      "audible_programs", "searchNarrator", "searchAuthor",
+    ];
     const parts = url.split("?");
     if (parts.length < 2) return url;
     const kept = parts[1]
       .split(/[&;]/g)
-      .filter((p) => keep.includes(p.split("=")[0]));
+      .filter((p) => {
+        const name = p.split("=")[0];
+        return keep.includes(name) || /_browse-bin$/.test(name);
+      });
     return parts[0] + (kept.length ? "?" + kept.join("&") : "");
   }
 
