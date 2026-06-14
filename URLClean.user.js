@@ -23,6 +23,7 @@
 // @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
+// @include     *
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
@@ -43,6 +44,10 @@
    */
 
   const _domAvailable = typeof location !== "undefined" && typeof document !== "undefined";
+
+  // ponytail: opt-out — set false to skip cleaning on sites without a dedicated handler.
+  // Upgrade path: a GM_registerMenuCommand toggle once @grant is added.
+  const GLOBAL_STRIP = true;
 
   const currHost = _domAvailable ? location.host : "";
   const currPath = _domAvailable ? location.pathname : "";
@@ -230,6 +235,16 @@
     if (currHost === "app.getpocket.com") {
       cleanLinks(parserAll);
       return;
+    }
+
+    // ponytail: no dedicated handler for this host — strip generic trackers
+    // everywhere unless the user opted out. Ceiling: one MutationObserver per
+    // page; opt out via GLOBAL_STRIP.
+    if (GLOBAL_STRIP) {
+      if (currSearch) {
+        setCurrUrl(cleanUtm(currSearch));
+      }
+      cleanLinks(parserGlobal);
     }
   }
 
@@ -458,6 +473,16 @@
     }
   }
 
+  function parserGlobal(a) {
+    if (a.search) {
+      a.search = cleanUtm(a.search);
+    }
+    if (a.hash) {
+      a.hash = cleanUtm(a.hash);
+    }
+    a.cleaned = 1;
+  }
+
   function parserTwitter(a) {
     if (a.host !== "t.co") {
       return;
@@ -637,7 +662,7 @@
     if (urlparts.length >= 2) {
       var pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
-      for (var i = pars.length; (i -= 1) > 0; ) {
+      for (var i = pars.length; (i -= 1) >= 0; ) {
         if (/^utm_/.test(pars[i])) {
           pars.splice(i, 1);
         }

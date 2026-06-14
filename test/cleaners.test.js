@@ -285,10 +285,6 @@ describe("cleanLinkedin", () => {
 // cleanUtm
 // Strips: params starting with utm_  (utm_source, utm_medium, utm_campaign…)
 // Keeps:  all other params
-//
-// NOTE: the loop starts at index 1 (i -= 1 before first check), so the FIRST
-// param is never inspected — a utm_ param in position [0] survives. This is a
-// known behavior quirk encoded here for regression coverage.
 // ---------------------------------------------------------------------------
 describe("cleanUtm", () => {
   it("strips utm_source and utm_medium from the middle/end", () => {
@@ -319,11 +315,17 @@ describe("cleanUtm", () => {
     );
   });
 
-  it("utm_ in position [0] (first param) survives due to loop-start-at-1 behavior", () => {
-    // Known quirk: loop does i-=1 before first test, so pars[0] is never checked
+  it("strips utm_ in position [0] (first param)", () => {
     assert.equal(
       cleanUtm("https://example.com/?utm_source=email&id=1"),
-      "https://example.com/?utm_source=email&id=1"
+      "https://example.com/?id=1"
+    );
+  });
+
+  it("collapses to no query string when all params are utm_", () => {
+    assert.equal(
+      cleanUtm("https://example.com/?utm_source=email"),
+      "https://example.com/"
     );
   });
 });
