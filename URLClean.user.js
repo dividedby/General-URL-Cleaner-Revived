@@ -113,6 +113,29 @@
   const globalParams =
     /^(fbclid|gclid|dclid|gclsrc|gad_source|gad_campaignid|msclkid|twclid|ttclid|fbadid|igshid|igsh|mc_eid|mc_cid|_hsenc|_hsmi|__hstc|__hssc|__hsfp|hsCtaTracking|vero_id|vero_conv|oly_anon_id|oly_enc_id|__s|yclid|ysclid|_openstat|srsltid|irgwc|cjevent|cjdata|awc|wickedid|rb_clickid|tduid|iclid|s_cid|_branch_referrer|_branch_match_id|ml_subscriber|ml_subscriber_hash|bsft_clkid|bsft_eid|bsft_mid|bsft_uid|admitad_uid|mtm_[^=&]*|pk_[^=&]*)(=|$)/;
 
+  // Data-driven table for uniform param-strip sites (all use parserAll).
+  // Row shapes:
+  //   { hosts: [...],  params }            — exact-host match
+  //   { match: /re/,   params, stripQ? }   — regex match
+  //   { match: /re/,   clean }             — regex match with custom cleaner
+  const SITES = [
+    { match: bing,       params: bingParams, stripQ: true },
+    { hosts: ["www.linkedin.com"],                               params: linkedinParams },
+    { hosts: ["www.etsy.com"],                                   params: etsyParams },
+    { hosts: ["www.yahoo.com"],                                  params: yahooParams },
+    // ponytail: param-strip only; product-path rewrite deferred pending live Audible URL verification
+    { match: /^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/, clean: cleanAudible },
+    { hosts: ["open.spotify.com"],                               params: spotifyParams },
+    { hosts: ["www.reddit.com", "reddit.com"],                   params: redditParams },
+    { hosts: ["www.twitch.tv", "twitch.tv"],                     params: twitchParams },
+    { hosts: ["www.threads.net", "threads.net", "www.threads.com", "threads.com"], params: threadsParams },
+    // www.aliexpress.com ends with .aliexpress.com, so /\.aliexpress\.com$/ covers both cases
+    { match: /\.aliexpress\.com$/,                               params: aliexpressParams },
+    { hosts: ["www.walmart.com", "walmart.com"],                 params: walmartParams },
+    { hosts: ["www.bestbuy.com", "bestbuy.com"],                 params: bestbuyParams },
+    { hosts: ["www.tiktok.com", "tiktok.com", "vm.tiktok.com"], params: tiktokParams },
+  ];
+
   /*
    * Main
    */
@@ -123,30 +146,6 @@
     // Exception: the Disqus comment widget only ever loads inside an iframe
     // (@include disqus.com/embed/comments/*), so it must keep running there.
     if (window.self !== window.top && currHost !== "disqus.com") {
-      return;
-    }
-
-    if (bing.test(currHost)) {
-      setCurrUrl(cleanBing(currSearch));
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost == "www.linkedin.com") {
-      setCurrUrl(cleanLinkedin(currSearch));
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost == "www.etsy.com") {
-      setCurrUrl(cleanEtsy(currSearch));
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost == "www.yahoo.com") {
-      setCurrUrl(cleanYahoo(currSearch));
-      cleanLinks(parserAll);
       return;
     }
 
@@ -241,16 +240,6 @@
       return;
     }
 
-    if (/^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/.test(currHost)) {
-      // ponytail: param-strip only; product-path rewrite deferred pending live Audible URL verification
-      if (currSearch) {
-        setCurrUrl(cleanAudible(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
     if (currHost == "www.facebook.com") {
       if (currSearch) {
         setCurrUrl(cleanFacebookParams(currSearch));
@@ -265,76 +254,11 @@
       return;
     }
 
-    if (currHost === "open.spotify.com") {
+    for (const r of SITES) {
+      if (r.hosts ? !r.hosts.includes(currHost) : !r.match.test(currHost)) continue;
       if (currSearch) {
-        setCurrUrl(cleanSpotify(currSearch));
+        setCurrUrl(r.clean ? r.clean(currSearch) : cleanParams(currSearch, r.params, r.stripQ));
       }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.reddit.com" || currHost === "reddit.com") {
-      if (currSearch) {
-        setCurrUrl(cleanReddit(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.twitch.tv" || currHost === "twitch.tv") {
-      if (currSearch) {
-        setCurrUrl(cleanTwitch(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.threads.net" || currHost === "threads.net" ||
-        currHost === "www.threads.com" || currHost === "threads.com") {
-      if (currSearch) {
-        setCurrUrl(cleanThreads(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.aliexpress.com" || currHost.endsWith(".aliexpress.com")) {
-      if (currSearch) {
-        setCurrUrl(cleanAliexpress(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.walmart.com" || currHost === "walmart.com") {
-      if (currSearch) {
-        setCurrUrl(cleanWalmart(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.bestbuy.com" || currHost === "bestbuy.com") {
-      if (currSearch) {
-        setCurrUrl(cleanBestbuy(currSearch));
-      }
-
-      cleanLinks(parserAll);
-      return;
-    }
-
-    if (currHost === "www.tiktok.com" || currHost === "tiktok.com" ||
-        currHost === "vm.tiktok.com") {
-      if (currSearch) {
-        setCurrUrl(cleanTiktok(currSearch));
-      }
-
       cleanLinks(parserAll);
       return;
     }
@@ -591,22 +515,6 @@
     return cleanParams(url, googleParams);
   }
 
-  function cleanBing(url) {
-    return cleanParams(url, bingParams, true);
-  }
-
-  function cleanLinkedin(url) {
-    return cleanParams(url, linkedinParams);
-  }
-
-  function cleanEtsy(url) {
-    return cleanParams(url, etsyParams);
-  }
-
-  function cleanYahoo(url) {
-    return cleanParams(url, yahooParams);
-  }
-
   function cleanYoutube(url) {
     return cleanParams(url, youtubeParams);
   }
@@ -625,38 +533,6 @@
 
   function cleanFacebookParams(url) {
     return cleanParams(url, facebookParams);
-  }
-
-  function cleanSpotify(url) {
-    return cleanParams(url, spotifyParams);
-  }
-
-  function cleanReddit(url) {
-    return cleanParams(url, redditParams);
-  }
-
-  function cleanTwitch(url) {
-    return cleanParams(url, twitchParams);
-  }
-
-  function cleanThreads(url) {
-    return cleanParams(url, threadsParams);
-  }
-
-  function cleanAliexpress(url) {
-    return cleanParams(url, aliexpressParams);
-  }
-
-  function cleanWalmart(url) {
-    return cleanParams(url, walmartParams);
-  }
-
-  function cleanBestbuy(url) {
-    return cleanParams(url, bestbuyParams);
-  }
-
-  function cleanTiktok(url) {
-    return cleanParams(url, tiktokParams);
   }
 
   function cleanAmazonParams(url) {
@@ -726,10 +602,6 @@
 
   function cleanGenericRedir(url) {
     return cleanRedir(/[?&](new|img)?u(rl)?=([^&]+)/i, url);
-  }
-
-  function cleanGenericRedir2(url) {
-    return cleanRedir(/[?&]\w*url=([^&]+)/i, url);
   }
 
   function cleanUtm(url) {
@@ -891,13 +763,10 @@
   // ponytail: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
-      cleanGoogle, cleanBing, cleanLinkedin, cleanEtsy, cleanYahoo,
-      cleanYoutube, cleanImdb, cleanNewegg,
+      cleanGoogle, cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
-      cleanEbayParams, cleanUtm, cleanGlobalParams,
-      cleanSpotify, cleanReddit, cleanTwitch, cleanThreads,
-      cleanAliexpress, cleanWalmart, cleanBestbuy, cleanTiktok,
-      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2,
+      cleanEbayParams, cleanUtm, cleanGlobalParams, cleanParams,
+      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
       cleanTargetItemp,
       transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
