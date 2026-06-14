@@ -131,7 +131,7 @@
       }
 
       cleanLinks(parserIMDB);
-      onhashchange = deleteHash();
+      onhashchange = deleteHash;
       return;
     }
 
@@ -190,7 +190,7 @@
       }
 
       cleanLinks(parserAmazon);
-      onhashchange = deleteHash();
+      onhashchange = deleteHash;
       return;
     }
 
