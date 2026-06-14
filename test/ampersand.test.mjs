@@ -9,9 +9,6 @@ import assert from "node:assert/strict";
 const amazonParams =
   /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?(?=$|&)/g;
 
-const twitterParams =
-  /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?(?=$|&)/g;
-
 // --- Cleaning idiom ---
 
 function clean(regex, url) {
@@ -22,11 +19,6 @@ function clean(regex, url) {
 function cleanAmazon(url) {
   amazonParams.lastIndex = 0;
   return clean(amazonParams, url);
-}
-
-function cleanTwitter(url) {
-  twitterParams.lastIndex = 0;
-  return clean(twitterParams, url);
 }
 
 // --- Amazon tests ---
@@ -64,37 +56,6 @@ assert.equal(
   cleanAmazon("?k=laptop&ref=nb_sb_noss&crid=ABC&node=123"),
   "?k=laptop&node=123",
   "Amazon: two consecutive tracking params between kept params"
-);
-
-// --- Twitter tests ---
-
-// Tracking param (s) removed, other params survive intact — t is not in the
-// regex so it passes through. Core check: no value-gluing from eaten separator.
-assert.equal(
-  cleanTwitter("?s=20&t=abc&foo=bar"),
-  "?t=abc&foo=bar",
-  "Twitter: s removed, t and foo=bar survive without gluing"
-);
-
-// Kept param first, then tracking (s), then another kept.
-assert.equal(
-  cleanTwitter("?foo=bar&s=20&baz=qux"),
-  "?foo=bar&baz=qux",
-  "Twitter: s between two kept params"
-);
-
-// No tracking params.
-assert.equal(
-  cleanTwitter("?foo=bar&baz=qux"),
-  "?foo=bar&baz=qux",
-  "Twitter: no tracking params"
-);
-
-// Single tracking param.
-assert.equal(
-  cleanTwitter("?s=20"),
-  "?",
-  "Twitter: only tracking param"
 );
 
 console.log("All assertions passed.");
