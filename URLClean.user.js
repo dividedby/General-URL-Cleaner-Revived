@@ -55,24 +55,24 @@
   const bing = /^[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?$/;
 
   const amazonParams =
-    /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?($|&)/g;
-  const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?($|&)/g;
-  const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?($|&)/g;
+    /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?(?=$|&)/g;
+  const neweggParams = /&(cm_sp|icid|ignorebbr)(=[^&#]*)?(?=$|&)/g;
+  const imdbParams = /&(pf_rd_[a-z]|ref_)(=[^&#]*)?(?=$|&)/g;
   const bingParams =
     /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
   const youtubeParams =
-    /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?($|&)/g;
+    /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?(?=$|&)/g;
   const ebayParams = /[?&](_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?(?=&|$)/g;
-  const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?($|&)/g;
-  const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?($|&)/g;
-  const facebookParams = /&(set)(=[^&#]*)?($|&)/g;
+  const twitterParams = /&(src|ref_src|ref_url|vertical|s)(=[^&#]*)?(?=$|&)/g;
+  const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?(?=$|&)/g;
+  const facebookParams = /&(set)(=[^&#]*)?(?=$|&)/g;
   const googleParams =
     /(?:&|^)(uact|iflsig|sxsrf|ved|source(id)?|s?ei|tab|tbo|h[ls]|n?um|ie|aqs|as_qdr|bav|bi[wh]|bs|bvm|cad|channel|complete|cp|s?client|d[pc]r|e(ch|msg|s_sm)|g(fe|ws)_rd|gpsrc|noj|btnG|o[eq]|p(si|bx|f|q)|rct|rlz|site|spell|tbas|usg|xhr|gs_[a-z]+)(=[^&#]*)?(?=$|&)/g;
   const linkedinParams =
-    /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?($|&)/g;
+    /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?(?=$|&)/g;
   const etsyParams =
-    /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?($|&)/g;
-  const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?($|&)/g;
+    /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?(?=$|&)/g;
+  const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?(?=$|&)/g;
 
   /*
    * Main

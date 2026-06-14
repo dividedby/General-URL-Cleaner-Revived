@@ -123,14 +123,13 @@ describe("cleanAmazonParams", () => {
     );
   });
 
-  it("strips ref and crid; trailing & consumed merges i into keywords", () => {
-    // "keywords=laptop" + "ref=..." stripped (consumes &) + "crid=..." stripped (consumes &) + "i=electronics"
-    // After first strip: ?&keywords=laptopi=electronics (& between crid and i was consumed)
+  it("strips ref/crid/sprefix while keeping the separator before i", () => {
+    // ref, crid, sprefix stripped; kept params keywords and i stay joined by &
     assert.equal(
       cleanAmazonParams(
         "?keywords=laptop&ref=sr_1_1&crid=ABC123&sprefix=lap%2Caps%2C100&i=electronics"
       ),
-      "?keywords=laptopi=electronics"
+      "?keywords=laptop&i=electronics"
     );
   });
 
@@ -222,15 +221,11 @@ describe("cleanAudible", () => {
 // param following a stripped one is eaten, merging param names together.
 // ---------------------------------------------------------------------------
 describe("cleanYahoo", () => {
-  it("strips guccounter; following guce_referrer param loses & separator", () => {
-    // ?p=news&guccounter=1&guce_referrer=abc&guce_referrer_sig=xyz
-    // After ?→?&:  ?&p=news&guccounter=1&guce_referrer=abc&guce_referrer_sig=xyz
-    // Strip &guccounter=1& -> consumes trailing & -> guce_referrer joins p=news directly
-    // Strip &guce_referrer_sig=xyz (end) -> gone
-    // Result after .replace("&",""): ?p=newsguce_referrer=abc
+  it("strips guccounter/guce_referrer/guce_referrer_sig, keeping p", () => {
+    // all three guce* params are tracking and removed; kept param p survives
     assert.equal(
       cleanYahoo("?p=news&guccounter=1&guce_referrer=abc&guce_referrer_sig=xyz"),
-      "?p=newsguce_referrer=abc"
+      "?p=news"
     );
   });
 
@@ -262,14 +257,11 @@ describe("cleanLinkedin", () => {
     );
   });
 
-  it("strips trk and refId at the end; adjacent param loses & separator", () => {
-    // ?keywords=engineer&location=Austin&trk=abc&refId=xyz
-    // &trk=abc& consumed -> ?&keywords=engineer&location=AustinrefId=xyz (& before refId eaten)
-    // &refId=xyz at end stripped
-    // After .replace("&",""): ?keywords=engineer&location=AustinrefId=xyz
+  it("strips trk and refId at the end, keeping keywords and location", () => {
+    // trk and refId removed; kept params keywords and location stay joined by &
     assert.equal(
       cleanLinkedin("?keywords=engineer&location=Austin&trk=abc&refId=xyz"),
-      "?keywords=engineer&location=AustinrefId=xyz"
+      "?keywords=engineer&location=Austin"
     );
   });
 
