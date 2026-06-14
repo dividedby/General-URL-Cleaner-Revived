@@ -504,66 +504,56 @@
    * URL string functions
    */
 
+  // Shared separator-fixup idiom: prefix every param with &, delete matched
+  // params, then restore the leading separator. Pass stripTrailingQ=true for
+  // cleaners that should collapse a bare ? to "" when all params are removed.
+  function cleanParams(url, regex, stripTrailingQ) {
+    var result = url.replace("?", "?&").replace(regex, "").replace("&", "");
+    return stripTrailingQ ? result.replace(/\?$/, "") : result;
+  }
+
   function cleanGoogle(url) {
-    return url.replace("?", "?&").replace(googleParams, "").replace("&", "");
+    return cleanParams(url, googleParams);
   }
 
   function cleanBing(url) {
-    return url
-      .replace("?", "?&")
-      .replace(bingParams, "")
-      .replace("&", "")
-      .replace(/\?$/, "");
+    return cleanParams(url, bingParams, true);
   }
 
   function cleanLinkedin(url) {
-    return url.replace("?", "?&").replace(linkedinParams, "").replace("&", "");
+    return cleanParams(url, linkedinParams);
   }
 
   function cleanEtsy(url) {
-    return url.replace("?", "?&").replace(etsyParams, "").replace("&", "");
+    return cleanParams(url, etsyParams);
   }
 
   function cleanYahoo(url) {
-    return url.replace("?", "?&").replace(yahooParams, "").replace("&", "");
+    return cleanParams(url, yahooParams);
   }
 
   function cleanYoutube(url) {
-    return url.replace("?", "?&").replace(youtubeParams, "").replace("&", "");
+    return cleanParams(url, youtubeParams);
   }
 
   function cleanImdb(url) {
-    return url
-      .replace("?", "?&")
-      .replace(imdbParams, "")
-      .replace("&", "")
-      .replace(/\?$/, "");
+    return cleanParams(url, imdbParams, true);
   }
 
   function cleanNewegg(url) {
-    return url.replace("?", "?&").replace(neweggParams, "").replace("&", "");
+    return cleanParams(url, neweggParams);
   }
 
   function cleanTargetParams(url) {
-    return url
-      .replace("?", "?&", "#")
-      .replace(targetParams, "")
-      .replace("&", "");
+    return cleanParams(url, targetParams);
   }
 
   function cleanFacebookParams(url) {
-    return url
-      .replace("?", "?&", "#")
-      .replace(facebookParams, "")
-      .replace("&", "");
+    return cleanParams(url, facebookParams);
   }
 
   function cleanAmazonParams(url) {
-    return url
-      .replace("?", "?&")
-      .replace(amazonParams, "")
-      .replace("&", "")
-      .replace(/\?$/, "");
+    return cleanParams(url, amazonParams, true);
   }
 
   function cleanAudible(url) {
@@ -584,7 +574,7 @@
   }
 
   function cleanEbayParams(url) {
-    return url.replace("?", "?&").replace(ebayParams, "").replace("&", "");
+    return cleanParams(url, ebayParams);
   }
 
   function cleanTargetItemp(a) {
