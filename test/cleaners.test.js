@@ -18,6 +18,7 @@ const {
   cleanTargetParams,
   cleanFacebookParams,
   cleanUtm,
+  cleanGlobalParams,
   cleanYoutubeRedir,
   cleanAmazonRedir,
   cleanGenericRedir,
@@ -795,6 +796,477 @@ describe("cleanFacebookParams", () => {
     assert.equal(
       cleanFacebookParams("https://www.facebook.com/photo"),
       "https://www.facebook.com/photo"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// cleanGlobalParams
+// Strips: universal click-id and email-tracking params (fbclid, gclid, dclid,
+//   gclsrc, gad_source, gad_campaignid, msclkid, twclid, ttclid, fbadid,
+//   igshid, igsh, mc_eid, mc_cid, _hsenc, _hsmi, __hstc, __hssc, __hsfp,
+//   hsCtaTracking, vero_id, vero_conv, oly_anon_id, oly_enc_id, __s,
+//   yclid, ysclid, _openstat, srsltid, irgwc, cjevent, cjdata, awc,
+//   wickedid, rb_clickid, tduid, iclid, s_cid, _branch_referrer,
+//   _branch_match_id, ml_subscriber, ml_subscriber_hash, bsft_clkid,
+//   bsft_eid, bsft_mid, bsft_uid, admitad_uid, mtm_*, pk_*)
+// Keeps:  all functional params (id, q, page, ref, etc.)
+// Uses the same split/splice idiom as cleanUtm — no separator fixup needed.
+// ---------------------------------------------------------------------------
+describe("cleanGlobalParams", () => {
+  // --- Google Ads click-ids ---
+  it("strips gclid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=123&gclid=abc"),
+      "https://example.com/?id=123"
+    );
+  });
+
+  it("strips dclid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=search&dclid=xyz"),
+      "https://example.com/?q=search"
+    );
+  });
+
+  it("strips gclsrc while keeping page", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?page=2&gclsrc=aw.ds"),
+      "https://example.com/?page=2"
+    );
+  });
+
+  it("strips gad_source while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&gad_source=1"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips gad_campaignid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=5&gad_campaignid=99"),
+      "https://example.com/?id=5"
+    );
+  });
+
+  // --- Facebook / Instagram ---
+  it("strips fbclid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=42&fbclid=IwAR123"),
+      "https://example.com/?id=42"
+    );
+  });
+
+  it("strips igshid while keeping ref", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?ref=home&igshid=abc"),
+      "https://example.com/?ref=home"
+    );
+  });
+
+  it("strips igsh while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&igsh=def"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips fbadid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=1&fbadid=xyz"),
+      "https://example.com/?id=1"
+    );
+  });
+
+  // --- Microsoft / Bing ---
+  it("strips msclkid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=hello&msclkid=abc123"),
+      "https://example.com/?q=hello"
+    );
+  });
+
+  // --- Twitter / TikTok ---
+  it("strips twclid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=7&twclid=tw123"),
+      "https://example.com/?id=7"
+    );
+  });
+
+  it("strips ttclid while keeping page", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?page=1&ttclid=tt456"),
+      "https://example.com/?page=1"
+    );
+  });
+
+  // --- Yandex ---
+  it("strips yclid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=cats&yclid=ya1"),
+      "https://example.com/?q=cats"
+    );
+  });
+
+  it("strips ysclid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=dogs&ysclid=ya2"),
+      "https://example.com/?q=dogs"
+    );
+  });
+
+  // --- Mailchimp ---
+  it("strips mc_eid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=1&mc_eid=abc"),
+      "https://example.com/?id=1"
+    );
+  });
+
+  it("strips mc_cid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=2&mc_cid=xyz"),
+      "https://example.com/?id=2"
+    );
+  });
+
+  // --- HubSpot ---
+  it("strips _hsenc while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&_hsenc=p8AParlPi"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips _hsmi while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=3&_hsmi=123"),
+      "https://example.com/?id=3"
+    );
+  });
+
+  it("strips __hstc while keeping page", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?page=1&__hstc=abc.def.123"),
+      "https://example.com/?page=1"
+    );
+  });
+
+  it("strips __hssc while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=foo&__hssc=xyz"),
+      "https://example.com/?q=foo"
+    );
+  });
+
+  it("strips __hsfp while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=9&__hsfp=123"),
+      "https://example.com/?id=9"
+    );
+  });
+
+  it("strips hsCtaTracking while keeping ref", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?ref=nav&hsCtaTracking=a|b"),
+      "https://example.com/?ref=nav"
+    );
+  });
+
+  // --- Vero ---
+  it("strips vero_id while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=5&vero_id=abc"),
+      "https://example.com/?id=5"
+    );
+  });
+
+  it("strips vero_conv while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=hi&vero_conv=xyz"),
+      "https://example.com/?q=hi"
+    );
+  });
+
+  // --- Omeda/Oly ---
+  it("strips oly_anon_id while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=8&oly_anon_id=abc"),
+      "https://example.com/?id=8"
+    );
+  });
+
+  it("strips oly_enc_id while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&oly_enc_id=xyz"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  // --- Drip (__s) ---
+  it("strips __s while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=4&__s=abc123"),
+      "https://example.com/?id=4"
+    );
+  });
+
+  // --- Openstat / Yandex ---
+  it("strips _openstat while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&_openstat=abc"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  // --- Google Shopping (srsltid) ---
+  it("strips srsltid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=1&srsltid=abc"),
+      "https://example.com/?id=1"
+    );
+  });
+
+  // --- Affiliate networks ---
+  it("strips irgwc while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&irgwc=1"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips cjevent while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=2&cjevent=abc"),
+      "https://example.com/?id=2"
+    );
+  });
+
+  it("strips cjdata while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=foo&cjdata=xyz"),
+      "https://example.com/?q=foo"
+    );
+  });
+
+  it("strips awc while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=3&awc=1234_abc"),
+      "https://example.com/?id=3"
+    );
+  });
+
+  it("strips wickedid while keeping page", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?page=2&wickedid=xyz"),
+      "https://example.com/?page=2"
+    );
+  });
+
+  it("strips rb_clickid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&rb_clickid=abc"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips tduid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=9&tduid=abc"),
+      "https://example.com/?id=9"
+    );
+  });
+
+  it("strips iclid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=hi&iclid=xyz"),
+      "https://example.com/?q=hi"
+    );
+  });
+
+  it("strips s_cid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=5&s_cid=email-123"),
+      "https://example.com/?id=5"
+    );
+  });
+
+  // --- Branch.io ---
+  it("strips _branch_referrer while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&_branch_referrer=abc"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips _branch_match_id while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=1&_branch_match_id=xyz"),
+      "https://example.com/?id=1"
+    );
+  });
+
+  // --- Mailerlite ---
+  it("strips ml_subscriber while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&ml_subscriber=abc"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips ml_subscriber_hash while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=2&ml_subscriber_hash=xyz"),
+      "https://example.com/?id=2"
+    );
+  });
+
+  // --- Bsft (BenchmarkEmail / Salesforce MC) ---
+  it("strips bsft_clkid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&bsft_clkid=abc"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips bsft_eid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=3&bsft_eid=xyz"),
+      "https://example.com/?id=3"
+    );
+  });
+
+  it("strips bsft_mid while keeping page", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?page=1&bsft_mid=abc"),
+      "https://example.com/?page=1"
+    );
+  });
+
+  it("strips bsft_uid while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=foo&bsft_uid=xyz"),
+      "https://example.com/?q=foo"
+    );
+  });
+
+  // --- Admitad ---
+  it("strips admitad_uid while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=7&admitad_uid=abc"),
+      "https://example.com/?id=7"
+    );
+  });
+
+  // --- mtm_* prefix (Matomo) ---
+  it("strips mtm_source while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&mtm_source=newsletter"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips mtm_campaign while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=1&mtm_campaign=spring"),
+      "https://example.com/?id=1"
+    );
+  });
+
+  // --- pk_* prefix (Matomo legacy) ---
+  it("strips pk_source while keeping q", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?q=test&pk_source=email"),
+      "https://example.com/?q=test"
+    );
+  });
+
+  it("strips pk_campaign while keeping id", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=2&pk_campaign=fall"),
+      "https://example.com/?id=2"
+    );
+  });
+
+  // --- Functional params are preserved ---
+  it("preserves id, q, and page when no tracking params present", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?id=123&q=search&page=2"),
+      "https://example.com/?id=123&q=search&page=2"
+    );
+  });
+
+  it("preserves ref (functional) — not in global list", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?ref=home&q=test"),
+      "https://example.com/?ref=home&q=test"
+    );
+  });
+
+  // --- Mixed: tracking + functional => only tracking removed, separators well-formed ---
+  it("mixed: strips fbclid+gclid, keeps id and q with correct separators", () => {
+    assert.equal(
+      cleanGlobalParams(
+        "https://example.com/?id=42&fbclid=IwAR123&q=search&gclid=abc"
+      ),
+      "https://example.com/?id=42&q=search"
+    );
+  });
+
+  it("mixed: strips msclkid from first position, keeps q and page", () => {
+    assert.equal(
+      cleanGlobalParams(
+        "https://example.com/?msclkid=abc&q=shoes&page=3"
+      ),
+      "https://example.com/?q=shoes&page=3"
+    );
+  });
+
+  it("mixed: multiple tracking params between two functional ones — no stray separators", () => {
+    assert.equal(
+      cleanGlobalParams(
+        "https://example.com/?id=1&fbclid=x&gclid=y&msclkid=z&page=2"
+      ),
+      "https://example.com/?id=1&page=2"
+    );
+  });
+
+  // --- No query string — unchanged ---
+  it("leaves URL with no query string unchanged", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/page"),
+      "https://example.com/page"
+    );
+  });
+
+  // --- Idempotent ---
+  it("is idempotent: cleaning an already-clean URL is a no-op", () => {
+    const url = "https://example.com/?id=42&q=search";
+    assert.equal(cleanGlobalParams(url), url);
+  });
+
+  // --- utm_ params are NOT stripped by cleanGlobalParams (cleanUtm handles those) ---
+  it("does not strip utm_ params (cleanUtm's responsibility)", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?utm_source=email&id=1"),
+      "https://example.com/?utm_source=email&id=1"
+    );
+  });
+
+  // --- Search-string form (mirrors how transformGlobalUrl passes u.search) ---
+  it("strips fbclid from a bare search string ?fbclid=x&id=1", () => {
+    assert.equal(
+      cleanGlobalParams("?fbclid=x&id=1"),
+      "?id=1"
+    );
+  });
+
+  it("strips all tracking, leaves empty string when nothing functional remains", () => {
+    assert.equal(
+      cleanGlobalParams("https://example.com/?fbclid=x&gclid=y"),
+      "https://example.com/"
     );
   });
 });
