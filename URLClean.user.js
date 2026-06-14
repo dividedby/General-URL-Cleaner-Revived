@@ -22,6 +22,15 @@
 // @include     /^https:\/\/[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     https://open.spotify.com/*
+// @include     https://www.reddit.com/*
+// @include     https://reddit.com/*
+// @include     https://www.twitch.tv/*
+// @include     https://twitch.tv/*
+// @include     https://www.threads.net/*
+// @include     https://threads.net/*
+// @include     https://www.threads.com/*
+// @include     https://threads.com/*
 // @include     *
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
@@ -76,6 +85,10 @@
   const etsyParams =
     /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?(?=$|&)/g;
   const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?(?=$|&)/g;
+  const spotifyParams = /&(si)(=[^&#]*)?(?=$|&)/g;
+  const redditParams = /&(correlation_id|ref_campaign|ref_source|share_id)(=[^&#]*)?(?=$|&)/g;
+  const twitchParams = /&(tt_medium|tt_content)(=[^&#]*)?(?=$|&)/g;
+  const threadsParams = /&(xmt)(=[^&#]*)?(?=$|&)/g;
   // Universal click-id / email-tracking params safe to strip on every site.
   // Sourced from AdGuard URL Tracking filter, ClearURLs, and Brave's query-string filter.
   // Excludes: _gl (GA4 cross-domain stitching), mkt_tok (Marketo unsubscribe path),
@@ -224,6 +237,43 @@
 
     if (currHost == "disqus.com") {
       cleanLinks(parserDisqus);
+      return;
+    }
+
+    if (currHost === "open.spotify.com") {
+      if (currSearch) {
+        setCurrUrl(cleanSpotify(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.reddit.com" || currHost === "reddit.com") {
+      if (currSearch) {
+        setCurrUrl(cleanReddit(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.twitch.tv" || currHost === "twitch.tv") {
+      if (currSearch) {
+        setCurrUrl(cleanTwitch(currSearch));
+      }
+
+      cleanLinks(parserAll);
+      return;
+    }
+
+    if (currHost === "www.threads.net" || currHost === "threads.net" ||
+        currHost === "www.threads.com" || currHost === "threads.com") {
+      if (currSearch) {
+        setCurrUrl(cleanThreads(currSearch));
+      }
+
+      cleanLinks(parserAll);
       return;
     }
 
@@ -489,6 +539,22 @@
     return cleanParams(url, facebookParams);
   }
 
+  function cleanSpotify(url) {
+    return cleanParams(url, spotifyParams);
+  }
+
+  function cleanReddit(url) {
+    return cleanParams(url, redditParams);
+  }
+
+  function cleanTwitch(url) {
+    return cleanParams(url, twitchParams);
+  }
+
+  function cleanThreads(url) {
+    return cleanParams(url, threadsParams);
+  }
+
   function cleanAmazonParams(url) {
     return cleanParams(url, amazonParams, true);
   }
@@ -725,6 +791,7 @@
       cleanYoutube, cleanImdb, cleanNewegg,
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm, cleanGlobalParams,
+      cleanSpotify, cleanReddit, cleanTwitch, cleanThreads,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
       cleanTargetItemp,
@@ -735,6 +802,7 @@
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams, globalParams,
+      spotifyParams, redditParams, twitchParams, threadsParams,
     };
   }
 })();
