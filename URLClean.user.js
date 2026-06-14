@@ -118,6 +118,14 @@
    */
 
   if (_domAvailable) {
+    // ponytail: cheap @noframes equivalent — skip injection in subframes so
+    // embed-heavy pages don't get a MutationObserver per ad/tracking iframe.
+    // Exception: the Disqus comment widget only ever loads inside an iframe
+    // (@include disqus.com/embed/comments/*), so it must keep running there.
+    if (window.self !== window.top && currHost !== "disqus.com") {
+      return;
+    }
+
     if (bing.test(currHost)) {
       setCurrUrl(cleanBing(currSearch));
       cleanLinks(parserAll);
