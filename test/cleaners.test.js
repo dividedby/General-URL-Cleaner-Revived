@@ -90,6 +90,18 @@ describe("cleanEbayParams", () => {
   it("returns ? when only tracking params are present", () => {
     assert.equal(cleanEbayParams("?_sacat=0&_from=R40"), "?");
   });
+
+  it("retains _sop (sort-order) while stripping _trksid (tracking)", () => {
+    // _sop is eBay's functional sort param and must never be stripped.
+    // _trksid matches _(trksid) in ebayParams and is removed.
+    // Input:  ?_nkw=foo&_sop=15&_trksid=abc
+    // _trksid matched at end (lookahead $) → stripped via lookahead, leaving no trailing &
+    // Result: ?_nkw=foo&_sop=15
+    assert.equal(
+      cleanEbayParams("?_nkw=foo&_sop=15&_trksid=abc"),
+      "?_nkw=foo&_sop=15"
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------
