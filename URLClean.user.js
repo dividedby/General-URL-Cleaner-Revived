@@ -668,16 +668,18 @@
     return cleanGenericRedir(u.search);
   }
 
-  // transformDisqusUrl reproduces the CURRENT (broken) parserDisqus behavior exactly.
-  // For disq.us/url: the original sets a.href = a.href.replace(/\:.*/, "") which
-  // strips from the first colon, leaving only "https" — a.search then becomes "",
-  // so cleanGenericRedir("") throws TypeError (null match).
-  // Non-disq.us/url links fall straight to cleanGenericRedir(search) which works.
-  // ponytail: bug — disq.us/url branch always throws; tracked separately for fixing.
+  // For disq.us/url: decode the redirect target via cleanGenericRedir, then strip
+  // any trailing `:cid`-style suffix (e.g. ":1234567") added by Disqus — never
+  // the protocol colon. Guard when no redirect param is present (return href).
+  // Non-disq.us/url links fall straight to cleanGenericRedir(search).
   function transformDisqusUrl(href) {
     var u = new URL(href);
     if (u.host === "disq.us" && u.pathname === "/url") {
-      return cleanGenericRedir("");
+      if (!u.searchParams.get("url")) {
+        return href;
+      }
+      var decoded = cleanGenericRedir(u.search);
+      return decoded.replace(/:[^/:]+$/, "");
     }
     return cleanGenericRedir(u.search);
   }
