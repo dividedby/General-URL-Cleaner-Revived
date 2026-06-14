@@ -19,6 +19,7 @@
 // @include     https://www.etsy.com/*
 // @include     https://www.yahoo.com/*
 // @include     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
 // @include     /^https:\/\/[a-z0-9.]*twitter.com\/.*$/
@@ -190,6 +191,16 @@
 
       cleanLinks(parserAmazon);
       onhashchange = deleteHash();
+      return;
+    }
+
+    if (/^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/.test(currHost)) {
+      // ponytail: param-strip only; product-path rewrite deferred pending live Audible URL verification
+      if (currSearch) {
+        setCurrUrl(cleanAmazonParams(currSearch));
+      }
+
+      cleanLinks(parserAll);
       return;
     }
 

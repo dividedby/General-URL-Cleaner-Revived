@@ -146,6 +146,35 @@ describe("cleanAmazonParams", () => {
 });
 
 // ---------------------------------------------------------------------------
+// cleanAmazonParams (Audible)
+// Audible shares Amazon's tracking-param structure; the dispatch branch reuses
+// cleanAmazonParams directly, so these cases prove the shared cleaner works on
+// Audible-style query strings.
+// Strips: ref, pf_rd_*  (matched by amazonParams)
+// Keeps:  node and other functional params
+// ---------------------------------------------------------------------------
+describe("cleanAmazonParams (Audible tracking params)", () => {
+  it("strips ref and pf_rd_r while keeping node", () => {
+    // ?ref=foo&pf_rd_r=bar&node=123
+    // After ?→?&: ?&ref=foo&pf_rd_r=bar&node=123
+    // &ref=foo& matched → stripped (trailing & consumed) → ?&pf_rd_r=bar&node=123
+    // &pf_rd_r=bar& matched → stripped (trailing & consumed) → ?&node=123
+    // .replace("&","") removes first &: ?node=123
+    assert.equal(
+      cleanAmazonParams("?ref=foo&pf_rd_r=bar&node=123"),
+      "?node=123"
+    );
+  });
+
+  it("strips ref alone from an Audible-style query string", () => {
+    assert.equal(
+      cleanAmazonParams("?node=123&ref=nb_sb_noss"),
+      "?node=123"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // cleanYahoo
 // Strips: guccounter, guce_referrer, guce_referrer_sig
 // Keeps:  p, fr, and other functional params
