@@ -1,61 +1,93 @@
-<h1>General URL Cleaner Revived</h1>
-Cleans various URL's and/or page links on Google, Youtube, Newegg, Amazon, Ebay, Facebook, Twitter, IMDB, StaticICE, Target<br><br>
-It will clean these URLs regardless of what top level domain (.com, .ca, .fr, etc) or subdomain (unless excluded, various Google sites break easily like Docs, Hangouts, Takeout, etc)<br>
-<br>Feel free to report issues or make pull requests for fixes, enhancements, etc: https://github.com/dividedby/General-URL-Cleaner-Revived<br><br>
-https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived
+# General URL Cleaner Revived
 
-<h3>Recent fixes</h3>
-[Add] Properly support all Amazon TLDs: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/12
-[Add] Strip "sclient" parameter from Google search results: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/4<br>
-[Fix] Resolve issue with "undefined" being added to end of cleaned URLs: https://github.com/dividedby/General-URL-Cleaner-Revived/issues/5<br>
-[Fix] Updated regex of site matching to better catch sites and any top level domain (.com, .co.uk. .fr, etc): https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived/discussions/143277<br>
-[Add] Add additional Bing parameters to be cleaned: https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived/discussions/143277<br>
-[Add] New parameters for most supported sites, script runs at document-end to better catch any changes made to URLs that can be cleaned, updates to the core script to formatting and correct JS conventions<br>
+A Greasemonkey/Tampermonkey **userscript** that strips tracking and redirect
+parameters from URLs on shopping, search, and social sites — both the address
+in your browser bar and the links on the page.
 
-<h3>Google</h3>
-Cleans Google search URL's<br>
-A normal google search URL might look like this: https://www.google.com/search?num=100&q=google&oq=google&gs_l=serp.3..0l10.7976.8565.0.9999.6.6.0.0.0.0.358.617.2-1j1.2.0....0...1c.1.64.serp..4.2.615.BQ3ZvdzuPGE<br>
-A cleaned google search url: https://www.google.com/search?q=google<br>
-Removes redirection of Google results links<br>
-Works with international Google sites (not just .com)
+- **Install / listing:** [GreasyFork](https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived)
+- **Issues / PRs:** [GitHub](https://github.com/dividedby/General-URL-Cleaner-Revived)
+- **Forked from** [beck's General URL Cleaner](https://greasyfork.org/en/scripts/395298-general-url-cleaner).
 
-<h3>Bing</h3>
-Cleans Bing search URL's<br>
-A normal google search URL might look like this: https://www.bing.com/search?q=google&qs=n&form=QBLH&pq=google&sc=9-2&sp=-1&sk=&cvid=97312C9A5750490FB6C424E46C6759EF<br>
-A cleaned bing search url: https://www.bing.com/search?q=google
+## What it does
 
-<h3>Youtube</h3>
-Cleaned url always looks like this: https://www.youtube.com/watch?v=[video-id]<br>
-Removes redirection of description links
+The script runs on each supported site and:
 
-<h3>Amazon</h3>
-Cleaned url always looks like this: http://www.amazon.com/gp/product/[item-id]/ Or this: http://www.amazon.com/dp/[item-id]/<br>
-Works with international sites (not just .com)
+- Rewrites the current page URL via `history.replaceState()` to drop tracking
+  params (e.g. `utm_*`, click IDs, session tokens).
+- Cleans links as the page renders them (a `MutationObserver` watches for
+  dynamically-added links) and strips click-tracking attributes like
+  `onmousedown` and `jsaction`.
+- Resolves redirect wrappers so links point straight at their destination.
 
-<h3>Facebook</h3>
-Typical Facebook link looks like this: https://www.facebook.com/photo/?fbid=3121744148088497&set=pcb.3121748278088084<br>
-Cleaned URL looks like this: https://www.facebook.com/photo/?fbid=3121744148088497
+It matches sites regardless of top-level domain (`.com`, `.ca`, `.fr`, …) or
+subdomain, except where excluded — some Google properties (Docs, Hangouts,
+Takeout, etc.) are excluded because cleaning breaks them.
 
-<h3>Newegg</h3>
-Cleaned url always looks like this: http://www.newegg.com/Product/Product.aspx?Item=[item-id]
+## Supported sites
 
-<h3>Ebay</h3>
-Cleaned url always looks like this: http://www.ebay.com/itm/[item-id]<br>
-Works with international sites (not just .com)
+Dedicated handlers: **Google**, **Bing**, **YouTube**, **Amazon**, **eBay**,
+**Newegg**, **Target**, **Facebook**, **IMDB**, **Disqus**, **Audible**,
+**LinkedIn**, **Etsy**, **Yahoo**, **Spotify**, **Reddit**, **Twitch**,
+**Threads**, **AliExpress**, **Walmart**, **Best Buy**, **TikTok**.
 
-<h3>Target</h3>
-Target product URLs must be reloaded when coming from search results as they load in via code and not a page refresh<br>
-Cleaned url always looks like this: https://www.target.com/p/A-[item-id]<br>
-Removes unnecessary parameters
+On every other site, the script still strips `utm_*` and common generic
+tracking parameters.
 
-<h3>Other</h3>
-Removes unnecessary parameters from, Twitter, StaticICE, Disqus<br>
-Removes redirection of links
+### Examples
 
-<br><br>This script forked from beck's script. https://greasyfork.org/en/scripts/395298-general-url-cleaner
-<h3>Additional fixed</h3>
-[Add] Add Target.com cleaned item urls, will look like this: https://www.target.com/p/A-[item-id]<br>
-[Fix] Google Takeout downloads, added takeout.google.com to the exclusions: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974<br>
-[Fix] Resolved issue with Google search parameter sa, without it certain search links aren't able to redirect properly: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/95974<br>
-[Add] Strip s parameter from Twitter post links: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/71892<br>
-[Fix] Opening images from normal Google search now expands the selected image: https://greasyfork.org/en/scripts/395298-general-url-cleaner/discussions/87398
+| Site | Before | After |
+|------|--------|-------|
+| Google | `…/search?num=100&q=google&oq=google&gs_l=serp.3..&sclient=…` | `…/search?q=google` |
+| Bing | `…/search?q=google&qs=n&form=QBLH&pq=google&cvid=97312…` | `…/search?q=google` |
+| YouTube | `…/watch?v=ID&feature=…&t=…` | `…/watch?v=ID` |
+| Amazon | `…/gp/product/ID/ref=…?th=1` | `…/gp/product/ID/` |
+| eBay | `…/itm/ID?hash=…&epid=…` | `…/itm/ID` |
+| Facebook | `…/photo/?fbid=ID&set=pcb.…` | `…/photo/?fbid=ID` |
+| Target | `…/p/A-ID?preselect=…&afid=…` | `…/p/A-ID` |
+
+## Install
+
+1. Install a userscript manager — [Tampermonkey](https://www.tampermonkey.net/)
+   or [Violentmonkey](https://violentmonkey.github.io/).
+2. Open the [GreasyFork page](https://greasyfork.org/en/scripts/432387-general-url-cleaner-revived)
+   and click **Install**.
+
+To install from this repo, open `URLClean.user.js` raw — Tampermonkey detects
+the userscript header and offers to install it.
+
+## Development
+
+The whole script is a single file, `URLClean.user.js`. There is **no
+`package.json`, no bundler, and no linter** — it installs directly into
+Tampermonkey.
+
+Editing what gets cleaned:
+
+- **`@include` rules** (metadata header) declare which sites the script runs on.
+- **Parameter registry** — per-site regexes naming which query params to strip.
+- **`clean<Site>()`** functions apply each site's param regex.
+- **`parser<Site>()`** functions strip click-tracking attributes from links.
+
+To add a site: add an `@include`, a param regex, a `clean<Site>()`, and (if
+needed) a `parser<Site>()`, then wire it into site dispatch. See
+[`CLAUDE.md`](./CLAUDE.md) for the architecture map and
+[`CONTEXT.md`](./CONTEXT.md) for terminology.
+
+### Tests
+
+The pure cleaner and redirect-decoder functions are unit-tested with Node's
+built-in test runner (no dependencies):
+
+```sh
+node --test
+```
+
+[CI](.github/workflows/test.yml) runs the same on Node 20 for every push and
+PR. DOM integration paths (MutationObserver, live link parsing,
+click-tracking attributes) are verified manually in-browser — see
+[ADR 0001](docs/adr/0001-pure-url-transform-seam.md) for why the test seam is
+drawn at the pure transforms.
+
+## License
+
+[GPL v3 or later](./LICENSE).
