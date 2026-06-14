@@ -329,12 +329,7 @@
     }
 
     if (google.test(host)) {
-      if (path === "/imgres" || path === "/url") {
-        a.href = cleanGenericRedir(a.search);
-      } else if (a.search) {
-        a.search = cleanGoogle(a.search);
-      }
-
+      a.href = transformGoogleUrl(a.href);
       return;
     }
 
@@ -418,22 +413,7 @@
       return;
     }
 
-    if (a.pathname.includes("black-curtain-redirect.html")) {
-      a.href = cleanAmazonRedir(location);
-    } else if (a.pathname.includes("/dp/")) {
-      a.href = cleanAmazonItemdp(a);
-    } else if (a.pathname.includes("/gp/product")) {
-      a.href = cleanAmazonItemgp(a);
-    } else if (a.pathname.includes("/picassoRedirect")) {
-      a.href = cleanGenericRedir(a.search);
-      a.search = "";
-    } else if (a.search) {
-      a.href = cleanAmazonParams(a.href);
-    }
-
-    if (a.pathname.includes("/ref=")) {
-      a.pathname = cleanAmazonParams(a.pathname);
-    }
+    a.href = transformAmazonUrl(a.href);
   }
 
   function parserEbay(a) {
@@ -441,13 +421,7 @@
       return;
     }
 
-    if (a.pathname.includes("/itm/")) {
-      a.href = cleanEbayItem(a);
-    } else if (a.host.startsWith("pulsar.")) {
-      a.href = cleanEbayPulsar(a.search);
-    } else if (a.search) {
-      a.search = cleanEbayParams(a.search);
-    }
+    a.href = transformEbayUrl(a.href, location.origin);
   }
 
   function parserNewegg(a) {
@@ -598,9 +572,9 @@
     return a.origin + "/itm" + item + origList + a.hash;
   }
 
-  function cleanEbayPulsar(url) {
+  function cleanEbayPulsar(url, origin) {
     let item = url.match(/%7B%22mecs%22%3A%22([0-9]{12})/).pop();
-    return location.origin + "/itm/" + item;
+    return (origin || location.origin) + "/itm/" + item;
   }
 
   function cleanRedir(pattern, url) {
@@ -644,6 +618,58 @@
     );
   }
 
+  function transformGoogleUrl(href) {
+    var u = new URL(href);
+    if (u.pathname === "/imgres" || u.pathname === "/url") {
+      return cleanGenericRedir(u.search);
+    } else if (u.search) {
+      u.search = cleanGoogle(u.search);
+    }
+    return u.href;
+  }
+
+  function transformAmazonUrl(href) {
+    var u = new URL(href);
+    var result = href;
+
+    if (u.pathname.includes("black-curtain-redirect.html")) {
+      result = cleanAmazonRedir(u.search);
+    } else if (u.pathname.includes("/dp/")) {
+      result = cleanAmazonItemdp(u);
+    } else if (u.pathname.includes("/gp/product")) {
+      result = cleanAmazonItemgp(u);
+    } else if (u.pathname.includes("/picassoRedirect")) {
+      var t = new URL(cleanGenericRedir(u.search));
+      t.search = "";
+      result = t.href;
+    } else if (u.search) {
+      result = cleanAmazonParams(href);
+    }
+
+    var u2 = new URL(result);
+    if (u2.pathname.includes("/ref=")) {
+      u2.pathname = cleanAmazonParams(u2.pathname);
+      result = u2.href;
+    }
+
+    return result;
+  }
+
+  function transformEbayUrl(href, pageOrigin) {
+    var u = new URL(href);
+
+    if (u.pathname.includes("/itm/")) {
+      return cleanEbayItem(u);
+    } else if (u.host.startsWith("pulsar.")) {
+      return cleanEbayPulsar(u.search, pageOrigin);
+    } else if (u.search) {
+      u.search = cleanEbayParams(u.search);
+      return u.href;
+    }
+
+    return href;
+  }
+
   // ponytail: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
@@ -652,6 +678,8 @@
       cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
       cleanEbayParams, cleanUtm,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir, cleanGenericRedir2, cleanPocketRedir,
+      cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
+      transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
       googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
       bingParams, youtubeParams, targetParams,
       facebookParams, linkedinParams, etsyParams, yahooParams,
