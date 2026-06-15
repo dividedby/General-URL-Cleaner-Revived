@@ -8,6 +8,28 @@ in your browser bar and the links on the page.
 - **Issues / PRs:** [GitHub](https://github.com/dividedby/General-URL-Cleaner-Revived)
 - **Forked from** [beck's General URL Cleaner](https://greasyfork.org/en/scripts/395298-general-url-cleaner).
 
+## What's new in 5.0
+
+A major release built up across many fixes, new site coverage, and an
+engine rewrite.
+
+- **New site support:** Bing, Audible, LinkedIn, Etsy, Yahoo, Spotify,
+  Reddit, Twitch, Threads, AliExpress, Walmart, Best Buy, and TikTok.
+- **Global tracking-param stripping:** `utm_*` and common click-ID
+  parameters are now removed on *every* site, not just ones with a dedicated
+  handler (opt-out via the `GLOBAL_STRIP` flag).
+- **Cleaning fixes:** Google (`sclient`/`ping`/`authuser`), eBay, Amazon
+  (`/dp/` and `/gp/product/`), Disqus, Facebook, and a long-standing
+  trailing-ampersand bug.
+- **SPA-aware:** link cleaning now follows in-page navigation via
+  `hashchange` and a `MutationObserver`, and skips injection in subframes
+  (except the Disqus embed) for less overhead.
+- **Engine rewrite:** uniform sites fold into one data-driven table; the
+  per-site cleaners and redirect decoders are now unit-tested under CI
+  (Node's built-in test runner).
+- **Removed:** Twitter and Pocket handling (sites changed; cleaning no
+  longer applied).
+
 ## What it does
 
 The script runs on each supported site and:
