@@ -17,6 +17,7 @@ const {
   cleanGlobalParams,
   cleanYoutubeRedir,
   cleanAmazonRedir,
+  transformAmazonUrl,
   cleanGenericRedir,
   cleanParams,
   bingParams,
@@ -160,6 +161,24 @@ describe("cleanAmazonParams", () => {
 
   it("removes trailing ? when all params are stripped", () => {
     assert.equal(cleanAmazonParams("?ref=sr_1_1"), "");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// transformAmazonUrl
+// Regression: an order-details link has a ref= segment in the PATH and a
+// functional query (orderID). Cleaning the whole href let amazonParams' value
+// match swallow the ? separator, collapsing the query into the path and
+// breaking the page. Only the query should be cleaned.
+// ---------------------------------------------------------------------------
+describe("transformAmazonUrl", () => {
+  it("preserves orderID query on order-details links with a ref= path segment", () => {
+    assert.equal(
+      transformAmazonUrl(
+        "https://www.amazon.com/gp/your-account/order-details/ref=dp_iou_view_this_order?ie=UTF8&orderID=123-4567890-1234567"
+      ),
+      "https://www.amazon.com/gp/your-account/order-details/?orderID=123-4567890-1234567"
+    );
   });
 });
 

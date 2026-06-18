@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     5.0.0
+// @version     5.0.1
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -40,7 +40,6 @@
 // @include     https://www.tiktok.com/*
 // @include     https://tiktok.com/*
 // @include     https://vm.tiktok.com/*
-// @include     *
 // @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
@@ -659,7 +658,11 @@
       t.search = "";
       result = t.href;
     } else if (u.search) {
-      result = cleanAmazonParams(href);
+      // clean only the query, not the whole href: amazonParams' [^&#]* value
+      // would otherwise swallow the ? separator when the path contains a ref=
+      // segment, collapsing the query into the path (breaks order-details).
+      u.search = cleanAmazonParams(u.search);
+      result = u.href;
     }
 
     var u2 = new URL(result);
