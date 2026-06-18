@@ -280,7 +280,7 @@
    */
 
   function setCurrUrl(url) {
-    history.replaceState(null, null, cleanUtm(url));
+    history.replaceState(null, null, cleanGlobalParams(cleanUtm(url)));
   }
 
   function deleteHash() {
