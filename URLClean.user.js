@@ -166,7 +166,7 @@
         setCurrUrl(cleanNewegg(currSearch));
       }
 
-      cleanLinks(parserNewegg);
+      cleanLinks(parserAll);
       return;
     }
 
@@ -175,7 +175,7 @@
         setCurrUrl(cleanImdb(currSearch));
       }
 
-      cleanLinks(parserIMDB);
+      cleanLinks(parserAll);
       onhashchange = deleteHash;
       return;
     }
@@ -208,7 +208,7 @@
         setCurrUrl(cleanEbayParams(currSearch));
       }
 
-      cleanLinks(parserEbay);
+      cleanLinks(parserAll);
       onhashchange = deleteHash;
       return;
     }
@@ -234,7 +234,7 @@
         setCurrUrl(cleanAmazonParams(currSearch));
       }
 
-      cleanLinks(parserAmazon);
+      cleanLinks(parserAll);
       onhashchange = deleteHash;
       return;
     }
@@ -280,7 +280,7 @@
    */
 
   function setCurrUrl(url) {
-    history.replaceState(null, null, url);
+    history.replaceState(null, null, cleanUtm(url));
   }
 
   function deleteHash() {
@@ -441,11 +441,11 @@
   }
 
   function parserTarget(a) {
-    if (!target.test(a.host)) {
-      return;
+    if (target.test(a.host)) {
+      a.href = transformTargetUrl(a.href);
     }
 
-    a.href = transformTargetUrl(a.href);
+    a.href = transformGlobalUrl(a.href);
   }
 
   function parserAmazon(a) {
@@ -484,13 +484,13 @@
   }
 
   function parserFacebook(a) {
-    if (a.host !== "l.facebook.com" || a.pathname !== "/l.php") {
-      return;
+    if (a.host === "l.facebook.com" && a.pathname === "/l.php") {
+      a.href = transformFacebookUrl(a.href);
+      a.removeAttribute("onclick");
+      a.removeAttribute("onmouseover");
     }
 
-    a.href = transformFacebookUrl(a.href);
-    a.removeAttribute("onclick");
-    a.removeAttribute("onmouseover");
+    a.href = transformGlobalUrl(a.href);
   }
 
   function parserDisqus(a) {
