@@ -13,6 +13,8 @@ social sites — both the address in your browser bar and the links on the page.
   could interfere with unrelated pages.
 - Fixed Amazon "View Order" / order-details links so the `orderID` query
   stays intact.
+- `utm_*` and common click-ID params (`gclid`, `fbclid`, `msclkid`, …) are now
+  stripped on all supported sites — both the page URL and the links.
 
 **New in 5.0**
 

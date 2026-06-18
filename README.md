@@ -17,6 +17,10 @@ in your browser bar and the links on the page.
   unrelated pages.
 - **Amazon order pages fixed:** "View Order" / order-details links keep their
   `orderID` query intact instead of having it mangled.
+- **Generic trackers stripped everywhere:** `utm_*` and common click-ID
+  parameters (`gclid`, `fbclid`, `msclkid`, etc.) are now removed on all
+  supported sites — both the page URL and the links — not just the few that
+  routed through the generic cleaner before.
 
 ### 5.0
 
