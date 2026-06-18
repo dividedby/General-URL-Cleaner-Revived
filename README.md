@@ -8,16 +8,23 @@ in your browser bar and the links on the page.
 - **Issues / PRs:** [GitHub](https://github.com/dividedby/General-URL-Cleaner-Revived)
 - **Forked from** [beck's General URL Cleaner](https://greasyfork.org/en/scripts/395298-general-url-cleaner).
 
-## What's new in 5.0
+## What's new
+
+### 5.0.1
+
+- **Scoped to supported sites only:** the script now runs only on the sites
+  listed below. 5.0 ran on *every* website, which could interfere with
+  unrelated pages.
+- **Amazon order pages fixed:** "View Order" / order-details links keep their
+  `orderID` query intact instead of having it mangled.
+
+### 5.0
 
 A major release built up across many fixes, new site coverage, and an
 engine rewrite.
 
 - **New site support:** Bing, Audible, LinkedIn, Etsy, Yahoo, Spotify,
   Reddit, Twitch, Threads, AliExpress, Walmart, Best Buy, and TikTok.
-- **Global tracking-param stripping:** `utm_*` and common click-ID
-  parameters are now removed on *every* site, not just ones with a dedicated
-  handler (opt-out via the `GLOBAL_STRIP` flag).
 - **Cleaning fixes:** Google (`sclient`/`ping`/`authuser`), eBay, Amazon
   (`/dp/` and `/gp/product/`), Disqus, Facebook, and a long-standing
   trailing-ampersand bug.
@@ -32,7 +39,7 @@ engine rewrite.
 
 ## What it does
 
-The script runs on each supported site and:
+The script runs only on the supported sites listed below and:
 
 - Rewrites the current page URL via `history.replaceState()` to drop tracking
   params (e.g. `utm_*`, click IDs, session tokens).
@@ -52,8 +59,7 @@ Dedicated handlers: **Google**, **Bing**, **YouTube**, **Amazon**, **eBay**,
 **LinkedIn**, **Etsy**, **Yahoo**, **Spotify**, **Reddit**, **Twitch**,
 **Threads**, **AliExpress**, **Walmart**, **Best Buy**, **TikTok**.
 
-On every other site, the script still strips `utm_*` and common generic
-tracking parameters.
+The script does not run on any other site.
 
 ### Examples
 
