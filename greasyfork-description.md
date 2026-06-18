@@ -7,12 +7,17 @@ The full README (with dev/test/contributing info) lives on GitHub.
 Strips tracking and redirect parameters from URLs on shopping, search, and
 social sites — both the address in your browser bar and the links on the page.
 
+**New in 5.0.1**
+
+- Scoped back to the supported sites only — 5.0 ran on *every* website, which
+  could interfere with unrelated pages.
+- Fixed Amazon "View Order" / order-details links so the `orderID` query
+  stays intact.
+
 **New in 5.0**
 
 - Added support for Bing, Audible, LinkedIn, Etsy, Yahoo, Spotify, Reddit,
   Twitch, Threads, AliExpress, Walmart, Best Buy, and TikTok.
-- `utm_*` and common click-ID params are now stripped on *every* site, not
-  just ones with a dedicated handler.
 - Cleaning fixes for Google, eBay, Amazon, Disqus, and Facebook, plus a
   trailing-ampersand bug.
 - Link cleaning now follows in-page (single-page-app) navigation.
@@ -33,8 +38,8 @@ etc.) that break when cleaned.
 
 Dedicated handlers for Google, Bing, YouTube, Amazon, eBay, Newegg, Target,
 Facebook, IMDB, Disqus, Audible, LinkedIn, Etsy, Yahoo, Spotify, Reddit,
-Twitch, Threads, AliExpress, Walmart, Best Buy, and TikTok. On every other
-site, it still strips `utm_*` and common generic tracking parameters.
+Twitch, Threads, AliExpress, Walmart, Best Buy, and TikTok. The script does
+not run on any other site.
 
 **Examples**
 
