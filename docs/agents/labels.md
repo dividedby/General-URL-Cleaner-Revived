@@ -11,9 +11,9 @@ Labels fall into four tiers plus a remove-stock rule.
 - **LOOP/NETWORK** — only repos that run the proposal loops (full-tier repos).
 - **CHANNELS** — owned by `dividedby/skills`; consumer repos *apply* them but never
   create them.
+- **LOCAL** — domain one-off labels; private to a repo, untouched by the convention.
 
-Domain one-off labels stay **local** and untouched. The convention governs the
-shared vocabulary, not a repo's private labels.
+The convention governs the shared vocabulary, not a repo's private labels.
 
 ## CORE — State (all repos)
 
