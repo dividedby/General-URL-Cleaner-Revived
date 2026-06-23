@@ -44,10 +44,10 @@ end-to-end, adapting to what *this* idea needs:
    - `/to-issues` — to carve it into independently-grabbable tracked work.
    - `/software-design` — when the work spans modules/seams and needs a design pass.
    A small, clear idea may need only `/to-issues`.
-3. **Labels** — when filing issues, apply labels from `docs/agents/labels.md`: state
+3. **Labels** — when filing issues, apply labels from `docs/agents/triage-labels.md`: state
    (`needs-triage` to start), category (`bug` / `enhancement` / `chore` / `epic`),
    and a size estimate (`size:S` / `size:M` / `size:L` / `size:XL`). The compact
-   vocabulary reference is `docs/agents/labels.md`.
+   vocabulary reference is `docs/agents/triage-labels.md`.
 
 4. **Aim for a strong agent brief** — strive to emit a `ready-for-agent` issue that
    clears the strong-agent-brief bar (clear module + acceptance criteria + TDD
