@@ -59,6 +59,7 @@ Best-effort effort estimate. Applied when filing or triaging an issue.
 | `source:architecture-review`   | `5319E7` | Filed by the improve-codebase-architecture loop                  |
 | `source:staleness-review`      | `5319E7` | Filed by the staleness-review loop                               |
 | `source:skill-audit`           | `5319E7` | Filed by the skill-divergence-audit loop                         |
+| `source:changelog-health`      | `5319E7` | Filed by the changelog-health loop                              |
 
 ## CHANNELS (owned by `dividedby/skills`, applied by consumers)
 
