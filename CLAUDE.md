@@ -26,6 +26,26 @@ All logic lives in `URLClean.user.js`. The shape that requires reading multiple 
 To add a site: add an `@match`, a param regex in the registry, a `clean<Site>()`, and (if needed) a
 `parser<Site>()`, then wire it into site dispatch.
 
+## Definition of done
+
+Every **user-facing change** (a new or changed param strip, a new site, a
+behavior fix) moves these four together in the same PR — never as a follow-up:
+
+- **`URLClean.user.js`** `@version` header — bump per semver (new capability →
+  minor, fix → patch).
+- **`CHANGELOG.md`** — entry under `## [Unreleased]`, rolled into a dated
+  `## [x.y.z]` section at release.
+- **`README.md`** — a `### x.y.z` entry under "What's new"; refresh the Examples
+  table when the change alters a shown site.
+- **`greasyfork-description.md`** — a matching `**New in x.y.z**` entry. This is
+  the GreasyFork listing copy; keep it in sync with the README (its own
+  Examples table too).
+
+Plus the usual: `node --test` passes, and new pure logic gets a characterization
+test. Internal-only changes (refactors, test-only, tooling) skip the README /
+GreasyFork entries and the version bump, but still get a `CHANGELOG.md` note when
+notable.
+
 ## Agent skills
 
 ### Issue tracker
