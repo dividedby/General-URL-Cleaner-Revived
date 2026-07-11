@@ -20,6 +20,7 @@ const {
   transformAmazonUrl,
   cleanGenericRedir,
   cleanParams,
+  relHref,
   bingParams,
   linkedinParams,
   etsyParams,
@@ -638,6 +639,45 @@ describe("cleanYoutube", () => {
     assert.equal(
       cleanYoutube("?v=dQw4w9WgXcQ&t=30"),
       "?v=dQw4w9WgXcQ&t=30"
+    );
+  });
+
+  it("strips pp (player-params attribution blob) while keeping v", () => {
+    assert.equal(
+      cleanYoutube("?v=abc&pp=ygUFaGVsbG8"),
+      "?v=abc"
+    );
+  });
+
+  it("strips pp when it is the only param", () => {
+    assert.equal(cleanYoutube("?pp=ygUFaGVsbG8"), "?");
+  });
+
+  it("strips pp when leading in the query", () => {
+    assert.equal(
+      cleanYoutube("?pp=ygUFaGVsbG8&v=abc123"),
+      "?v=abc123"
+    );
+  });
+
+  it("strips pp when in the middle of the query", () => {
+    assert.equal(
+      cleanYoutube("?v=abc123&pp=ygUFaGVsbG8&t=30"),
+      "?v=abc123&t=30"
+    );
+  });
+
+  it("strips pp with a base64url value containing - and _", () => {
+    assert.equal(
+      cleanYoutube("?v=abc123&pp=yAOM-_QBAg=="),
+      "?v=abc123"
+    );
+  });
+
+  it("keeps v, t, and list untouched alongside a stripped pp", () => {
+    assert.equal(
+      cleanYoutube("?v=abc123&list=PL123&pp=ygUFaGVsbG8&t=30"),
+      "?v=abc123&list=PL123&t=30"
     );
   });
 });
@@ -1740,6 +1780,62 @@ describe("cleanTiktok", () => {
     assert.equal(
       cleanParams("?item_id=9&_t=abc&user_id=111&share_iid=xyz", tiktokParams),
       "?item_id=9"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// relHref
+// Pure core of setHref: decides what (if anything) to assign back to a.href
+// so that empty/hash-only/relative attribute forms survive cleaning.
+// ---------------------------------------------------------------------------
+describe("relHref", () => {
+  it("returns null for an empty href attribute", () => {
+    assert.equal(
+      relHref("", "https://www.youtube.com/watch?v=X", "https://www.youtube.com"),
+      null
+    );
+  });
+
+  it("returns null for a bare hash href attribute", () => {
+    assert.equal(
+      relHref("#", "https://www.youtube.com/watch?v=X", "https://www.youtube.com"),
+      null
+    );
+  });
+
+  it("returns null for a hash-with-anchor href attribute", () => {
+    assert.equal(
+      relHref("#sec", "https://www.youtube.com/watch?v=X", "https://www.youtube.com"),
+      null
+    );
+  });
+
+  it("re-relativizes a same-origin relative attribute", () => {
+    assert.equal(
+      relHref("/watch?v=X", "https://www.youtube.com/watch?v=X", "https://www.youtube.com"),
+      "/watch?v=X"
+    );
+  });
+
+  it("keeps a cross-origin decoded redirect absolute (does not relativize)", () => {
+    assert.equal(
+      relHref("/l.php", "https://example.com/", "https://l.facebook.com"),
+      "https://example.com/"
+    );
+  });
+
+  it("does not mangle a protocol-relative href attribute", () => {
+    assert.equal(
+      relHref("//cdn.host/x", "https://cdn.host/x", "https://cdn.host"),
+      "https://cdn.host/x"
+    );
+  });
+
+  it("leaves an absolute href attribute's cleaned form unchanged", () => {
+    assert.equal(
+      relHref("https://a.com/x", "https://a.com/x?clean", "https://a.com"),
+      "https://a.com/x?clean"
     );
   });
 });
