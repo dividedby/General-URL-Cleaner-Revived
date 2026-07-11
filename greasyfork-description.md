@@ -7,6 +7,13 @@ The full README (with dev/test/contributing info) lives on GitHub.
 Strips tracking and redirect parameters from URLs on shopping, search, and
 social sites — both the address in your browser bar and the links on the page.
 
+**New in 5.1.0**
+
+- YouTube's `pp` tracking parameter is now stripped.
+- Links keep their original form: empty and hash-only (`#`) links are left
+  alone, and relative links stay relative instead of being expanded to absolute
+  — no more conflicts with other extensions that match on relative link paths.
+
 **New in 5.0.1**
 
 - Scoped back to the supported sites only — 5.0 ran on *every* website, which
@@ -49,7 +56,7 @@ not run on any other site.
 |------|--------|-------|
 | Google | `…/search?num=100&q=google&gs_l=serp…&sclient=…` | `…/search?q=google` |
 | Bing | `…/search?q=google&qs=n&form=QBLH&cvid=97312…` | `…/search?q=google` |
-| YouTube | `…/watch?v=ID&feature=…&t=…` | `…/watch?v=ID` |
+| YouTube | `…/watch?v=ID&pp=…&feature=…` | `…/watch?v=ID` |
 | Amazon | `…/gp/product/ID/ref=…?th=1` | `…/gp/product/ID/` |
 | eBay | `…/itm/ID?hash=…&epid=…` | `…/itm/ID` |
 | Facebook | `…/photo/?fbid=ID&set=pcb.…` | `…/photo/?fbid=ID` |

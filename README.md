@@ -10,6 +10,15 @@ in your browser bar and the links on the page.
 
 ## What's new
 
+### 5.1.0
+
+- **YouTube `pp` stripped:** the `pp` player-parameters tracking blob is now
+  removed from YouTube links.
+- **Original link form preserved:** empty (`href=""`) and hash-only (`#`) links
+  are left untouched, and relative links stay relative instead of being expanded
+  to absolute URLs — so the script no longer conflicts with other extensions
+  that match on relative link paths.
+
 ### 5.0.1
 
 - **Scoped to supported sites only:** the script now runs only on the sites
@@ -71,7 +80,7 @@ The script does not run on any other site.
 |------|--------|-------|
 | Google | `…/search?num=100&q=google&oq=google&gs_l=serp.3..&sclient=…` | `…/search?q=google` |
 | Bing | `…/search?q=google&qs=n&form=QBLH&pq=google&cvid=97312…` | `…/search?q=google` |
-| YouTube | `…/watch?v=ID&feature=…&t=…` | `…/watch?v=ID` |
+| YouTube | `…/watch?v=ID&pp=…&feature=…` | `…/watch?v=ID` |
 | Amazon | `…/gp/product/ID/ref=…?th=1` | `…/gp/product/ID/` |
 | eBay | `…/itm/ID?hash=…&epid=…` | `…/itm/ID` |
 | Facebook | `…/photo/?fbid=ID&set=pcb.…` | `…/photo/?fbid=ID` |
