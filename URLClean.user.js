@@ -3,7 +3,7 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     5.0.1
+// @version     5.1.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
@@ -82,7 +82,7 @@
   const bingParams =
     /&(redig|toWww|ghpl|lq|ghc|ghsh|ghacc|ghpl|go|qs|form|FORM|filt|pq|s[cpk]|qpvt|cvid)(=[^&#]*)?(?=$|&)/g;
   const youtubeParams =
-    /&(feature|src_vid|annotation_id|[gh]l)(=[^&#]*)?(?=$|&)/g;
+    /&(feature|src_vid|annotation_id|pp|[gh]l)(=[^&#]*)?(?=$|&)/g;
   const ebayParams = /[?&](_(o?sacat|odkw|from|trksid)|rt)(=[^&#]*)?(?=&|$)/g;
   const targetParams = /&(lnk|tref|searchTermRaw)(=[^&#]*)?(?=$|&)/g;
   const facebookParams = /&(set)(=[^&#]*)?(?=$|&)/g;
@@ -380,6 +380,27 @@
     };
   }
 
+  // Preserve the original href attribute form (empty, hash-only, relative)
+  // instead of normalizing every link to an absolute URL. origAttr is the raw
+  // getAttribute("href") string; cleanedHref is the resolved+cleaned absolute
+  // URL to assign; origin is location.origin. Returns null to skip assignment.
+  function relHref(origAttr, cleanedHref, origin) {
+    if (origAttr === "" || origAttr[0] === "#") return null;
+    if (
+      origAttr[0] === "/" &&
+      origAttr[1] !== "/" &&
+      cleanedHref.startsWith(origin)
+    ) {
+      return cleanedHref.slice(origin.length);
+    }
+    return cleanedHref;
+  }
+
+  function setHref(a, href) {
+    const next = relHref(a.getAttribute("href"), href, location.origin);
+    if (next !== null) a.href = next;
+  }
+
   /*
    * Link parsing functions
    */
@@ -391,12 +412,12 @@
     }
 
     if (google.test(host)) {
-      a.href = transformGoogleUrl(a.href);
+      setHref(a, transformGoogleUrl(a.href));
       return;
     }
 
     if (host === "www.youtube.com") {
-      a.href = transformYoutubeUrl(a.href);
+      setHref(a, transformYoutubeUrl(a.href));
       a.cleaned = 1;
       return;
     }
@@ -406,7 +427,7 @@
     parserNewegg(a);
     parserIMDB(a);
 
-    a.href = transformGlobalUrl(a.href);
+    setHref(a, transformGlobalUrl(a.href));
     a.cleaned = 1;
   }
 
@@ -442,10 +463,10 @@
 
   function parserTarget(a) {
     if (target.test(a.host)) {
-      a.href = transformTargetUrl(a.href);
+      setHref(a, transformTargetUrl(a.href));
     }
 
-    a.href = transformGlobalUrl(a.href);
+    setHref(a, transformGlobalUrl(a.href));
   }
 
   function parserAmazon(a) {
@@ -453,7 +474,7 @@
       return;
     }
 
-    a.href = transformAmazonUrl(a.href);
+    setHref(a, transformAmazonUrl(a.href));
   }
 
   function parserEbay(a) {
@@ -461,7 +482,7 @@
       return;
     }
 
-    a.href = transformEbayUrl(a.href, location.origin);
+    setHref(a, transformEbayUrl(a.href, location.origin));
   }
 
   function parserNewegg(a) {
@@ -469,32 +490,32 @@
       return;
     }
 
-    a.href = transformNeweggUrl(a.href);
+    setHref(a, transformNeweggUrl(a.href));
   }
 
   function parserIMDB(a) {
     if (a.host === "www.imdb.com") {
-      a.href = transformImdbUrl(a.href);
+      setHref(a, transformImdbUrl(a.href));
     }
   }
 
   function parserGlobal(a) {
-    a.href = transformGlobalUrl(a.href);
+    setHref(a, transformGlobalUrl(a.href));
     a.cleaned = 1;
   }
 
   function parserFacebook(a) {
     if (a.host === "l.facebook.com" && a.pathname === "/l.php") {
-      a.href = transformFacebookUrl(a.href);
+      setHref(a, transformFacebookUrl(a.href));
       a.removeAttribute("onclick");
       a.removeAttribute("onmouseover");
     }
 
-    a.href = transformGlobalUrl(a.href);
+    setHref(a, transformGlobalUrl(a.href));
   }
 
   function parserDisqus(a) {
-    a.href = transformDisqusUrl(a.href);
+    setHref(a, transformDisqusUrl(a.href));
     parserAll(a);
   }
 
@@ -771,7 +792,7 @@
       cleanEbayParams, cleanUtm, cleanGlobalParams, cleanParams,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
-      cleanTargetItemp,
+      cleanTargetItemp, relHref,
       transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
       transformYoutubeUrl, transformTargetUrl,
       transformNeweggUrl, transformImdbUrl, transformFacebookUrl,

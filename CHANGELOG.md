@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-07-10
+### Added
+- Strip YouTube's `pp` (player-params attribution blob) tracking param. (#101)
+
+### Fixed
+- Preserve the original `href` attribute form (empty, hash-only, relative)
+  when rewriting links on all supported sites, instead of clobbering it with
+  an absolute URL. (#102)
+
 ## [5.0.1] - 2026-06-18
 ### Added
 - Strip `utm_*` and click-ID tracking params on all supported sites.
