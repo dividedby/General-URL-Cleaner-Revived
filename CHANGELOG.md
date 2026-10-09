@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Per-repo Serena MCP config (`.serena/`) removed — Serena is no longer used (dividedby/claude-config#180)
+
 ## [5.1.0] - 2026-07-10
 ### Added
 - Strip YouTube's `pp` (player-params attribution blob) tracking param. (#101)
