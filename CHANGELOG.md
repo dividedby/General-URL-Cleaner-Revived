@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Known-limitation code comments renamed from a third-party plugin's prefix to the neutral `shortcut:` marker after that plugin was removed globally (dividedby/claude-config#188); comments only, no behaviour change.
+
 ### Removed
 - Per-repo Serena MCP config (`.serena/`) removed — Serena is no longer used (dividedby/claude-config#180)
 
