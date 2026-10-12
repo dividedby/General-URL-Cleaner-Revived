@@ -61,7 +61,7 @@
 
   const _domAvailable = typeof location !== "undefined" && typeof document !== "undefined";
 
-  // ponytail: opt-out — set false to skip cleaning on sites without a dedicated handler.
+  // shortcut: opt-out — set false to skip cleaning on sites without a dedicated handler.
   // Upgrade path: a GM_registerMenuCommand toggle once @grant is added.
   const GLOBAL_STRIP = true;
 
@@ -122,7 +122,7 @@
     { hosts: ["www.linkedin.com"],                               params: linkedinParams },
     { hosts: ["www.etsy.com"],                                   params: etsyParams },
     { hosts: ["www.yahoo.com"],                                  params: yahooParams },
-    // ponytail: param-strip only; product-path rewrite deferred pending live Audible URL verification
+    // shortcut: param-strip only; product-path rewrite deferred pending live Audible URL verification
     { match: /^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/, clean: cleanAudible },
     { hosts: ["open.spotify.com"],                               params: spotifyParams },
     { hosts: ["www.reddit.com", "reddit.com"],                   params: redditParams },
@@ -140,7 +140,7 @@
    */
 
   if (_domAvailable) {
-    // ponytail: cheap @noframes equivalent — skip injection in subframes so
+    // shortcut: cheap @noframes equivalent — skip injection in subframes so
     // embed-heavy pages don't get a MutationObserver per ad/tracking iframe.
     // Exception: the Disqus comment widget only ever loads inside an iframe
     // (@include disqus.com/embed/comments/*), so it must keep running there.
@@ -262,7 +262,7 @@
       return;
     }
 
-    // ponytail: no dedicated handler for this host — strip generic trackers
+    // shortcut: no dedicated handler for this host — strip generic trackers
     // everywhere unless the user opted out. Ceiling: one MutationObserver per
     // page; opt out via GLOBAL_STRIP.
     if (GLOBAL_STRIP) {
@@ -784,7 +784,7 @@
     return u.href;
   }
 
-  // ponytail: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
+  // shortcut: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
       cleanGoogle, cleanYoutube, cleanImdb, cleanNewegg,
