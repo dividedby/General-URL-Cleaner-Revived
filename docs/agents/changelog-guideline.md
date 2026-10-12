@@ -5,14 +5,16 @@ entry should read. Distills [Keep a Changelog 2.0.0](https://keepachangelog.com/
 into a concrete, fleet-adoptable rubric. Two readers:
 
 - **A maintainer or agent writing an entry** — the authoring rules below.
-- **The weekly changelog-health evaluator** ([#457](https://github.com/dividedby/skills/issues/457)) —
-  the same rules, read as **grading criteria**. Every rule is phrased so it can
+- **A maintainer or agent running a self-check** — the same rules, read as
+  **grading criteria**. Every rule is phrased so it can
   be checked against a `git log` since the last changelog entry plus the
   changelog diff; the [Grading checklist](#grading-checklist) collects them.
 
 Binding decision: [ADR 0034](https://github.com/dividedby/skills/blob/main/docs/adr/0034-fleet-changelogs-are-hand-maintained-and-llm-evaluated.md)
-— fleet changelogs are **hand-maintained + LLM-evaluated**, not generated from
-commits. The evaluator **flags, never rewrites** — it is a nudge, not a gate.
+— fleet changelogs are **hand-maintained**, not generated from commits. (The
+weekly LLM evaluator that ADR 0034 also decided on was retired by
+[ADR 0039](https://github.com/dividedby/skills/blob/main/docs/adr/0039-retire-remaining-proposal-loops-and-loop-serving-skills.md);
+the self-check below is a nudge, not a gate.)
 
 ## Audience: downstream consumer, not commit replay
 
@@ -86,7 +88,7 @@ Deltas a repo seeded against the older 1.x convention must adopt:
 ## Each repo states the surfaces it tracks
 
 The header names the published surface(s) the changelog records — e.g. "the
-skills catalog and `harness/` Python", "the CLI", "the bot". A change to anything
+skills catalog", "the CLI", "the bot". A change to anything
 outside the tracked surfaces doesn't earn an entry.
 
 - _check:_ a header line enumerates the tracked surface(s); every entry maps to
@@ -94,8 +96,8 @@ outside the tracked surfaces doesn't earn an entry.
 
 ## Grading checklist
 
-The evaluator reads the changelog diff plus `git log` since the last changelog
-entry and **flags** (comment/issue) — never rewrites (ADR 0034) — any of:
+A self-check reads the changelog diff plus `git log` since the last changelog
+entry and **flags** — never rewrites — any of:
 
 | # | Rule | Fail signal |
 |---|------|-------------|
@@ -108,5 +110,5 @@ entry and **flags** (comment/issue) — never rewrites (ADR 0034) — any of:
 | 7 | 2.0.0 reference | KaC URL still points at 1.x, or a dead 1.x FAQ anchor survives |
 | 8 | Tracked surfaces | Header doesn't name the surfaces, or an entry falls outside them |
 
-A clean changelog passes all eight. The evaluator's output is a flag, not an
+A clean changelog passes all eight. A self-check's output is a flag, not an
 edit, and never blocks a merge.
