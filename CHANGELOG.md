@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Per-repo Serena MCP config (`.serena/`) removed — Serena is no longer used (dividedby/claude-config#180)
+- Dropped the retired LOOP/NETWORK and CHANNELS label tiers from `docs/agents/triage-labels.md`; the loops and labels were retired upstream in dividedby/skills.
 
 ## [5.1.0] - 2026-07-10
 ### Added
