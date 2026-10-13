@@ -5,6 +5,8 @@
 // @description Cleans URLs from various popular sites and removes tracking parameters
 // @version     5.2.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
+// @homepageURL https://github.com/dividedby/General-URL-Cleaner-Revived
+// @supportURL  https://github.com/dividedby/General-URL-Cleaner-Revived/issues
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
 // @include     https://www.newegg.com/*
@@ -52,7 +54,6 @@
 // @exclude     https://takeout.google.com/*
 // @run-at      document-idle
 // @grant       none
-
 // ==/UserScript==
 
 (() => {

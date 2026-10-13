@@ -83,3 +83,5 @@ Report issues or send pull requests on
 [GitHub](https://github.com/dividedby/General-URL-Cleaner-Revived). Forked from
 [beck's General URL Cleaner](https://greasyfork.org/en/scripts/395298-general-url-cleaner).
 Licensed GPL v3 or later.
+
+Find it useful? You can [send a tip via PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation). Thank you!
