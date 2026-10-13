@@ -366,14 +366,14 @@
 
   // Collect anchor elements from a MutationRecord list (added nodes only).
   function addedAnchors(records) {
-    let anchors = [];
-    for (let record of records) {
-      for (let node of record.addedNodes) {
+    const anchors = [];
+    for (const record of records) {
+      for (const node of record.addedNodes) {
         if (node.nodeType !== 1) continue; // Element nodes only
         if (node.tagName === "A") {
           anchors.push(node);
         }
-        for (let a of node.querySelectorAll("a")) {
+        for (const a of node.querySelectorAll("a")) {
           anchors.push(a);
         }
       }
@@ -384,7 +384,7 @@
   // Process an iterable of anchors: skip cleaned ones, call linkParser for http links.
   // mark=true sets a.cleaned=1 after processing (used by cleanLinks, not cleanLinksAlways).
   function processAnchors(anchors, linkParser, mark) {
-    for (let a of anchors) {
+    for (const a of anchors) {
       if (a.cleaned) {
         continue;
       }
@@ -480,7 +480,7 @@
    */
 
   function parserAll(a) {
-    let host = a.host;
+    const host = a.host;
     if (a.cleaned) {
       return;
     }
@@ -600,7 +600,7 @@
   // params, then restore the leading separator. Pass stripTrailingQ=true for
   // cleaners that should collapse a bare ? to "" when all params are removed.
   function cleanParams(url, regex, stripTrailingQ) {
-    var result = url.replace("?", "?&").replace(regex, "").replace("&", "");
+    const result = url.replace("?", "?&").replace(regex, "").replace("&", "");
     return stripTrailingQ ? result.replace(/\?$/, "") : result;
   }
 
@@ -654,7 +654,7 @@
   }
 
   function cleanTargetItemp(a) {
-    let item = a.pathname.replace(/(?<=\/p).*(?=\/A)/, "");
+    const item = a.pathname.replace(/(?<=\/p).*(?=\/A)/, "");
     return a.origin + item;
   }
 
@@ -665,15 +665,15 @@
   }
 
   function cleanAmazonItemdp(a) {
-    let m = a.pathname.match(/\/([A-Z0-9]{10})(?=[/?]|$)/);
+    const m = a.pathname.match(/\/([A-Z0-9]{10})(?=[/?]|$)/);
     if (!m) return a.href;
     return a.origin + "/dp/" + m[1] + a.hash;
   }
 
   function cleanEbayItem(a) {
-    let item = a.pathname.match(/\/[0-9]{12}/);
+    const item = a.pathname.match(/\/[0-9]{12}/);
     if (!item) return a.href;
-    let origList = a.search.replace(/&/g, "?").match(/\?orig_cvip=[^?]+/) || "";
+    const origList = a.search.replace(/&/g, "?").match(/\?orig_cvip=[^?]+/) || "";
     return a.origin + "/itm" + item + origList + a.hash;
   }
 
@@ -723,11 +723,11 @@
   }
 
   function cleanUtm(url) {
-    var urlparts = url.split("?");
+    const urlparts = url.split("?");
     if (urlparts.length >= 2) {
-      var pars = urlparts[1].split(/[&;]/g);
+      const pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
-      for (var i = pars.length; (i -= 1) >= 0; ) {
+      for (let i = pars.length; (i -= 1) >= 0; ) {
         if (/^utm_/.test(pars[i])) {
           pars.splice(i, 1);
         }
@@ -738,11 +738,11 @@
   }
 
   function cleanGlobalParams(url) {
-    var urlparts = url.split("?");
+    const urlparts = url.split("?");
     if (urlparts.length >= 2) {
-      var pars = urlparts[1].split(/[&;]/g);
+      const pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
-      for (var i = pars.length; (i -= 1) >= 0; ) {
+      for (let i = pars.length; (i -= 1) >= 0; ) {
         if (globalParams.test(pars[i])) {
           pars.splice(i, 1);
         }
@@ -823,7 +823,7 @@
   }
 
   function transformTargetUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.pathname.includes("/p/")) {
       return cleanTargetItemp(u);
     } else if (u.search) {
@@ -833,7 +833,7 @@
   }
 
   function transformNeweggUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.search && !u.pathname.includes("/marketplace/")) {
       u.search = cleanNewegg(u.search);
       return u.href;
@@ -842,7 +842,7 @@
   }
 
   function transformImdbUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.search) {
       u.search = cleanImdb(u.search);
       return u.href;
@@ -875,7 +875,7 @@
   }
 
   function transformGlobalUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.search) {
       u.search = cleanGlobalParams(cleanUtm(u.search));
     }
