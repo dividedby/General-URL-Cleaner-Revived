@@ -10,6 +10,24 @@ in your browser bar and the links on the page.
 
 ## What's new
 
+### 5.2.0
+
+- **More reliable:** a single unusual link (a Disqus profile link, a Google
+  link with no destination) can no longer stop the script from cleaning the
+  rest of the page.
+- **Single-page sites:** the address bar is cleaned again when you move between
+  pages without a full reload (YouTube, and other sites in browsers that support
+  it), not just on the first load.
+- **Google `/url?q=` links** are now unwrapped to their real destination.
+- **Safer redirects:** only real web addresses (`http`/`https`) are ever used as
+  a redirect target, and the Back button no longer bounces you through redirect
+  pages.
+- **Fewer side effects:** keeps the `#section` part of the address and the
+  site's own navigation state, no longer overrides sites' own handlers, and no
+  longer runs on look-alike domains such as `notgoogle.com`.
+- Fixed Amazon `/gp/product` links without a product ID turning into
+  `/gp/productnull`.
+
 ### 5.1.0
 
 - **YouTube `pp` stripped:** the `pp` player-parameters tracking blob is now

@@ -3,13 +3,13 @@
 // @namespace   https://greasyfork.org/en/users/594496-divided-by
 // @author      dividedby
 // @description Cleans URLs from various popular sites and removes tracking parameters
-// @version     5.1.0
+// @version     5.2.0
 // @license     GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @contributionURL     https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=dividedbygit@gmail.com&item_name=Greasy+Fork+Donation
 // @contributionAmount  $1
 // @include     https://www.newegg.com/*
 // @include     https://www.newegg.ca/*
-// @include     /^https:\/\/[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/([a-z0-9-]+\.)*bing\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/.*$/
 // @include     https://www.youtube.com/*
 // @include     https://www.imdb.com/*
 // @include     https://www.facebook.com/*
@@ -18,10 +18,10 @@
 // @include     https://www.linkedin.com/*
 // @include     https://www.etsy.com/*
 // @include     https://www.yahoo.com/*
-// @include     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z0-9.]*\.?google(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
-// @include     /^https:\/\/[a-z0-9.]*\.?ebay(desc)?(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/.*$/
+// @include     /^https:\/\/([a-z0-9-]+\.)*amazon\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/.*$/
+// @include     /^https:\/\/([a-z0-9-]+\.)*audible\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/.*$/
+// @include     /^https:\/\/([a-z0-9-]+\.)*google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/.*$/
+// @include     /^https:\/\/([a-z0-9-]+\.)*ebay(desc)?\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/.*$/
 // @include     https://open.spotify.com/*
 // @include     https://www.reddit.com/*
 // @include     https://reddit.com/*
@@ -40,7 +40,7 @@
 // @include     https://www.tiktok.com/*
 // @include     https://tiktok.com/*
 // @include     https://vm.tiktok.com/*
-// @exclude     /^https:\/\/[a-z0-9.]*\.?amazon(\.[a-z0-9]{2,3})?(\.[a-z]+)?\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
+// @exclude     /^https:\/\/([a-z0-9-]+\.)*amazon\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/(?:gp\/(?:cart|buy|css|legacy|your-account).*|sspa.*)$/
 // @exclude     https://apis.google.com/*
 // @exclude     https://accounts.google.com/*
 // @exclude     https://support.google.com/*
@@ -51,6 +51,7 @@
 // @exclude     https://docs.google.com/spreadsheets/*
 // @exclude     https://takeout.google.com/*
 // @run-at      document-idle
+// @grant       none
 
 // ==/UserScript==
 
@@ -69,11 +70,17 @@
   const currPath = _domAvailable ? location.pathname : "";
   const currSearch = _domAvailable ? location.search : "";
 
-  const ebay = /^[a-z.]*\.?ebay(desc)?(\.[a-z]{2,3})?(\.[a-z]+)?$/;
-  const amazon = /^[a-z.]*\.?amazon(\.[a-z]{2,3})?(\.[a-z]+)?$/;
-  const google = /^[a-z.]*\.?google(\.[a-z]{2,3})?(\.[a-z]+)?$/;
-  const target = /^[a-z.]*\.?target\.com$/;
-  const bing = /^[a-z.]*\.?bing(\.[a-z]{2,3})?(\.[a-z]+)?$/;
+  // Host patterns: the bare domain or any subdomain of it, on .com, a two-letter
+  // ccTLD, or co./com. + ccTLD (google.co.uk, amazon.com.au). Anchored so
+  // look-alikes such as notgoogle.com or google.example.net don't match.
+  const ebay = /^([a-z0-9-]+\.)*ebay(desc)?\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const amazon = /^([a-z0-9-]+\.)*amazon\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const audible = /^([a-z0-9-]+\.)*audible\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const google = /^([a-z0-9-]+\.)*google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const target = /^([a-z0-9-]+\.)*target\.com$/;
+  const bing = /^([a-z0-9-]+\.)*bing\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+
+  const LOG_PREFIX = "[URL Cleaner]";
 
   const amazonParams =
     /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?(?=$|&)/g;
@@ -123,7 +130,7 @@
     { hosts: ["www.etsy.com"],                                   params: etsyParams },
     { hosts: ["www.yahoo.com"],                                  params: yahooParams },
     // shortcut: param-strip only; product-path rewrite deferred pending live Audible URL verification
-    { match: /^[a-z0-9.]*\.?audible(\.[a-z0-9]{2,3})?(\.[a-z]+)?$/, clean: cleanAudible },
+    { match: audible, clean: cleanAudible },
     { hosts: ["open.spotify.com"],                               params: spotifyParams },
     { hosts: ["www.reddit.com", "reddit.com"],                   params: redditParams },
     { hosts: ["www.twitch.tv", "twitch.tv"],                     params: twitchParams },
@@ -150,45 +157,59 @@
 
     if (currHost === "www.youtube.com") {
       if (currPath === "/redirect") {
-        location.href = cleanYoutubeRedir(currSearch);
+        const destination = cleanYoutubeRedir(currSearch);
+        if (destination) {
+          location.replace(destination);
+        }
       }
 
-      if (currPath === "/watch") {
-        setCurrUrl(cleanYoutube(currSearch));
-      }
+      watchAddress(() => {
+        if (location.pathname === "/watch") {
+          setCurrUrl(cleanYoutube(location.search));
+        }
+      });
 
       cleanLinks(parserYoutube);
       return;
     }
 
     if (currHost.endsWith(".newegg.com") || currHost.endsWith(".newegg.ca")) {
-      if (currSearch) {
-        setCurrUrl(cleanNewegg(currSearch));
-      }
+      watchAddress(() => {
+        if (location.search) {
+          setCurrUrl(cleanNewegg(location.search));
+        }
+      });
 
       cleanLinks(parserAll);
       return;
     }
 
     if (currHost === "www.imdb.com") {
-      if (currSearch) {
-        setCurrUrl(cleanImdb(currSearch));
-      }
+      watchAddress(() => {
+        if (location.search) {
+          setCurrUrl(cleanImdb(location.search));
+        }
+      });
 
       cleanLinks(parserAll);
-      onhashchange = deleteHash;
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (google.test(currHost)) {
       if (currPath === "/url" || currPath === "/imgres") {
-        location.href = cleanGenericRedir(currSearch);
+        const destination = cleanGoogleRedir(currPath, currSearch);
+        if (destination) {
+          location.replace(destination);
+        }
       }
 
       if (!currSearch && !/[&#]q=/.test(location.hash)) {
         return;
       }
 
+      // No watchAddress here: Google's in-page navigation goes through the
+      // patched pushState/replaceState below, which cleans every URL it sets.
       setCurrUrl(cleanGoogle(currPath + currSearch));
       changeState(googleInstant);
 
@@ -202,62 +223,72 @@
     }
 
     if (ebay.test(currHost)) {
-      if (currPath.includes("/itm/")) {
-        setCurrUrl(cleanEbayItem(location));
-      } else if (currSearch) {
-        setCurrUrl(cleanEbayParams(currSearch));
-      }
+      watchAddress(() => {
+        if (location.pathname.includes("/itm/")) {
+          setCurrUrl(cleanEbayItem(location));
+        } else if (location.search) {
+          setCurrUrl(cleanEbayParams(location.search));
+        }
+      });
 
       cleanLinks(parserAll);
-      onhashchange = deleteHash;
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (target.test(currHost)) {
-      if (currPath.includes("/p/")) {
-        setCurrUrl(cleanTargetItemp(location));
-      } else if (currSearch) {
-        setCurrUrl(cleanTargetParams(currSearch));
-      }
+      watchAddress(() => {
+        if (location.pathname.includes("/p/")) {
+          setCurrUrl(cleanTargetItemp(location));
+        } else if (location.search) {
+          setCurrUrl(cleanTargetParams(location.search));
+        }
+      });
 
       cleanLinks(parserTarget);
-      onhashchange = deleteHash;
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (amazon.test(currHost)) {
-      if (currPath.includes("/dp/")) {
-        setCurrUrl(cleanAmazonItemdp(location));
-      } else if (currPath.includes("/gp/product")) {
-        setCurrUrl(cleanAmazonItemgp(location));
-      } else if (currSearch) {
-        setCurrUrl(cleanAmazonParams(currSearch));
-      }
+      watchAddress(() => {
+        if (location.pathname.includes("/dp/")) {
+          setCurrUrl(cleanAmazonItemdp(location));
+        } else if (location.pathname.includes("/gp/product")) {
+          setCurrUrl(cleanAmazonItemgp(location));
+        } else if (location.search) {
+          setCurrUrl(cleanAmazonParams(location.search));
+        }
+      });
 
       cleanLinks(parserAll);
-      onhashchange = deleteHash;
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
-    if (currHost == "www.facebook.com") {
-      if (currSearch) {
-        setCurrUrl(cleanFacebookParams(currSearch));
-      }
+    if (currHost === "www.facebook.com") {
+      watchAddress(() => {
+        if (location.search) {
+          setCurrUrl(cleanFacebookParams(location.search));
+        }
+      });
 
       cleanLinks(parserFacebook);
       return;
     }
 
-    if (currHost == "disqus.com") {
+    if (currHost === "disqus.com") {
       cleanLinks(parserDisqus);
       return;
     }
 
     for (const r of SITES) {
       if (r.hosts ? !r.hosts.includes(currHost) : !r.match.test(currHost)) continue;
-      if (currSearch) {
-        setCurrUrl(r.clean ? r.clean(currSearch) : cleanParams(currSearch, r.params, r.stripQ));
-      }
+      watchAddress(() => {
+        if (location.search) {
+          setCurrUrl(r.clean ? r.clean(location.search) : cleanParams(location.search, r.params, r.stripQ));
+        }
+      });
       cleanLinks(parserAll);
       return;
     }
@@ -266,11 +297,13 @@
     // everywhere unless the user opted out. Ceiling: one MutationObserver per
     // page; opt out via GLOBAL_STRIP.
     if (GLOBAL_STRIP) {
-      if (currSearch) {
-        // explicit path so an all-utm query is actually cleared from the bar
-        // (replaceState("") would no-op and leave the query in place)
-        setCurrUrl(currPath + cleanGlobalParams(cleanUtm(currSearch)) + location.hash);
-      }
+      watchAddress(() => {
+        if (location.search) {
+          // explicit path so an all-utm query is actually cleared from the bar
+          // (replaceState("") would no-op and leave the query in place)
+          setCurrUrl(location.pathname + cleanGlobalParams(cleanUtm(location.search)) + location.hash);
+        }
+      });
       cleanLinks(parserGlobal);
     }
   }
@@ -280,11 +313,47 @@
    */
 
   function setCurrUrl(url) {
-    history.replaceState(null, null, cleanGlobalParams(cleanUtm(url)));
+    let next = cleanGlobalParams(cleanUtm(url));
+    // A query-only URL ("?a=b") would drop the page's #fragment; keep it.
+    if (next.startsWith("?") && !next.includes("#")) {
+      next += location.hash;
+    }
+    // Skip when nothing changes (an empty URL would only re-set the current
+    // one), so re-running on SPA navigation can't loop.
+    if (!next || new URL(next, location.href).href === location.href) {
+      return;
+    }
+    history.replaceState(history.state, "", next);
   }
 
   function deleteHash() {
-    history.replaceState(null, null, " ");
+    history.replaceState(history.state, "", " ");
+  }
+
+  // Clean the address bar now, and again after each in-page (SPA) navigation:
+  // YouTube's own yt-navigate-finish event, plus the Navigation API's
+  // navigatesuccess where the browser has it. Event-driven, no polling.
+  function watchAddress(cleanAddress) {
+    let running = false;
+    const run = () => {
+      if (running) return; // our own replaceState can fire navigation events
+      running = true;
+      try {
+        cleanAddress();
+      } catch (err) {
+        console.error(LOG_PREFIX, "address cleaning failed", err);
+      } finally {
+        running = false;
+      }
+    };
+
+    run();
+    if (currHost === "www.youtube.com") {
+      document.addEventListener("yt-navigate-finish", run);
+    }
+    if (window.navigation && typeof window.navigation.addEventListener === "function") {
+      window.navigation.addEventListener("navigatesuccess", run);
+    }
   }
 
   function observe(func) {
@@ -320,7 +389,12 @@
       }
 
       if (a.protocol && a.protocol.startsWith("http")) {
-        linkParser(a);
+        // One bad link must not abort the sweep (and with it the observer setup).
+        try {
+          linkParser(a);
+        } catch (err) {
+          console.error(LOG_PREFIX, "could not clean link", a.href, err);
+        }
       }
 
       if (mark) {
@@ -348,13 +422,14 @@
     });
   }
 
-  function googleInstant(url) {
-    let parts = url.split("#");
+  function googleInstant(rawUrl) {
+    const url = String(rawUrl);
+    const parts = url.split("#");
     if (parts.length !== 2) {
       return url;
     }
 
-    let hash = parts[1];
+    const hash = parts[1];
     if (hash === "imgrc=_") {
       return " ";
     }
@@ -366,18 +441,16 @@
     return "#" + hash;
   }
 
-  // Intercept & modify url passed into history.replaceState/pushState
-  function changeState(mod) {
-    history.realPushState = history.pushState;
-    history.realReplaceState = history.replaceState;
-
-    history.pushState = function () {
-      history.realPushState(null, null, mod(arguments[2]));
-    };
-
-    history.replaceState = function () {
-      history.realReplaceState(null, null, mod(arguments[2]));
-    };
+  // Intercept & modify the url passed into history.pushState/replaceState,
+  // keeping the caller's this, state, title and return value. An omitted or
+  // null url is passed through untouched; URL objects are stringified first.
+  function changeState(mod, hist = history) {
+    for (const name of ["pushState", "replaceState"]) {
+      const orig = hist[name];
+      hist[name] = function (state, title, url) {
+        return orig.call(this, state, title, url == null ? url : mod(String(url)));
+      };
+    }
   }
 
   // Preserve the original href attribute form (empty, hash-only, relative)
@@ -438,9 +511,8 @@
   }
 
   function parserGoogleImages(a) {
-    let jsaction = a.getAttribute("jsaction");
+    const jsaction = a.getAttribute("jsaction");
     if (jsaction && jsaction.includes("down:irc.rl")) {
-      console.log(a);
       a.removeAttribute("jsaction");
     }
 
@@ -451,13 +523,13 @@
 
   function parserYoutube(a) {
     parserAll(a);
-    let text = a.innerText;
-    let href = a.getAttribute("href");
+    const text = a.textContent.trim();
+    const href = a.getAttribute("href");
     if (
       text === href ||
-      (text.endsWith("...") && href.startsWith(text.slice(0, -3)))
+      (href && text.endsWith("...") && href.startsWith(text.slice(0, -3)))
     ) {
-      a.innerText = href;
+      a.textContent = href;
     }
   }
 
@@ -586,8 +658,9 @@
   }
 
   function cleanAmazonItemgp(a) {
-    let item = a.pathname.match(/\/[A-Z0-9]{10}/);
-    return a.origin + "/gp/product" + item + a.hash;
+    const item = a.pathname.match(/\/[A-Z0-9]{10}/);
+    if (!item) return a.href;
+    return a.origin + "/gp/product" + item[0] + a.hash;
   }
 
   function cleanAmazonItemdp(a) {
@@ -603,13 +676,30 @@
     return a.origin + "/itm" + item + origList + a.hash;
   }
 
+  // Returns null when the pulsar link carries no item id.
   function cleanEbayPulsar(url, origin) {
-    let item = url.match(/%7B%22mecs%22%3A%22([0-9]{12})/).pop();
-    return (origin || location.origin) + "/itm/" + item;
+    const item = url.match(/%7B%22mecs%22%3A%22([0-9]{12})/);
+    if (!item) return null;
+    return (origin || location.origin) + "/itm/" + item[1];
   }
 
+  // Decode a redirect target from the pattern's last capture group. Returns
+  // null when the pattern doesn't match, the value isn't valid percent-encoding,
+  // or the target isn't an http(s) URL (e.g. javascript:), so callers keep the
+  // original link instead.
   function cleanRedir(pattern, url) {
-    return decodeURIComponent(url.match(pattern).pop());
+    const match = url.match(pattern);
+    if (!match) return null;
+    let target;
+    try {
+      target = decodeURIComponent(match.pop());
+      const base = _domAvailable ? location.href : undefined;
+      const protocol = new URL(target, base).protocol;
+      if (protocol !== "http:" && protocol !== "https:") return null;
+    } catch (err) {
+      return null; // malformed encoding or unparseable URL: not a usable target
+    }
+    return target;
   }
 
   function cleanYoutubeRedir(url) {
@@ -622,6 +712,13 @@
 
   function cleanGenericRedir(url) {
     return cleanRedir(/[?&](new|img)?u(rl)?=([^&]+)/i, url);
+  }
+
+  // Google /url redirects carry the target in url= or (more often now) q=.
+  function cleanGoogleRedir(path, search) {
+    const target = cleanGenericRedir(search);
+    if (target || path !== "/url") return target;
+    return cleanRedir(/[?&]q=([^&]+)/, search);
   }
 
   function cleanUtm(url) {
@@ -655,9 +752,9 @@
   }
 
   function transformGoogleUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.pathname === "/imgres" || u.pathname === "/url") {
-      return cleanGenericRedir(u.search);
+      return cleanGoogleRedir(u.pathname, u.search) || href;
     } else if (u.search) {
       u.search = cleanGoogle(u.search);
     }
@@ -665,19 +762,22 @@
   }
 
   function transformAmazonUrl(href) {
-    var u = new URL(href);
-    var result = href;
+    const u = new URL(href);
+    let result = href;
 
     if (u.pathname.includes("black-curtain-redirect.html")) {
-      result = cleanAmazonRedir(u.search);
+      result = cleanAmazonRedir(u.search) || href;
     } else if (u.pathname.includes("/dp/")) {
       result = cleanAmazonItemdp(u);
     } else if (u.pathname.includes("/gp/product")) {
       result = cleanAmazonItemgp(u);
     } else if (u.pathname.includes("/picassoRedirect")) {
-      var t = new URL(cleanGenericRedir(u.search));
-      t.search = "";
-      result = t.href;
+      const decoded = cleanGenericRedir(u.search);
+      if (decoded) {
+        const t = new URL(decoded, href);
+        t.search = "";
+        result = t.href;
+      }
     } else if (u.search) {
       // clean only the query, not the whole href: amazonParams' [^&#]* value
       // would otherwise swallow the ? separator when the path contains a ref=
@@ -686,7 +786,7 @@
       result = u.href;
     }
 
-    var u2 = new URL(result);
+    const u2 = new URL(result, href);
     if (u2.pathname.includes("/ref=")) {
       u2.pathname = cleanAmazonParams(u2.pathname);
       result = u2.href;
@@ -696,12 +796,12 @@
   }
 
   function transformEbayUrl(href, pageOrigin) {
-    var u = new URL(href);
+    const u = new URL(href);
 
     if (u.pathname.includes("/itm/")) {
       return cleanEbayItem(u);
     } else if (u.host.startsWith("pulsar.")) {
-      return cleanEbayPulsar(u.search, pageOrigin);
+      return cleanEbayPulsar(u.search, pageOrigin) || href;
     } else if (u.search) {
       u.search = cleanEbayParams(u.search);
       return u.href;
@@ -711,12 +811,12 @@
   }
 
   function transformYoutubeUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.pathname === "/watch") {
       u.search = cleanYoutube(u.search);
       return u.href;
     } else if (u.pathname === "/redirect") {
-      return cleanYoutubeRedir(u.search);
+      return cleanYoutubeRedir(u.search) || href;
     }
     return href;
   }
@@ -750,27 +850,27 @@
   }
 
   function transformFacebookUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.host !== "l.facebook.com") {
       return href;
     }
-    return cleanGenericRedir(u.search);
+    return cleanGenericRedir(u.search) || href;
   }
 
   // For disq.us/url: decode the redirect target via cleanGenericRedir, then strip
   // any trailing `:cid`-style suffix (e.g. ":1234567") added by Disqus — never
-  // the protocol colon. Guard when no redirect param is present (return href).
-  // Non-disq.us/url links fall straight to cleanGenericRedir(search).
+  // the protocol colon. Other disqus links are decoded the same way. Any link
+  // without a usable redirect target is returned unchanged.
   function transformDisqusUrl(href) {
-    var u = new URL(href);
+    const u = new URL(href);
     if (u.host === "disq.us" && u.pathname === "/url") {
       if (!u.searchParams.get("url")) {
         return href;
       }
-      var decoded = cleanGenericRedir(u.search);
-      return decoded.replace(/:[^/:]+$/, "");
+      const decoded = cleanGenericRedir(u.search);
+      return decoded ? decoded.replace(/:[^/:]+$/, "") : href;
     }
-    return cleanGenericRedir(u.search);
+    return cleanGenericRedir(u.search) || href;
   }
 
   function transformGlobalUrl(href) {
@@ -792,7 +892,8 @@
       cleanEbayParams, cleanUtm, cleanGlobalParams, cleanParams,
       cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir,
       cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
-      cleanTargetItemp, relHref,
+      cleanTargetItemp, relHref, cleanGoogleRedir, googleInstant, changeState,
+      google, amazon, audible, ebay, bing, target,
       transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
       transformYoutubeUrl, transformTargetUrl,
       transformNeweggUrl, transformImdbUrl, transformFacebookUrl,

@@ -7,6 +7,20 @@ The full README (with dev/test/contributing info) lives on GitHub.
 Strips tracking and redirect parameters from URLs on shopping, search, and
 social sites — both the address in your browser bar and the links on the page.
 
+**New in 5.2.0**
+
+- One unusual link (a Disqus profile link, a Google link with no destination)
+  can no longer stop cleaning for the rest of the page.
+- The address bar is cleaned again when you move between pages without a full
+  reload (YouTube, and other sites in browsers that support it).
+- Google `/url?q=` links are unwrapped to their real destination.
+- Only real web addresses (`http`/`https`) are used as redirect targets, and
+  Back no longer bounces through redirect pages.
+- Keeps the `#section` part of the address and the site's navigation state, and
+  no longer runs on look-alike domains such as `notgoogle.com`.
+- Amazon `/gp/product` links without a product ID no longer become
+  `/gp/productnull`.
+
 **New in 5.1.0**
 
 - YouTube's `pp` tracking parameter is now stripped.

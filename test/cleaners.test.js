@@ -407,8 +407,8 @@ describe("cleanUtm", () => {
 // cleanYoutubeRedir
 // Input: the search string of a /redirect page (e.g. "?q=<encoded-target>&redir_token=…").
 // Extracts the q param value and returns decodeURIComponent of it.
-// No pass-through: a missing q param throws (null.pop()).
-// Double-encoded target: only one layer of decoding is applied.
+// Returns null (callers keep the original link) when q is missing, or when the
+// decoded target isn't an http(s) URL. Only one layer of decoding is applied.
 // ---------------------------------------------------------------------------
 describe("cleanYoutubeRedir", () => {
   it("decodes a real YouTube redirect search string to the target URL", () => {
@@ -432,17 +432,25 @@ describe("cleanYoutubeRedir", () => {
     );
   });
 
-  it("only decodes one layer — double-encoded target is not fully decoded", () => {
-    // CURRENT BEHAVIOR: decodeURIComponent('https%253A%252F%252Fexample.com')
-    // = 'https%3A%2F%2Fexample.com'  (still encoded after one pass)
-    assert.equal(
-      cleanYoutubeRedir("?q=https%253A%252F%252Fexample.com"),
-      "https%3A%2F%2Fexample.com"
-    );
+  it("only decodes one layer — a double-encoded target isn't an absolute URL, so null", () => {
+    // decodeURIComponent('https%253A%252F%252Fexample.com') = 'https%3A%2F%2Fexample.com',
+    // which has no scheme; with no page to resolve against (node) it is rejected.
+    assert.equal(cleanYoutubeRedir("?q=https%253A%252F%252Fexample.com"), null);
   });
 
-  it("throws when q param is absent (no passthrough for non-redirect URLs)", () => {
-    assert.throws(() => cleanYoutubeRedir("?v=dQw4w9WgXcQ"), TypeError);
+  it("returns null when q param is absent (no passthrough for non-redirect URLs)", () => {
+    assert.equal(cleanYoutubeRedir("?v=dQw4w9WgXcQ"), null);
+    assert.equal(cleanYoutubeRedir("?event=x"), null);
+  });
+
+  it("returns null for a javascript: or data: target", () => {
+    assert.equal(cleanYoutubeRedir("?q=javascript%3Aalert(1)"), null);
+    assert.equal(cleanYoutubeRedir("?q=JavaScript%3Aalert(1)"), null);
+    assert.equal(cleanYoutubeRedir("?q=data%3Atext%2Fhtml%2Cx"), null);
+  });
+
+  it("returns null for malformed percent-encoding instead of throwing", () => {
+    assert.equal(cleanYoutubeRedir("?q=https%3A%2F%2Fexample.com%2F%E0%A4%A"), null);
   });
 });
 
@@ -451,7 +459,7 @@ describe("cleanYoutubeRedir", () => {
 // Input: a string with redirectUrl= param (in practice the search string of
 // a black-curtain page).
 // Extracts redirectUrl param value and returns decodeURIComponent of it.
-// No pass-through: missing redirectUrl param throws (null.pop()).
+// Returns null when redirectUrl is missing or isn't an http(s) URL.
 // ---------------------------------------------------------------------------
 describe("cleanAmazonRedir", () => {
   it("decodes a redirectUrl search string to the Amazon product URL", () => {
@@ -468,15 +476,15 @@ describe("cleanAmazonRedir", () => {
     );
   });
 
-  it("only decodes one layer — double-encoded target remains partially encoded", () => {
+  it("only decodes one layer — a double-encoded target isn't an absolute URL, so null", () => {
     assert.equal(
       cleanAmazonRedir("?redirectUrl=https%253A%252F%252Famazon.com%252Fdp%252FTEST"),
-      "https%3A%2F%2Famazon.com%2Fdp%2FTEST"
+      null
     );
   });
 
-  it("throws when redirectUrl param is absent (no passthrough)", () => {
-    assert.throws(() => cleanAmazonRedir("?ref=nav_logo"), TypeError);
+  it("returns null when redirectUrl param is absent (no passthrough)", () => {
+    assert.equal(cleanAmazonRedir("?ref=nav_logo"), null);
   });
 });
 
@@ -484,7 +492,7 @@ describe("cleanAmazonRedir", () => {
 // cleanGenericRedir
 // Input: a search string. Matches [?&](new|img)?u(rl)?= (case-insensitive).
 // Captures: u=, url=, newu=, newurl=, imgu=, imgurl= — returns the value decoded.
-// No pass-through: throws when no matching param exists.
+// Returns null when no matching param exists or the target isn't http(s).
 // ---------------------------------------------------------------------------
 describe("cleanGenericRedir", () => {
   it("decodes url= (Google /url redirect)", () => {
@@ -522,8 +530,12 @@ describe("cleanGenericRedir", () => {
     );
   });
 
-  it("throws when no matching param is present (no passthrough)", () => {
-    assert.throws(() => cleanGenericRedir("?q=hello&ref=123"), TypeError);
+  it("returns null when no matching param is present (no passthrough)", () => {
+    assert.equal(cleanGenericRedir("?q=hello&ref=123"), null);
+  });
+
+  it("returns null for a javascript: target", () => {
+    assert.equal(cleanGenericRedir("?url=javascript%3Aalert(document.cookie)"), null);
   });
 });
 
