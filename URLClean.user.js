@@ -57,10 +57,6 @@
 // ==/UserScript==
 
 (() => {
-  /*
-   * Vars
-   */
-
   const _domAvailable = typeof location !== 'undefined' && typeof document !== 'undefined';
 
   // shortcut: opt-out — set false to skip cleaning on sites without a dedicated handler.
@@ -143,9 +139,7 @@
     { hosts: ['www.tiktok.com', 'tiktok.com', 'vm.tiktok.com'], params: tiktokParams },
   ];
 
-  /*
-   * Main
-   */
+  // Site dispatch: the first matching handler wins.
 
   if (_domAvailable) {
     // shortcut: cheap @noframes equivalent — skip injection in subframes so
@@ -309,9 +303,7 @@
     }
   }
 
-  /*
-   * Boilerplate functions
-   */
+  // Address-bar and link-sweep helpers
 
   function setCurrUrl(url) {
     let next = cleanGlobalParams(cleanUtm(url));
@@ -449,6 +441,7 @@
     for (const name of ['pushState', 'replaceState']) {
       const orig = hist[name];
       hist[name] = function (state, title, url) {
+        // == null on purpose: an omitted (undefined) or null url passes through.
         return orig.call(this, state, title, url == null ? url : mod(String(url)));
       };
     }
@@ -475,9 +468,7 @@
     if (next !== null) a.href = next;
   }
 
-  /*
-   * Link parsing functions
-   */
+  // Link parsers
 
   function parserAll(a) {
     const host = a.host;
@@ -592,9 +583,7 @@
     parserAll(a);
   }
 
-  /*
-   * URL string functions
-   */
+  // URL cleaners and transforms
 
   // Shared separator-fixup idiom: prefix every param with &, delete matched
   // params, then restore the leading separator. Pass stripTrailingQ=true for
