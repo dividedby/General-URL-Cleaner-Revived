@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~800 lines) that strips tracking
-parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/ampersand.test.mjs`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs them (`node --test`, Node 22) on all pushes and PRs. Run plain `node --test`; passing a directory (`node --test test/`) fails on Node 22. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
+A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~900 lines) that strips tracking
+parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/parsers.test.js`, `test/ampersand.test.mjs`, `test/hardening.test.js`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs them (`node --test`, Node 22) on all pushes and PRs. Run plain `node --test`; passing a directory (`node --test test/`) fails on Node 22. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
 
 ## Architecture
 
@@ -21,9 +21,15 @@ All logic lives in `URLClean.user.js`. The shape that requires reading multiple 
 - **Live link cleaning** (~lines 241–265): a `MutationObserver` (`cleanLinks`/`cleanLinksAlways`) rewrites
   links as the page adds them; per-site `parser<Site>()` functions (~303–450) also strip click-tracking
   attributes (`onmousedown`, `jsaction`).
-- **Current-page rewrite**: `setCurrUrl()` (~line 225) cleans `location.href` via `history.replaceState()`.
+- **Current-page rewrite**: `setCurrUrl()` cleans `location.href` via `history.replaceState()`
+  (passing `history.state` through). `watchAddress()` re-runs a site's address-bar cleaner on
+  YouTube's `yt-navigate-finish` and the Navigation API's `navigatesuccess` (no polling);
+  Google instead relies on its `pushState`/`replaceState` patch.
+- **Redirect decoders** (`cleanRedir()`, `cleanEbayPulsar()`) return `null` when there is no
+  target or it isn't `http`/`https`; every caller must keep the original link in that case.
+  Each link in a sweep is processed in its own `try`, so one bad link can't stop the rest.
 
-To add a site: add an `@match`, a param regex in the registry, a `clean<Site>()`, and (if needed) a
+To add a site: add an anchored `@include` regex (only the real domain and its subdomains; `test/hardening.test.js` checks look-alikes), a param regex in the registry, a `clean<Site>()`, and (if needed) a
 `parser<Site>()`, then wire it into site dispatch.
 
 ## Userscript engineering
