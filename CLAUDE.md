@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~630 lines) that strips tracking
-parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/ampersand.test.mjs`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs these tests on Node 20 for all pushes and PRs. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
+A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~800 lines) that strips tracking
+parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/ampersand.test.mjs`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs them (`node --test`, Node 22) on all pushes and PRs. Run plain `node --test`; passing a directory (`node --test test/`) fails on Node 22. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
 
 ## Architecture
 
 All logic lives in `URLClean.user.js`. The shape that requires reading multiple regions to understand:
 
-- **Metadata header** (top of file): `@match` rules declare which sites the script runs on.
+- **Metadata header** (top of file): `@include` regexes and `@exclude`s declare which sites the script runs on.
 - **Parameter registry** (~lines 54–72): per-site regexes naming which query params to strip
   (`googleParams`, `amazonParams`, `ebayParams`, etc.). This is the data you edit to change *what* gets removed.
 - **Site dispatch** (~lines 78–219): host regexes detect the current site and route to its handlers.
@@ -25,6 +25,36 @@ All logic lives in `URLClean.user.js`. The shape that requires reading multiple 
 
 To add a site: add an `@match`, a param regex in the registry, a `clean<Site>()`, and (if needed) a
 `parser<Site>()`, then wire it into site dispatch.
+
+## Userscript engineering
+
+Before changing a `.user.js`, read [`docs/agents/userscript-guidelines.md`](docs/agents/userscript-guidelines.md),
+the full checklist (shared by all the dividedby userscript repos). The rules that matter most:
+
+- **Smallest reliable change.** Preserve existing behavior, fix the problem at hand without
+  unrelated rewrites, and add no dependency, build step or abstraction without a reason.
+- **Metadata.** Narrow `@match`; only the `@grant`s actually used (`@grant none` stated
+  explicitly); no wildcard `@connect`; `@run-at` chosen by need. Never change `@namespace` or
+  the update URLs.
+- **Untrusted input** (page text, network responses, anything read back from storage) never
+  goes into `innerHTML`: build DOM with `textContent`. No `eval`, `new Function` or remote code.
+- **Validate stored values** (type and shape) before using them; keep storage keys namespaced.
+- **Safe to run twice** (a second install, re-initialization): no duplicate UI, listeners,
+  styles or observers.
+- **Observers and timers.** Observe the smallest stable root with filters, ignore the script's
+  own mutations, never poll without a bound, and read layout before writing it.
+- **Network and errors.** Time out, check status and response shape, ignore stale results; no
+  silent `catch {}` for unexpected errors (log with the script's prefix; leave a comment where
+  swallowing is intended, e.g. storage in private mode).
+- **Navigation.** `popstate` doesn't see `pushState`; redirects use `location.replace` so Back
+  still works; a patched page API keeps its arguments, `this` and return value.
+- **Validation.** Node/jsdom tests don't prove the script works in a manager: check it on the
+  real site and say exactly what was and wasn't tested.
+
+Deliberate exceptions here: it also runs in subframes (for Disqus comment embeds), and it
+patches `history.pushState`/`replaceState` on Google to clean Instant-search URLs; any change
+there must keep the original arguments, `this` and return value. Line references above are
+approximate; search for the function names.
 
 ## Definition of done
 
