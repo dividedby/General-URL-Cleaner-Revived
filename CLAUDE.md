@@ -32,6 +32,16 @@ All logic lives in `URLClean.user.js`. The shape that requires reading multiple 
 To add a site: add an anchored `@include` regex (only the real domain and its subdomains; `test/hardening.test.js` checks look-alikes), a param regex in the registry, a `clean<Site>()`, and (if needed) a
 `parser<Site>()`, then wire it into site dispatch.
 
+## Rules
+
+- **Bump `@version` on every user-facing change** (see Definition of done), or installed
+  copies never update.
+- Never rename `URLClean.user.js` or change `@namespace`: Greasy Fork and the managers key
+  installs on them.
+- Public identity is `dividedby` only: no real name or personal email in code, headers, docs or
+  commits. Commit as `dividedby <64715420+dividedby@users.noreply.github.com>`.
+- Pushing to `main` is a release once Greasy Fork syncs from it: unfinished work goes on a branch.
+
 ## Userscript engineering
 
 Before changing a `.user.js`, read [`docs/agents/userscript-guidelines.md`](docs/agents/userscript-guidelines.md),
@@ -92,6 +102,9 @@ State: `needs-triage`, `ready-for-agent`, `ready-for-human`, `blocked`, `wontfix
 
 ### Domain docs
 Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
+### Changelog
+See `docs/agents/changelog-guideline.md`.
 
 ## Intake convention
 
