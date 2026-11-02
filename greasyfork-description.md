@@ -30,7 +30,7 @@ social sites — both the address in your browser bar and the links on the page.
 
 **New in 5.0.1**
 
-- Scoped back to the supported sites only — 5.0 ran on *every* website, which
+- Scoped back to the supported sites only — 5.0 ran on _every_ website, which
   could interfere with unrelated pages.
 - Fixed Amazon "View Order" / order-details links so the `orderID` query
   stays intact.
@@ -66,15 +66,15 @@ not run on any other site.
 
 **Examples**
 
-| Site | Before | After |
-|------|--------|-------|
-| Google | `…/search?num=100&q=google&gs_l=serp…&sclient=…` | `…/search?q=google` |
-| Bing | `…/search?q=google&qs=n&form=QBLH&cvid=97312…` | `…/search?q=google` |
-| YouTube | `…/watch?v=ID&pp=…&feature=…` | `…/watch?v=ID` |
-| Amazon | `…/gp/product/ID/ref=…?th=1` | `…/gp/product/ID/` |
-| eBay | `…/itm/ID?hash=…&epid=…` | `…/itm/ID` |
-| Facebook | `…/photo/?fbid=ID&set=pcb.…` | `…/photo/?fbid=ID` |
-| Target | `…/p/A-ID?preselect=…&afid=…` | `…/p/A-ID` |
+| Site     | Before                                           | After               |
+| -------- | ------------------------------------------------ | ------------------- |
+| Google   | `…/search?num=100&q=google&gs_l=serp…&sclient=…` | `…/search?q=google` |
+| Bing     | `…/search?q=google&qs=n&form=QBLH&cvid=97312…`   | `…/search?q=google` |
+| YouTube  | `…/watch?v=ID&pp=…&feature=…`                    | `…/watch?v=ID`      |
+| Amazon   | `…/gp/product/ID/ref=…?th=1`                     | `…/gp/product/ID/`  |
+| eBay     | `…/itm/ID?hash=…&epid=…`                         | `…/itm/ID`          |
+| Facebook | `…/photo/?fbid=ID&set=pcb.…`                     | `…/photo/?fbid=ID`  |
+| Target   | `…/p/A-ID?preselect=…&afid=…`                    | `…/p/A-ID`          |
 
 **Install:** use [Tampermonkey](https://www.tampermonkey.net/) or
 [Violentmonkey](https://violentmonkey.github.io/), then click **Install** above.

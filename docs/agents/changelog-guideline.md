@@ -71,7 +71,7 @@ Deltas a repo seeded against the older 1.x convention must adopt:
   - _check:_ a Security entry referencing a known vuln puts the CVE id first.
 - **Changelog ≠ release notes.** The changelog is the complete, ongoing record
   of every notable change; release notes are a curated per-release announcement
-  *drawn from* it. Keep the changelog exhaustive-of-notable — don't prune it down
+  _drawn from_ it. Keep the changelog exhaustive-of-notable — don't prune it down
   to a highlight reel.
   - _check:_ the changelog is not trimmed to only headline changes; minor notable
     entries survive.
@@ -99,16 +99,16 @@ outside the tracked surfaces doesn't earn an entry.
 A self-check reads the changelog diff plus `git log` since the last changelog
 entry and **flags** — never rewrites — any of:
 
-| # | Rule | Fail signal |
-|---|------|-------------|
-| 1 | Notable-only | An entry maps to a non-notable commit (refactor / format / CI-only), **or** a notable shipped change has no entry |
-| 2 | Consumer voice | An entry restates a commit subject, or is unintelligible without opening the PR |
-| 3 | Six categories | A `###` heading is not one of the six |
-| 4 | Unreleased discipline | Missing or duplicate `## [Unreleased]`; un-rolled entries after a tagged release; dated sections out of order |
-| 5 | Breaking marked | A backward-incompatible change lacks the `**Breaking:**` prefix |
-| 6 | CVE-first | A Security entry buries (or omits) its CVE id |
-| 7 | 2.0.0 reference | KaC URL still points at 1.x, or a dead 1.x FAQ anchor survives |
-| 8 | Tracked surfaces | Header doesn't name the surfaces, or an entry falls outside them |
+| #   | Rule                  | Fail signal                                                                                                       |
+| --- | --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | Notable-only          | An entry maps to a non-notable commit (refactor / format / CI-only), **or** a notable shipped change has no entry |
+| 2   | Consumer voice        | An entry restates a commit subject, or is unintelligible without opening the PR                                   |
+| 3   | Six categories        | A `###` heading is not one of the six                                                                             |
+| 4   | Unreleased discipline | Missing or duplicate `## [Unreleased]`; un-rolled entries after a tagged release; dated sections out of order     |
+| 5   | Breaking marked       | A backward-incompatible change lacks the `**Breaking:**` prefix                                                   |
+| 6   | CVE-first             | A Security entry buries (or omits) its CVE id                                                                     |
+| 7   | 2.0.0 reference       | KaC URL still points at 1.x, or a dead 1.x FAQ anchor survives                                                    |
+| 8   | Tracked surfaces      | Header doesn't name the surfaces, or an entry falls outside them                                                  |
 
 A clean changelog passes all eight. A self-check's output is a flag, not an
 edit, and never blocks a merge.

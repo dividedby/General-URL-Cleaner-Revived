@@ -13,7 +13,7 @@ All logic lives in `URLClean.user.js`. The shape that requires reading multiple 
 
 - **Metadata header** (top of file): `@include` regexes and `@exclude`s declare which sites the script runs on.
 - **Parameter registry** (~lines 54–72): per-site regexes naming which query params to strip
-  (`googleParams`, `amazonParams`, `ebayParams`, etc.). This is the data you edit to change *what* gets removed.
+  (`googleParams`, `amazonParams`, `ebayParams`, etc.). This is the data you edit to change _what_ gets removed.
 - **Site dispatch** (~lines 78–219): host regexes detect the current site and route to its handlers.
 - **Cleaning engine** (~lines 498–629): one `clean<Site>()` per site applies that site's param regex.
   The recurring idiom is `.replace("?","?&").replace(params,"").replace("&","")` — prefix every param with
@@ -95,15 +95,19 @@ notable.
 ## Agent skills
 
 ### Issue tracker
+
 GitHub issues in `dividedby/General-URL-Cleaner-Revived` (via `gh`). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
+
 State: `needs-triage`, `ready-for-agent`, `ready-for-human`, `blocked`, `wontfix`. Category: `bug`, `enhancement`, `chore`, `epic`. Size: `size:S/M/L/XL`. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
+
 Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
 ### Changelog
+
 See `docs/agents/changelog-guideline.md`.
 
 ## Intake convention
@@ -117,5 +121,11 @@ yet; that happens at drain. The capture and drain protocol lives once in
 [`docs/agents/idea-inbox.md`](./docs/agents/idea-inbox.md) (the issue body is
 human-facing and carries no operating instructions).
 
-When I say **"file a *tracked* issue"** — or hand you a **plainly-scoped bug** —
+When I say **"file a _tracked_ issue"** — or hand you a **plainly-scoped bug** —
 skip the Inbox and file a `needs-triage` issue directly via `gh`.
+
+## Code style
+
+Formatting uses each tool's standard defaults, the same across all `dividedby` repos. Don't add style options or format by hand. Files format on edit through the post-edit hook.
+
+- **JS, TS, HTML, CSS, JSON, Markdown, YAML:** Prettier defaults. Run `pnpm format`, or `pnpm format:check` to check.

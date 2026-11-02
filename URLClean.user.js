@@ -57,27 +57,33 @@
 // ==/UserScript==
 
 (() => {
-  const _domAvailable = typeof location !== 'undefined' && typeof document !== 'undefined';
+  const _domAvailable =
+    typeof location !== "undefined" && typeof document !== "undefined";
 
   // shortcut: opt-out — set false to skip cleaning on sites without a dedicated handler.
   // Upgrade path: a GM_registerMenuCommand toggle once @grant is added.
   const GLOBAL_STRIP = true;
 
-  const currHost = _domAvailable ? location.host : '';
-  const currPath = _domAvailable ? location.pathname : '';
-  const currSearch = _domAvailable ? location.search : '';
+  const currHost = _domAvailable ? location.host : "";
+  const currPath = _domAvailable ? location.pathname : "";
+  const currSearch = _domAvailable ? location.search : "";
 
   // Host patterns: the bare domain or any subdomain of it, on .com, a two-letter
   // ccTLD, or co./com. + ccTLD (google.co.uk, amazon.com.au). Anchored so
   // look-alikes such as notgoogle.com or google.example.net don't match.
-  const ebay = /^([a-z0-9-]+\.)*ebay(desc)?\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
-  const amazon = /^([a-z0-9-]+\.)*amazon\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
-  const audible = /^([a-z0-9-]+\.)*audible\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
-  const google = /^([a-z0-9-]+\.)*google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const ebay =
+    /^([a-z0-9-]+\.)*ebay(desc)?\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const amazon =
+    /^([a-z0-9-]+\.)*amazon\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const audible =
+    /^([a-z0-9-]+\.)*audible\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const google =
+    /^([a-z0-9-]+\.)*google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
   const target = /^([a-z0-9-]+\.)*target\.com$/;
-  const bing = /^([a-z0-9-]+\.)*bing\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
+  const bing =
+    /^([a-z0-9-]+\.)*bing\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})$/;
 
-  const LOG_PREFIX = '[URL Cleaner]';
+  const LOG_PREFIX = "[URL Cleaner]";
 
   const amazonParams =
     /&?_?(encoding|crid|sprefix|ref|th|url|ie|pf_rd_[^&#]*?|pd_rd_[^&#]*?|bbn|rw_html_to_wsrp|ref_|content-id)(=[^&#]*)?(?=$|&)/g;
@@ -96,17 +102,18 @@
     /&(eBP|refId|trackingId|trk|flagship3_search_srp_jobs|lipi|lici)(=[^&#]*)?(?=$|&)/g;
   const etsyParams =
     /&(click_key|click_sum|ref|pro|frs|ga_order|ga_search_type|ga_view_type|ga_search_query|sts|organic_search_click|plkey)(=[^&#]*)?(?=$|&)/g;
-  const yahooParams = /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?(?=$|&)/g;
+  const yahooParams =
+    /&(guccounter|guce_referrer|guce_referrer_sig)(=[^&#]*)?(?=$|&)/g;
   const spotifyParams = /&(si)(=[^&#]*)?(?=$|&)/g;
-  const redditParams = /&(correlation_id|ref_campaign|ref_source|share_id)(=[^&#]*)?(?=$|&)/g;
+  const redditParams =
+    /&(correlation_id|ref_campaign|ref_source|share_id)(=[^&#]*)?(?=$|&)/g;
   const twitchParams = /&(tt_medium|tt_content)(=[^&#]*)?(?=$|&)/g;
   const threadsParams = /&(xmt)(=[^&#]*)?(?=$|&)/g;
   const aliexpressParams =
     /&(algo_pvid|algo_exp_id|pdp_ext_f|pdp_npi|curPageLogUid|utparam-url|aem_p4p_detail|search_p4p_id)(=[^&#]*)?(?=$|&)/g;
   const walmartParams =
     /&(u1|from|variantFieldId|ath[^&#=]*)(=[^&#]*)?(?=$|&)/g;
-  const bestbuyParams =
-    /&(irclickid|loc|acampID|mpid|intl)(=[^&#]*)?(?=$|&)/g;
+  const bestbuyParams = /&(irclickid|loc|acampID|mpid|intl)(=[^&#]*)?(?=$|&)/g;
   const tiktokParams =
     /&(u_code|_d|_t|_r|timestamp|user_id|share_app_name|share_iid|source)(=[^&#]*)?(?=$|&)/g;
   // Universal click-id / email-tracking params safe to strip on every site.
@@ -122,21 +129,32 @@
   //   { match: /re/,   params, stripQ? }   — regex match
   //   { match: /re/,   clean }             — regex match with custom cleaner
   const SITES = [
-    { match: bing,       params: bingParams, stripQ: true },
-    { hosts: ['www.linkedin.com'],                               params: linkedinParams },
-    { hosts: ['www.etsy.com'],                                   params: etsyParams },
-    { hosts: ['www.yahoo.com'],                                  params: yahooParams },
+    { match: bing, params: bingParams, stripQ: true },
+    { hosts: ["www.linkedin.com"], params: linkedinParams },
+    { hosts: ["www.etsy.com"], params: etsyParams },
+    { hosts: ["www.yahoo.com"], params: yahooParams },
     // shortcut: param-strip only; product-path rewrite deferred pending live Audible URL verification
     { match: audible, clean: cleanAudible },
-    { hosts: ['open.spotify.com'],                               params: spotifyParams },
-    { hosts: ['www.reddit.com', 'reddit.com'],                   params: redditParams },
-    { hosts: ['www.twitch.tv', 'twitch.tv'],                     params: twitchParams },
-    { hosts: ['www.threads.net', 'threads.net', 'www.threads.com', 'threads.com'], params: threadsParams },
+    { hosts: ["open.spotify.com"], params: spotifyParams },
+    { hosts: ["www.reddit.com", "reddit.com"], params: redditParams },
+    { hosts: ["www.twitch.tv", "twitch.tv"], params: twitchParams },
+    {
+      hosts: [
+        "www.threads.net",
+        "threads.net",
+        "www.threads.com",
+        "threads.com",
+      ],
+      params: threadsParams,
+    },
     // www.aliexpress.com ends with .aliexpress.com, so /\.aliexpress\.com$/ covers both cases
-    { match: /\.aliexpress\.com$/,                               params: aliexpressParams },
-    { hosts: ['www.walmart.com', 'walmart.com'],                 params: walmartParams },
-    { hosts: ['www.bestbuy.com', 'bestbuy.com'],                 params: bestbuyParams },
-    { hosts: ['www.tiktok.com', 'tiktok.com', 'vm.tiktok.com'], params: tiktokParams },
+    { match: /\.aliexpress\.com$/, params: aliexpressParams },
+    { hosts: ["www.walmart.com", "walmart.com"], params: walmartParams },
+    { hosts: ["www.bestbuy.com", "bestbuy.com"], params: bestbuyParams },
+    {
+      hosts: ["www.tiktok.com", "tiktok.com", "vm.tiktok.com"],
+      params: tiktokParams,
+    },
   ];
 
   // Site dispatch: the first matching handler wins.
@@ -146,12 +164,12 @@
     // embed-heavy pages don't get a MutationObserver per ad/tracking iframe.
     // Exception: the Disqus comment widget only ever loads inside an iframe
     // (@include disqus.com/embed/comments/*), so it must keep running there.
-    if (window.self !== window.top && currHost !== 'disqus.com') {
+    if (window.self !== window.top && currHost !== "disqus.com") {
       return;
     }
 
-    if (currHost === 'www.youtube.com') {
-      if (currPath === '/redirect') {
+    if (currHost === "www.youtube.com") {
+      if (currPath === "/redirect") {
         const destination = cleanYoutubeRedir(currSearch);
         if (destination) {
           location.replace(destination);
@@ -159,7 +177,7 @@
       }
 
       watchAddress(() => {
-        if (location.pathname === '/watch') {
+        if (location.pathname === "/watch") {
           setCurrUrl(cleanYoutube(location.search));
         }
       });
@@ -168,7 +186,7 @@
       return;
     }
 
-    if (currHost.endsWith('.newegg.com') || currHost.endsWith('.newegg.ca')) {
+    if (currHost.endsWith(".newegg.com") || currHost.endsWith(".newegg.ca")) {
       watchAddress(() => {
         if (location.search) {
           setCurrUrl(cleanNewegg(location.search));
@@ -179,7 +197,7 @@
       return;
     }
 
-    if (currHost === 'www.imdb.com') {
+    if (currHost === "www.imdb.com") {
       watchAddress(() => {
         if (location.search) {
           setCurrUrl(cleanImdb(location.search));
@@ -187,12 +205,12 @@
       });
 
       cleanLinks(parserAll);
-      addEventListener('hashchange', deleteHash);
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (google.test(currHost)) {
-      if (currPath === '/url' || currPath === '/imgres') {
+      if (currPath === "/url" || currPath === "/imgres") {
         const destination = cleanGoogleRedir(currPath, currSearch);
         if (destination) {
           location.replace(destination);
@@ -208,7 +226,7 @@
       setCurrUrl(cleanGoogle(currPath + currSearch));
       changeState(googleInstant);
 
-      if (currSearch.includes('tbm=isch')) {
+      if (currSearch.includes("tbm=isch")) {
         cleanLinksAlways(parserGoogleImages);
       } else {
         cleanLinks(parserGoogle);
@@ -219,7 +237,7 @@
 
     if (ebay.test(currHost)) {
       watchAddress(() => {
-        if (location.pathname.includes('/itm/')) {
+        if (location.pathname.includes("/itm/")) {
           setCurrUrl(cleanEbayItem(location));
         } else if (location.search) {
           setCurrUrl(cleanEbayParams(location.search));
@@ -227,13 +245,13 @@
       });
 
       cleanLinks(parserAll);
-      addEventListener('hashchange', deleteHash);
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (target.test(currHost)) {
       watchAddress(() => {
-        if (location.pathname.includes('/p/')) {
+        if (location.pathname.includes("/p/")) {
           setCurrUrl(cleanTargetItemp(location));
         } else if (location.search) {
           setCurrUrl(cleanTargetParams(location.search));
@@ -241,15 +259,15 @@
       });
 
       cleanLinks(parserTarget);
-      addEventListener('hashchange', deleteHash);
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
     if (amazon.test(currHost)) {
       watchAddress(() => {
-        if (location.pathname.includes('/dp/')) {
+        if (location.pathname.includes("/dp/")) {
           setCurrUrl(cleanAmazonItemdp(location));
-        } else if (location.pathname.includes('/gp/product')) {
+        } else if (location.pathname.includes("/gp/product")) {
           setCurrUrl(cleanAmazonItemgp(location));
         } else if (location.search) {
           setCurrUrl(cleanAmazonParams(location.search));
@@ -257,11 +275,11 @@
       });
 
       cleanLinks(parserAll);
-      addEventListener('hashchange', deleteHash);
+      addEventListener("hashchange", deleteHash);
       return;
     }
 
-    if (currHost === 'www.facebook.com') {
+    if (currHost === "www.facebook.com") {
       watchAddress(() => {
         if (location.search) {
           setCurrUrl(cleanFacebookParams(location.search));
@@ -272,16 +290,21 @@
       return;
     }
 
-    if (currHost === 'disqus.com') {
+    if (currHost === "disqus.com") {
       cleanLinks(parserDisqus);
       return;
     }
 
     for (const r of SITES) {
-      if (r.hosts ? !r.hosts.includes(currHost) : !r.match.test(currHost)) continue;
+      if (r.hosts ? !r.hosts.includes(currHost) : !r.match.test(currHost))
+        continue;
       watchAddress(() => {
         if (location.search) {
-          setCurrUrl(r.clean ? r.clean(location.search) : cleanParams(location.search, r.params, r.stripQ));
+          setCurrUrl(
+            r.clean
+              ? r.clean(location.search)
+              : cleanParams(location.search, r.params, r.stripQ),
+          );
         }
       });
       cleanLinks(parserAll);
@@ -296,7 +319,11 @@
         if (location.search) {
           // explicit path so an all-utm query is actually cleared from the bar
           // (replaceState("") would no-op and leave the query in place)
-          setCurrUrl(location.pathname + cleanGlobalParams(cleanUtm(location.search)) + location.hash);
+          setCurrUrl(
+            location.pathname +
+              cleanGlobalParams(cleanUtm(location.search)) +
+              location.hash,
+          );
         }
       });
       cleanLinks(parserGlobal);
@@ -308,7 +335,7 @@
   function setCurrUrl(url) {
     let next = cleanGlobalParams(cleanUtm(url));
     // A query-only URL ("?a=b") would drop the page's #fragment; keep it.
-    if (next.startsWith('?') && !next.includes('#')) {
+    if (next.startsWith("?") && !next.includes("#")) {
       next += location.hash;
     }
     // Skip when nothing changes (an empty URL would only re-set the current
@@ -316,11 +343,11 @@
     if (!next || new URL(next, location.href).href === location.href) {
       return;
     }
-    history.replaceState(history.state, '', next);
+    history.replaceState(history.state, "", next);
   }
 
   function deleteHash() {
-    history.replaceState(history.state, '', ' ');
+    history.replaceState(history.state, "", " ");
   }
 
   // Clean the address bar now, and again after each in-page (SPA) navigation:
@@ -334,18 +361,21 @@
       try {
         cleanAddress();
       } catch (err) {
-        console.error(LOG_PREFIX, 'address cleaning failed', err);
+        console.error(LOG_PREFIX, "address cleaning failed", err);
       } finally {
         running = false;
       }
     };
 
     run();
-    if (currHost === 'www.youtube.com') {
-      document.addEventListener('yt-navigate-finish', run);
+    if (currHost === "www.youtube.com") {
+      document.addEventListener("yt-navigate-finish", run);
     }
-    if (window.navigation && typeof window.navigation.addEventListener === 'function') {
-      window.navigation.addEventListener('navigatesuccess', run);
+    if (
+      window.navigation &&
+      typeof window.navigation.addEventListener === "function"
+    ) {
+      window.navigation.addEventListener("navigatesuccess", run);
     }
   }
 
@@ -362,10 +392,10 @@
     for (const record of records) {
       for (const node of record.addedNodes) {
         if (node.nodeType !== 1) continue; // Element nodes only
-        if (node.tagName === 'A') {
+        if (node.tagName === "A") {
           anchors.push(node);
         }
-        for (const a of node.querySelectorAll('a')) {
+        for (const a of node.querySelectorAll("a")) {
           anchors.push(a);
         }
       }
@@ -381,12 +411,12 @@
         continue;
       }
 
-      if (a.protocol && a.protocol.startsWith('http')) {
+      if (a.protocol && a.protocol.startsWith("http")) {
         // One bad link must not abort the sweep (and with it the observer setup).
         try {
           linkParser(a);
         } catch (err) {
-          console.error(LOG_PREFIX, 'could not clean link', a.href, err);
+          console.error(LOG_PREFIX, "could not clean link", a.href, err);
         }
       }
 
@@ -417,14 +447,14 @@
 
   function googleInstant(rawUrl) {
     const url = String(rawUrl);
-    const parts = url.split('#');
+    const parts = url.split("#");
     if (parts.length !== 2) {
       return url;
     }
 
     const hash = parts[1];
-    if (hash === 'imgrc=_') {
-      return ' ';
+    if (hash === "imgrc=_") {
+      return " ";
     }
 
     if (/(^|&)q=/.test(hash)) {
@@ -438,11 +468,16 @@
   // keeping the caller's this, state, title and return value. An omitted or
   // null url is passed through untouched; URL objects are stringified first.
   function changeState(mod, hist = history) {
-    for (const name of ['pushState', 'replaceState']) {
+    for (const name of ["pushState", "replaceState"]) {
       const orig = hist[name];
       hist[name] = function (state, title, url) {
         // == null on purpose: an omitted (undefined) or null url passes through.
-        return orig.call(this, state, title, url == null ? url : mod(String(url)));
+        return orig.call(
+          this,
+          state,
+          title,
+          url == null ? url : mod(String(url)),
+        );
       };
     }
   }
@@ -452,10 +487,10 @@
   // getAttribute("href") string; cleanedHref is the resolved+cleaned absolute
   // URL to assign; origin is location.origin. Returns null to skip assignment.
   function relHref(origAttr, cleanedHref, origin) {
-    if (origAttr === '' || origAttr[0] === '#') return null;
+    if (origAttr === "" || origAttr[0] === "#") return null;
     if (
-      origAttr[0] === '/' &&
-      origAttr[1] !== '/' &&
+      origAttr[0] === "/" &&
+      origAttr[1] !== "/" &&
       cleanedHref.startsWith(origin)
     ) {
       return cleanedHref.slice(origin.length);
@@ -464,7 +499,7 @@
   }
 
   function setHref(a, href) {
-    const next = relHref(a.getAttribute('href'), href, location.origin);
+    const next = relHref(a.getAttribute("href"), href, location.origin);
     if (next !== null) a.href = next;
   }
 
@@ -481,7 +516,7 @@
       return;
     }
 
-    if (host === 'www.youtube.com') {
+    if (host === "www.youtube.com") {
       setHref(a, transformYoutubeUrl(a.href));
       a.cleaned = 1;
       return;
@@ -497,29 +532,29 @@
   }
 
   function parserGoogle(a) {
-    a.removeAttribute('onmousedown');
-    a.removeAttribute('ping');
+    a.removeAttribute("onmousedown");
+    a.removeAttribute("ping");
     parserAll(a);
   }
 
   function parserGoogleImages(a) {
-    const jsaction = a.getAttribute('jsaction');
-    if (jsaction && jsaction.includes('down:irc.rl')) {
-      a.removeAttribute('jsaction');
+    const jsaction = a.getAttribute("jsaction");
+    if (jsaction && jsaction.includes("down:irc.rl")) {
+      a.removeAttribute("jsaction");
     }
 
-    a.removeAttribute('onmousedown');
-    a.removeAttribute('ping');
+    a.removeAttribute("onmousedown");
+    a.removeAttribute("ping");
     parserAll(a);
   }
 
   function parserYoutube(a) {
     parserAll(a);
     const text = a.textContent.trim();
-    const href = a.getAttribute('href');
+    const href = a.getAttribute("href");
     if (
       text === href ||
-      (href && text.endsWith('...') && href.startsWith(text.slice(0, -3)))
+      (href && text.endsWith("...") && href.startsWith(text.slice(0, -3)))
     ) {
       a.textContent = href;
     }
@@ -550,7 +585,7 @@
   }
 
   function parserNewegg(a) {
-    if (!a.host.endsWith('.newegg.com') && !a.host.endsWith('.newegg.ca')) {
+    if (!a.host.endsWith(".newegg.com") && !a.host.endsWith(".newegg.ca")) {
       return;
     }
 
@@ -558,7 +593,7 @@
   }
 
   function parserIMDB(a) {
-    if (a.host === 'www.imdb.com') {
+    if (a.host === "www.imdb.com") {
       setHref(a, transformImdbUrl(a.href));
     }
   }
@@ -569,10 +604,10 @@
   }
 
   function parserFacebook(a) {
-    if (a.host === 'l.facebook.com' && a.pathname === '/l.php') {
+    if (a.host === "l.facebook.com" && a.pathname === "/l.php") {
       setHref(a, transformFacebookUrl(a.href));
-      a.removeAttribute('onclick');
-      a.removeAttribute('onmouseover');
+      a.removeAttribute("onclick");
+      a.removeAttribute("onmouseover");
     }
 
     setHref(a, transformGlobalUrl(a.href));
@@ -589,8 +624,8 @@
   // params, then restore the leading separator. Pass stripTrailingQ=true for
   // cleaners that should collapse a bare ? to "" when all params are removed.
   function cleanParams(url, regex, stripTrailingQ) {
-    const result = url.replace('?', '?&').replace(regex, '').replace('&', '');
-    return stripTrailingQ ? result.replace(/\?$/, '') : result;
+    const result = url.replace("?", "?&").replace(regex, "").replace("&", "");
+    return stripTrailingQ ? result.replace(/\?$/, "") : result;
   }
 
   function cleanGoogle(url) {
@@ -624,18 +659,22 @@
   function cleanAudible(url) {
     // Keep-list derived from a live Audible session (issue #39).
     const keep = [
-      'keywords', 'node', 'page', 'sort', 'publication_date',
-      'audible_programs', 'searchNarrator', 'searchAuthor',
+      "keywords",
+      "node",
+      "page",
+      "sort",
+      "publication_date",
+      "audible_programs",
+      "searchNarrator",
+      "searchAuthor",
     ];
-    const parts = url.split('?');
+    const parts = url.split("?");
     if (parts.length < 2) return url;
-    const kept = parts[1]
-      .split(/[&;]/g)
-      .filter((p) => {
-        const name = p.split('=')[0];
-        return keep.includes(name) || /_browse-bin$/.test(name);
-      });
-    return parts[0] + (kept.length ? `?${kept.join('&')}` : '');
+    const kept = parts[1].split(/[&;]/g).filter((p) => {
+      const name = p.split("=")[0];
+      return keep.includes(name) || /_browse-bin$/.test(name);
+    });
+    return parts[0] + (kept.length ? `?${kept.join("&")}` : "");
   }
 
   function cleanEbayParams(url) {
@@ -643,7 +682,7 @@
   }
 
   function cleanTargetItemp(a) {
-    const item = a.pathname.replace(/(?<=\/p).*(?=\/A)/, '');
+    const item = a.pathname.replace(/(?<=\/p).*(?=\/A)/, "");
     return a.origin + item;
   }
 
@@ -662,7 +701,8 @@
   function cleanEbayItem(a) {
     const item = a.pathname.match(/\/[0-9]{12}/);
     if (!item) return a.href;
-    const origList = a.search.replace(/&/g, '?').match(/\?orig_cvip=[^?]+/) || '';
+    const origList =
+      a.search.replace(/&/g, "?").match(/\?orig_cvip=[^?]+/) || "";
     return `${a.origin}/itm${item}${origList}${a.hash}`;
   }
 
@@ -685,7 +725,7 @@
       target = decodeURIComponent(match.pop());
       const base = _domAvailable ? location.href : undefined;
       const protocol = new URL(target, base).protocol;
-      if (protocol !== 'http:' && protocol !== 'https:') return null;
+      if (protocol !== "http:" && protocol !== "https:") return null;
     } catch (err) {
       return null; // malformed encoding or unparseable URL: not a usable target
     }
@@ -707,43 +747,43 @@
   // Google /url redirects carry the target in url= or (more often now) q=.
   function cleanGoogleRedir(path, search) {
     const target = cleanGenericRedir(search);
-    if (target || path !== '/url') return target;
+    if (target || path !== "/url") return target;
     return cleanRedir(/[?&]q=([^&]+)/, search);
   }
 
   function cleanUtm(url) {
-    const urlparts = url.split('?');
+    const urlparts = url.split("?");
     if (urlparts.length >= 2) {
       const pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
-      for (let i = pars.length; (i -= 1) >= 0; ) {
+      for (let i = pars.length; (i -= 1) >= 0;) {
         if (/^utm_/.test(pars[i])) {
           pars.splice(i, 1);
         }
       }
-      return urlparts[0] + (pars.length > 0 ? `?${pars.join('&')}` : '');
+      return urlparts[0] + (pars.length > 0 ? `?${pars.join("&")}` : "");
     }
     return url;
   }
 
   function cleanGlobalParams(url) {
-    const urlparts = url.split('?');
+    const urlparts = url.split("?");
     if (urlparts.length >= 2) {
       const pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
-      for (let i = pars.length; (i -= 1) >= 0; ) {
+      for (let i = pars.length; (i -= 1) >= 0;) {
         if (globalParams.test(pars[i])) {
           pars.splice(i, 1);
         }
       }
-      return urlparts[0] + (pars.length > 0 ? `?${pars.join('&')}` : '');
+      return urlparts[0] + (pars.length > 0 ? `?${pars.join("&")}` : "");
     }
     return url;
   }
 
   function transformGoogleUrl(href) {
     const u = new URL(href);
-    if (u.pathname === '/imgres' || u.pathname === '/url') {
+    if (u.pathname === "/imgres" || u.pathname === "/url") {
       return cleanGoogleRedir(u.pathname, u.search) || href;
     } else if (u.search) {
       u.search = cleanGoogle(u.search);
@@ -755,17 +795,17 @@
     const u = new URL(href);
     let result = href;
 
-    if (u.pathname.includes('black-curtain-redirect.html')) {
+    if (u.pathname.includes("black-curtain-redirect.html")) {
       result = cleanAmazonRedir(u.search) || href;
-    } else if (u.pathname.includes('/dp/')) {
+    } else if (u.pathname.includes("/dp/")) {
       result = cleanAmazonItemdp(u);
-    } else if (u.pathname.includes('/gp/product')) {
+    } else if (u.pathname.includes("/gp/product")) {
       result = cleanAmazonItemgp(u);
-    } else if (u.pathname.includes('/picassoRedirect')) {
+    } else if (u.pathname.includes("/picassoRedirect")) {
       const decoded = cleanGenericRedir(u.search);
       if (decoded) {
         const t = new URL(decoded, href);
-        t.search = '';
+        t.search = "";
         result = t.href;
       }
     } else if (u.search) {
@@ -777,7 +817,7 @@
     }
 
     const u2 = new URL(result, href);
-    if (u2.pathname.includes('/ref=')) {
+    if (u2.pathname.includes("/ref=")) {
       u2.pathname = cleanAmazonParams(u2.pathname);
       result = u2.href;
     }
@@ -788,9 +828,9 @@
   function transformEbayUrl(href, pageOrigin) {
     const u = new URL(href);
 
-    if (u.pathname.includes('/itm/')) {
+    if (u.pathname.includes("/itm/")) {
       return cleanEbayItem(u);
-    } else if (u.host.startsWith('pulsar.')) {
+    } else if (u.host.startsWith("pulsar.")) {
       return cleanEbayPulsar(u.search, pageOrigin) || href;
     } else if (u.search) {
       u.search = cleanEbayParams(u.search);
@@ -802,10 +842,10 @@
 
   function transformYoutubeUrl(href) {
     const u = new URL(href);
-    if (u.pathname === '/watch') {
+    if (u.pathname === "/watch") {
       u.search = cleanYoutube(u.search);
       return u.href;
-    } else if (u.pathname === '/redirect') {
+    } else if (u.pathname === "/redirect") {
       return cleanYoutubeRedir(u.search) || href;
     }
     return href;
@@ -813,7 +853,7 @@
 
   function transformTargetUrl(href) {
     const u = new URL(href);
-    if (u.pathname.includes('/p/')) {
+    if (u.pathname.includes("/p/")) {
       return cleanTargetItemp(u);
     } else if (u.search) {
       return cleanTargetParams(href);
@@ -823,7 +863,7 @@
 
   function transformNeweggUrl(href) {
     const u = new URL(href);
-    if (u.search && !u.pathname.includes('/marketplace/')) {
+    if (u.search && !u.pathname.includes("/marketplace/")) {
       u.search = cleanNewegg(u.search);
       return u.href;
     }
@@ -841,7 +881,7 @@
 
   function transformFacebookUrl(href) {
     const u = new URL(href);
-    if (u.host !== 'l.facebook.com') {
+    if (u.host !== "l.facebook.com") {
       return href;
     }
     return cleanGenericRedir(u.search) || href;
@@ -853,12 +893,12 @@
   // without a usable redirect target is returned unchanged.
   function transformDisqusUrl(href) {
     const u = new URL(href);
-    if (u.host === 'disq.us' && u.pathname === '/url') {
-      if (!u.searchParams.get('url')) {
+    if (u.host === "disq.us" && u.pathname === "/url") {
+      if (!u.searchParams.get("url")) {
         return href;
       }
       const decoded = cleanGenericRedir(u.search);
-      return decoded ? decoded.replace(/:[^/:]+$/, '') : href;
+      return decoded ? decoded.replace(/:[^/:]+$/, "") : href;
     }
     return cleanGenericRedir(u.search) || href;
   }
@@ -875,24 +915,69 @@
   }
 
   // shortcut: Node export + load guard exist only so the pure cleaners are unit-testable; Tampermonkey defines window/document so the guard is a no-op in-browser
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof module !== "undefined" && module.exports) {
     module.exports = {
-      cleanGoogle, cleanYoutube, cleanImdb, cleanNewegg,
-      cleanTargetParams, cleanFacebookParams, cleanAmazonParams, cleanAudible,
-      cleanEbayParams, cleanUtm, cleanGlobalParams, cleanParams,
-      cleanYoutubeRedir, cleanAmazonRedir, cleanGenericRedir,
-      cleanEbayPulsar, cleanEbayItem, cleanAmazonItemdp, cleanAmazonItemgp,
-      cleanTargetItemp, relHref, cleanGoogleRedir, googleInstant, changeState,
-      google, amazon, audible, ebay, bing, target,
-      transformGoogleUrl, transformAmazonUrl, transformEbayUrl,
-      transformYoutubeUrl, transformTargetUrl,
-      transformNeweggUrl, transformImdbUrl, transformFacebookUrl,
-      transformDisqusUrl, transformGlobalUrl,
-      googleParams, ebayParams, amazonParams, neweggParams, imdbParams,
-      bingParams, youtubeParams, targetParams,
-      facebookParams, linkedinParams, etsyParams, yahooParams, globalParams,
-      spotifyParams, redditParams, twitchParams, threadsParams,
-      aliexpressParams, walmartParams, bestbuyParams, tiktokParams,
+      cleanGoogle,
+      cleanYoutube,
+      cleanImdb,
+      cleanNewegg,
+      cleanTargetParams,
+      cleanFacebookParams,
+      cleanAmazonParams,
+      cleanAudible,
+      cleanEbayParams,
+      cleanUtm,
+      cleanGlobalParams,
+      cleanParams,
+      cleanYoutubeRedir,
+      cleanAmazonRedir,
+      cleanGenericRedir,
+      cleanEbayPulsar,
+      cleanEbayItem,
+      cleanAmazonItemdp,
+      cleanAmazonItemgp,
+      cleanTargetItemp,
+      relHref,
+      cleanGoogleRedir,
+      googleInstant,
+      changeState,
+      google,
+      amazon,
+      audible,
+      ebay,
+      bing,
+      target,
+      transformGoogleUrl,
+      transformAmazonUrl,
+      transformEbayUrl,
+      transformYoutubeUrl,
+      transformTargetUrl,
+      transformNeweggUrl,
+      transformImdbUrl,
+      transformFacebookUrl,
+      transformDisqusUrl,
+      transformGlobalUrl,
+      googleParams,
+      ebayParams,
+      amazonParams,
+      neweggParams,
+      imdbParams,
+      bingParams,
+      youtubeParams,
+      targetParams,
+      facebookParams,
+      linkedinParams,
+      etsyParams,
+      yahooParams,
+      globalParams,
+      spotifyParams,
+      redditParams,
+      twitchParams,
+      threadsParams,
+      aliexpressParams,
+      walmartParams,
+      bestbuyParams,
+      tiktokParams,
     };
   }
 })();
