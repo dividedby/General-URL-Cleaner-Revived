@@ -40,7 +40,7 @@ in your browser bar and the links on the page.
 ### 5.0.1
 
 - **Scoped to supported sites only:** the script now runs only on the sites
-  listed below. 5.0 ran on *every* website, which could interfere with
+  listed below. 5.0 ran on _every_ website, which could interfere with
   unrelated pages.
 - **Amazon order pages fixed:** "View Order" / order-details links keep their
   `orderID` query intact instead of having it mangled.
@@ -94,15 +94,15 @@ The script does not run on any other site.
 
 ### Examples
 
-| Site | Before | After |
-|------|--------|-------|
-| Google | `…/search?num=100&q=google&oq=google&gs_l=serp.3..&sclient=…` | `…/search?q=google` |
-| Bing | `…/search?q=google&qs=n&form=QBLH&pq=google&cvid=97312…` | `…/search?q=google` |
-| YouTube | `…/watch?v=ID&pp=…&feature=…` | `…/watch?v=ID` |
-| Amazon | `…/gp/product/ID/ref=…?th=1` | `…/gp/product/ID/` |
-| eBay | `…/itm/ID?hash=…&epid=…` | `…/itm/ID` |
-| Facebook | `…/photo/?fbid=ID&set=pcb.…` | `…/photo/?fbid=ID` |
-| Target | `…/p/A-ID?preselect=…&afid=…` | `…/p/A-ID` |
+| Site     | Before                                                        | After               |
+| -------- | ------------------------------------------------------------- | ------------------- |
+| Google   | `…/search?num=100&q=google&oq=google&gs_l=serp.3..&sclient=…` | `…/search?q=google` |
+| Bing     | `…/search?q=google&qs=n&form=QBLH&pq=google&cvid=97312…`      | `…/search?q=google` |
+| YouTube  | `…/watch?v=ID&pp=…&feature=…`                                 | `…/watch?v=ID`      |
+| Amazon   | `…/gp/product/ID/ref=…?th=1`                                  | `…/gp/product/ID/`  |
+| eBay     | `…/itm/ID?hash=…&epid=…`                                      | `…/itm/ID`          |
+| Facebook | `…/photo/?fbid=ID&set=pcb.…`                                  | `…/photo/?fbid=ID`  |
+| Target   | `…/p/A-ID?preselect=…&afid=…`                                 | `…/p/A-ID`          |
 
 ## Install
 

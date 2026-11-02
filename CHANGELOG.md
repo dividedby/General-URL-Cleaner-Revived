@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Internal: code brought to the shared style (const/let, strict equality, 2-space indentation). No behavior change.
 
 ## [5.2.0] - 2026-10-13
@@ -16,11 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Hardening release from a code audit.
 
 ### Added
+
 - The address bar is cleaned again after in-page navigation on single-page
   sites (YouTube's own navigation event, and the browser Navigation API where
   available), not only on the first page load.
 
 ### Changed
+
 - Redirect pages (YouTube `/redirect`, Google `/url`) now replace the history
   entry, so Back no longer lands on the redirect page and bounces forward again.
 - Address-bar cleaning keeps the page's `#fragment` and the site's history
@@ -29,9 +32,11 @@ Hardening release from a code audit.
 - Known-limitation code comments renamed from a third-party plugin's prefix to the neutral `shortcut:` marker after that plugin was removed globally (dividedby/claude-config#188); comments only, no behaviour change.
 
 ### Removed
+
 - Per-repo Serena MCP config (`.serena/`) removed — Serena is no longer used (dividedby/claude-config#180)
 
 ### Fixed
+
 - A link with no usable redirect target (for example a Disqus profile link, a
   Google `/url?q=` link, or a YouTube `/redirect` without `q`) no longer stops
   the script; previously one such link ended link cleaning for the whole page.
@@ -51,25 +56,33 @@ Hardening release from a code audit.
 - Removed a leftover debug log on Google Images.
 
 ## [5.1.0] - 2026-07-10
+
 ### Added
+
 - Strip YouTube's `pp` (player-params attribution blob) tracking param. (#101)
 
 ### Fixed
+
 - Preserve the original `href` attribute form (empty, hash-only, relative)
   when rewriting links on all supported sites, instead of clobbering it with
   an absolute URL. (#102)
 
 ## [5.0.1] - 2026-06-18
+
 ### Added
+
 - Strip `utm_*` and click-ID tracking params on all supported sites.
 
 ### Fixed
+
 - Scope cleaning to supported sites only; stop touching unrelated pages.
 - Preserve Amazon order-details links instead of breaking them.
 - Strip click-ID params from the address bar, not just from in-page links.
 
 ## [5.0.0] - 2026-06-14
+
 ### Changed
+
 - Major rewrite: per-site handling folded into a single data-driven table;
   dead redirect decoder removed.
 - README rewritten; GreasyFork listing added.

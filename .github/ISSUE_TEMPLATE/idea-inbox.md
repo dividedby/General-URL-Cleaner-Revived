@@ -6,9 +6,10 @@ labels: idea-inbox
 ---
 
 <!-- agent-protocol: drain=docs/agents/idea-inbox.md -->
+
 ## Ideas
 
-- [ ] 
+- [ ]
 
 ---
 

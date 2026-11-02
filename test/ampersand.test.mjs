@@ -27,35 +27,35 @@ function cleanAmazon(url) {
 assert.equal(
   cleanAmazon("?k=laptop&ref=nb_sb_noss&node=123"),
   "?k=laptop&node=123",
-  "Amazon: ref between k and node"
+  "Amazon: ref between k and node",
 );
 
 // Tracking param at end: trailing ampersand cleaned.
 assert.equal(
   cleanAmazon("?k=laptop&ref=nb_sb_noss"),
   "?k=laptop",
-  "Amazon: ref at end"
+  "Amazon: ref at end",
 );
 
 // No tracking params: string unchanged.
 assert.equal(
   cleanAmazon("?k=laptop&node=123"),
   "?k=laptop&node=123",
-  "Amazon: no tracking params"
+  "Amazon: no tracking params",
 );
 
 // Single tracking param only.
 assert.equal(
   cleanAmazon("?ref=nb_sb_noss"),
   "?",
-  "Amazon: only tracking param"
+  "Amazon: only tracking param",
 );
 
 // Multiple consecutive tracking params between kept params.
 assert.equal(
   cleanAmazon("?k=laptop&ref=nb_sb_noss&crid=ABC&node=123"),
   "?k=laptop&node=123",
-  "Amazon: two consecutive tracking params between kept params"
+  "Amazon: two consecutive tracking params between kept params",
 );
 
 console.log("All assertions passed.");

@@ -16,36 +16,36 @@ The convention governs the shared vocabulary, not a repo's private labels.
 
 Where the issue sits in the workflow. Combine freely with a category label.
 
-| Label             | Color    | Description                                                       |
-| ----------------- | -------- | ----------------------------------------------------------------- |
-| `needs-triage`    | `FBCA04` | Maintainer needs to evaluate this issue                          |
-| `ready-for-agent` | `0E8A16` | Fully specified, ready for an AFK agent                          |
-| `ready-for-human` | `1D76DB` | Requires human implementation                                    |
+| Label             | Color    | Description                                                        |
+| ----------------- | -------- | ------------------------------------------------------------------ |
+| `needs-triage`    | `FBCA04` | Maintainer needs to evaluate this issue                            |
+| `ready-for-agent` | `0E8A16` | Fully specified, ready for an AFK agent                            |
+| `ready-for-human` | `1D76DB` | Requires human implementation                                      |
 | `blocked`         | `E4820A` | Ready to proceed but waiting on an external dependency or decision |
-| `wontfix`         | `FFFFFF` | Will not be actioned                                             |
+| `wontfix`         | `FFFFFF` | Will not be actioned                                               |
 | `idea-inbox`      | `D4C5F9` | The single freeform idea-intake issue for this repo (one per repo) |
 
 ## CORE — Category (all repos)
 
 What kind of work it is. Combine freely with a state label.
 
-| Label         | Color    | Description                                              |
-| ------------- | -------- | -------------------------------------------------------- |
-| `bug`         | `D73A4A` | Something is broken                                      |
-| `enhancement` | `84B6EB` | New capability or improvement                            |
-| `chore`       | `BFD4F2` | Maintenance or tooling with no user-facing change        |
-| `epic`        | `7057FF` | Aggregate issue grouping related child issues            |
+| Label         | Color    | Description                                       |
+| ------------- | -------- | ------------------------------------------------- |
+| `bug`         | `D73A4A` | Something is broken                               |
+| `enhancement` | `84B6EB` | New capability or improvement                     |
+| `chore`       | `BFD4F2` | Maintenance or tooling with no user-facing change |
+| `epic`        | `7057FF` | Aggregate issue grouping related child issues     |
 
 ## CORE — Size (all repos)
 
 Best-effort effort estimate. Applied when filing or triaging an issue.
 
-| Label    | Color    | Description          |
-| -------- | -------- | -------------------- |
-| `size:S` | `E6E6E6` | Small: < 1 day       |
-| `size:M` | `C8C8C8` | Medium: 1–2 days     |
-| `size:L` | `AAAAAA` | Large: 3–5 days      |
-| `size:XL`| `888888` | Extra large: > 1 week |
+| Label     | Color    | Description           |
+| --------- | -------- | --------------------- |
+| `size:S`  | `E6E6E6` | Small: < 1 day        |
+| `size:M`  | `C8C8C8` | Medium: 1–2 days      |
+| `size:L`  | `AAAAAA` | Large: 3–5 days       |
+| `size:XL` | `888888` | Extra large: > 1 week |
 
 ## Issue title convention
 
@@ -61,7 +61,7 @@ The labels do that work. A glanceable title is faster to scan in the issue list.
 
 ## Role aliases
 
-Skills and docs speak in terms of canonical triage *roles*. This table maps those role names to the actual label strings used in the issue tracker.
+Skills and docs speak in terms of canonical triage _roles_. This table maps those role names to the actual label strings used in the issue tracker.
 
 | Role             | Label             |
 | ---------------- | ----------------- |

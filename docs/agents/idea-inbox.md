@@ -29,7 +29,7 @@ cold. Do **not** grill, expand, or scope it yet; that happens at drain. Keep
 ## Drain
 
 When asked to "drain the inbox" (or to drain a specific item), promote the item
-end-to-end, adapting to what *this* idea needs:
+end-to-end, adapting to what _this_ idea needs:
 
 1. **Dedup / relate** — before acting, review the OPEN issues in this repo. Decide
    whether the idea (a) already exists → note it and move it to `✅ Actioned`
@@ -47,19 +47,19 @@ end-to-end, adapting to what *this* idea needs:
    - File it as a `chore`/`needs-triage` spike: "Investigate X to determine Y."
    - Repeat for each downstream decision, in dependency order, until the remaining
      work is concrete enough for `/to-tickets` to carve into implementation tickets.
-   A single spike that unblocks all downstream work is fine. Skip this step when
-   the idea is already concrete — one decision, one clear owner.
-   When an idea is decision-mapped into spikes, move the inbox row to
-   `✅ Actioned` with `→ #<spike-1> #<spike-2> …` pointing at every filed spike;
-   the spike chain resolves into the eventual implementation ticket, which closes
-   the loop on the original idea.
+     A single spike that unblocks all downstream work is fine. Skip this step when
+     the idea is already concrete — one decision, one clear owner.
+     When an idea is decision-mapped into spikes, move the inbox row to
+     `✅ Actioned` with `→ #<spike-1> #<spike-2> …` pointing at every filed spike;
+     the spike chain resolves into the eventual implementation ticket, which closes
+     the loop on the original idea.
 3. **Pick only the steps it needs** — do not run the whole pipeline by rote. Choose
    from:
    - `/grill-with-docs` — when the idea is fuzzy or contends with the domain model
      (CONTEXT.md / ADRs); build shared understanding first.
    - `/to-spec` — when it's big enough to warrant a spec before issues.
    - `/to-tickets` — to carve it into independently-grabbable tracked work.
-   A small, clear idea may need only `/to-tickets`.
+     A small, clear idea may need only `/to-tickets`.
 4. **Labels** — when filing issues, apply labels from `docs/agents/triage-labels.md`: state
    (`needs-triage` to start), category (`bug` / `enhancement` / `chore` / `epic`),
    and a size estimate (`size:S` / `size:M` / `size:L` / `size:XL`). The compact

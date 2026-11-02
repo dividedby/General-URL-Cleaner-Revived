@@ -55,31 +55,44 @@ describe("redirect decoders keep the original link when there is no target", () 
     const curtain = "https://www.amazon.com/black-curtain-redirect.html?ref=x";
     assert.equal(transformAmazonUrl(curtain), curtain);
     const picasso = "https://www.amazon.com/picassoRedirect.html/ref=abc?foo=1";
-    assert.equal(transformAmazonUrl(picasso), "https://www.amazon.com/picassoRedirect.html/?foo=1");
+    assert.equal(
+      transformAmazonUrl(picasso),
+      "https://www.amazon.com/picassoRedirect.html/?foo=1",
+    );
   });
 });
 
 describe("Google /url redirects", () => {
   it("decodes the q= form", () => {
     assert.equal(
-      transformGoogleUrl("https://www.google.com/url?q=https://example.com&sa=D"),
-      "https://example.com"
+      transformGoogleUrl(
+        "https://www.google.com/url?q=https://example.com&sa=D",
+      ),
+      "https://example.com",
     );
     assert.equal(
-      transformGoogleUrl("https://www.google.com/url?sa=t&q=https%3A%2F%2Fexample.com%2Fa%3Fb%3D1&ved=x"),
-      "https://example.com/a?b=1"
+      transformGoogleUrl(
+        "https://www.google.com/url?sa=t&q=https%3A%2F%2Fexample.com%2Fa%3Fb%3D1&ved=x",
+      ),
+      "https://example.com/a?b=1",
     );
   });
 
   it("prefers url= over q= when both are present", () => {
     assert.equal(
-      cleanGoogleRedir("/url", "?q=search+words&url=https%3A%2F%2Fexample.com%2F"),
-      "https://example.com/"
+      cleanGoogleRedir(
+        "/url",
+        "?q=search+words&url=https%3A%2F%2Fexample.com%2F",
+      ),
+      "https://example.com/",
     );
   });
 
   it("does not read q= on /imgres", () => {
-    assert.equal(cleanGoogleRedir("/imgres", "?q=https%3A%2F%2Fexample.com"), null);
+    assert.equal(
+      cleanGoogleRedir("/imgres", "?q=https%3A%2F%2Fexample.com"),
+      null,
+    );
   });
 
   it("keeps the link when the target is javascript:", () => {
@@ -90,14 +103,22 @@ describe("Google /url redirects", () => {
 
 describe("cleanAmazonItemgp", () => {
   it("rewrites a /gp/product link to the bare ASIN", () => {
-    const u = new URL("https://www.amazon.com/gp/product/B07XYZ1234/ref=abc?psc=1#top");
-    assert.equal(cleanAmazonItemgp(u), "https://www.amazon.com/gp/product/B07XYZ1234#top");
+    const u = new URL(
+      "https://www.amazon.com/gp/product/B07XYZ1234/ref=abc?psc=1#top",
+    );
+    assert.equal(
+      cleanAmazonItemgp(u),
+      "https://www.amazon.com/gp/product/B07XYZ1234#top",
+    );
   });
 
   it("returns the URL unchanged when there is no ASIN (no /gp/productnull)", () => {
     const u = new URL("https://www.amazon.com/gp/product/handle-buy-box?x=1");
     assert.equal(cleanAmazonItemgp(u), u.href);
-    assert.equal(transformAmazonUrl("https://www.amazon.com/gp/product/abc"), "https://www.amazon.com/gp/product/abc");
+    assert.equal(
+      transformAmazonUrl("https://www.amazon.com/gp/product/abc"),
+      "https://www.amazon.com/gp/product/abc",
+    );
   });
 });
 
@@ -133,7 +154,10 @@ describe("history patch (changeState)", () => {
   it("passes an omitted or null url through without calling mod", () => {
     const { hist, calls } = fakeHistory();
     let modCalls = 0;
-    changeState((url) => { modCalls++; return url; }, hist);
+    changeState((url) => {
+      modCalls++;
+      return url;
+    }, hist);
     hist.pushState({ a: 1 }, "");
     hist.replaceState(null, "", null);
     assert.equal(modCalls, 0);
@@ -151,7 +175,10 @@ describe("history patch (changeState)", () => {
 
 describe("googleInstant", () => {
   it("accepts non-string input", () => {
-    assert.equal(googleInstant(new URL("https://www.google.com/search?q=a")), "https://www.google.com/search?q=a");
+    assert.equal(
+      googleInstant(new URL("https://www.google.com/search?q=a")),
+      "https://www.google.com/search?q=a",
+    );
     assert.equal(googleInstant("/search#imgrc=_"), " ");
     assert.equal(googleInstant("/search#tbm=isch"), "#tbm=isch");
   });
@@ -161,8 +188,12 @@ describe("googleInstant", () => {
 const header = fs
   .readFileSync(path.join(__dirname, "..", "URLClean.user.js"), "utf8")
   .split("// ==/UserScript==")[0];
-const includeRegexes = [...header.matchAll(/^\/\/ @include\s+\/(.+)\/$/gm)].map((m) => new RegExp(m[1]));
-const excludeRegexes = [...header.matchAll(/^\/\/ @exclude\s+\/(.+)\/$/gm)].map((m) => new RegExp(m[1]));
+const includeRegexes = [...header.matchAll(/^\/\/ @include\s+\/(.+)\/$/gm)].map(
+  (m) => new RegExp(m[1]),
+);
+const excludeRegexes = [...header.matchAll(/^\/\/ @exclude\s+\/(.+)\/$/gm)].map(
+  (m) => new RegExp(m[1]),
+);
 const included = (url) => includeRegexes.some((re) => re.test(url));
 
 describe("metadata header", () => {
@@ -209,7 +240,9 @@ describe("metadata header", () => {
   }
 
   it("still excludes Amazon cart pages", () => {
-    assert.ok(excludeRegexes[0].test("https://www.amazon.com/gp/cart/view.html"));
+    assert.ok(
+      excludeRegexes[0].test("https://www.amazon.com/gp/cart/view.html"),
+    );
     assert.ok(excludeRegexes[0].test("https://www.amazon.co.uk/gp/buy/spc"));
     assert.ok(!excludeRegexes[0].test("https://www.amazon.com/dp/B07XYZ1234"));
   });
@@ -217,15 +250,40 @@ describe("metadata header", () => {
 
 describe("host patterns used for dispatch and link parsing", () => {
   const cases = [
-    [google, ["www.google.com", "google.co.uk", "images.google.com.au"], ["notgoogle.com", "google.example.net", "www.google"]],
-    [amazon, ["www.amazon.com", "www.amazon.co.jp", "amazon.de"], ["myamazon.com", "amazon.com.evil.example"]],
+    [
+      google,
+      ["www.google.com", "google.co.uk", "images.google.com.au"],
+      ["notgoogle.com", "google.example.net", "www.google"],
+    ],
+    [
+      amazon,
+      ["www.amazon.com", "www.amazon.co.jp", "amazon.de"],
+      ["myamazon.com", "amazon.com.evil.example"],
+    ],
     [audible, ["www.audible.com", "www.audible.co.uk"], ["notaudible.com"]],
-    [ebay, ["www.ebay.com", "pulsar.ebay.com", "www.ebay.co.uk", "vi.vipr.ebaydesc.com"], ["fakeebay.com"]],
+    [
+      ebay,
+      [
+        "www.ebay.com",
+        "pulsar.ebay.com",
+        "www.ebay.co.uk",
+        "vi.vipr.ebaydesc.com",
+      ],
+      ["fakeebay.com"],
+    ],
     [bing, ["www.bing.com", "cn.bing.com"], ["bingo.com", "notbing.com"]],
-    [target, ["www.target.com", "target.com"], ["notarget.com", "target.com.example"]],
+    [
+      target,
+      ["www.target.com", "target.com"],
+      ["notarget.com", "target.com.example"],
+    ],
   ];
   for (const [re, good, bad] of cases) {
-    for (const host of good) it(`${re.source.slice(0, 30)}… matches ${host}`, () => assert.ok(re.test(host)));
-    for (const host of bad) it(`${re.source.slice(0, 30)}… rejects ${host}`, () => assert.ok(!re.test(host)));
+    for (const host of good)
+      it(`${re.source.slice(0, 30)}… matches ${host}`, () =>
+        assert.ok(re.test(host)));
+    for (const host of bad)
+      it(`${re.source.slice(0, 30)}… rejects ${host}`, () =>
+        assert.ok(!re.test(host)));
   }
 });

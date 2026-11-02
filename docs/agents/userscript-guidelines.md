@@ -3,11 +3,13 @@
 # Browser Userscript Engineering
 
 ## Objective
+
 Create, improve, and maintain the smallest reliable userscript.
 Optimize for correctness, low runtime overhead, readability, and easy maintenance.
 Minimal code means fewer moving parts—not code golf or missing safeguards.
 
 ## Before changing code
+
 - Read the existing script and preserve its intended behavior.
 - Identify target sites/routes, browsers, userscript managers, and required permissions.
 - Determine whether the page is static, dynamically updated, or an SPA.
@@ -17,6 +19,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - If the actual page cannot be inspected, identify assumptions and required DOM examples.
 
 ## Scope and architecture
+
 - Prefer plain JavaScript and browser APIs.
 - Default to one readable .user.js file; preserve useful existing tooling.
 - Add dependencies, build steps, modules, classes, or compatibility layers only when justified.
@@ -28,6 +31,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Remove dead code, unused permissions, dependencies, and obsolete fallbacks.
 
 ## Metadata and execution context
+
 - Use narrow @match patterns; exclude unsupported routes when needed.
 - Declare only required @grant entries.
 - Use @grant none explicitly only when privileged APIs are unnecessary.
@@ -44,6 +48,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Do not assume userscript globals and page globals share the same execution realm.
 
 ## DOM behavior and lifecycle
+
 - Prefer CSS for purely visual changes; use JavaScript for behavior.
 - Prefer stable IDs, semantic attributes, and scoped selectors.
 - Avoid generated class names, positional selectors, and text matching unless necessary.
@@ -65,6 +70,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
   the document remains alive.
 
 ## MutationObserver and scheduling
+
 - Perform an initial scan, then process relevant changes.
 - Observe the smallest stable ancestor that satisfies the requirement.
 - Enable only needed mutation types; use attributeFilter when observing attributes.
@@ -80,6 +86,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Debounce or throttle only when it solves an actual repeated-work problem.
 
 ## Performance
+
 - Optimize algorithmic work and lifecycle behavior before shortening syntax.
 - Avoid repeated full-page scans, duplicate network calls, and excessive DOM writes.
 - Batch layout reads before layout writes when layout measurement is needed.
@@ -91,6 +98,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Do not equate fewer lines with lower CPU usage or better maintainability.
 
 ## Security and privacy
+
 - Treat page content, remote responses, and stored values as untrusted.
 - Use textContent and DOM construction for untrusted text.
 - Do not interpolate untrusted values into innerHTML.
@@ -105,6 +113,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Do not disable browser security mechanisms to make a script work.
 
 ## Async work and persistence
+
 - Pick the GM API style supported by the target manager(s); do not mix styles casually.
 - Use the API's actual timeout/cancellation capabilities.
 - Check HTTP status and validate response shape.
@@ -117,6 +126,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Do not store derivable data unless caching has a clear benefit.
 
 ## Formatting and code style
+
 - Follow the existing formatter; otherwise use:
   - 2-space indentation.
   - Semicolons.
@@ -134,6 +144,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - Keep routine debug logging disabled by default.
 
 ## Validation
+
 - Run existing lint, formatting, and tests when available.
 - Match lint globals to the actual userscript APIs and execution environment.
 - Test relevant cases:
@@ -152,6 +163,7 @@ Minimal code means fewer moving parts—not code golf or missing safeguards.
 - State exactly what was tested and what remains unverified.
 
 ## Delivery
+
 - For creation: return a complete installable userscript.
 - For maintenance: prefer a focused diff unless a full file is requested.
 - Summarize:
