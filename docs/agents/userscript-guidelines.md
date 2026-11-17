@@ -1,4 +1,4 @@
-<!-- Shared across the dividedby userscript repos (games-scripts, General-URL-Cleaner-Revived, rtings-links, reddit-redirect); keep the copies identical. Each repo's CLAUDE.md lists its most important rules and its deliberate exceptions. -->
+<!-- Shared across the dividedby userscript repos (games-scripts, General-URL-Cleaner-Revived, rtings-links, reddit-redirect); keep the copies identical. The condensed checklist is the global Claude rule `~/.claude/rules/userscripts.md`; each repo's CLAUDE.md and `.claude/rules/` hold its own rules and deliberate exceptions. -->
 
 # Browser Userscript Engineering
 
