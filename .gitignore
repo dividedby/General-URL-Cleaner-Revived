@@ -1,3 +1,6 @@
-.claude/
+.claude/*
+!.claude/rules/
+!.claude/settings.json
+!.claude/skills/
 .DS_Store
 node_modules/

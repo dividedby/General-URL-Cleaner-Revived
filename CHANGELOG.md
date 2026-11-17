@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Internal: code brought to the shared style (const/let, strict equality, 2-space indentation). No behavior change.
+- Internal: `CLAUDE.md` slimmed; path-scoped rule and `release` skill added under `.claude/`, which `.gitignore` now tracks (except local files). No behavior change.
 
 ## [5.2.0] - 2026-10-13
 

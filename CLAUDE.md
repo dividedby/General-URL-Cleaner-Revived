@@ -1,131 +1,43 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project
 
-A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`, ~900 lines) that strips tracking
-parameters from URLs on shopping/search/social sites. There is **no `package.json`, no bundler, and no linter**. The pure cleaner functions and redirect decoders are unit-tested via a `node --test` suite (`test/cleaners.test.js`, `test/parsers.test.js`, `test/ampersand.test.mjs`, `test/hardening.test.js`), which are exported from `URLClean.user.js` via a guarded `module.exports` block; a CI gate at `.github/workflows/test.yml` runs them (`node --test`, Node 22) on all pushes and PRs. Run plain `node --test`; passing a directory (`node --test test/`) fails on Node 22. The DOM integration paths (MutationObserver, live link parsing, click-tracking attributes) remain manual in-browser testing. The `.user.js` file is the deliverable; it installs directly into Tampermonkey and is distributed via GreasyFork.
+A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`) that strips tracking parameters from URLs on shopping/search/social sites. No bundler; `package.json` exists only for the Prettier format scripts. The `.user.js` file is the deliverable: it installs directly into Tampermonkey and is distributed via Greasy Fork.
+
+## Commands
+
+- `node --test`: unit tests for the pure cleaners and redirect decoders (`test/*.test.js|mjs`, exported from the script via a guarded `module.exports` block). Run it plain: passing a directory (`node --test test/`) fails on Node 22. CI: `.github/workflows/test.yml` (Node 22).
+- `pnpm format:check` (`pnpm format` to fix): Prettier defaults; CI: `.github/workflows/format.yml`.
+- The DOM paths (MutationObserver, live link parsing, click-tracking attributes) are manual in-browser testing only.
 
 ## Architecture
 
-All logic lives in `URLClean.user.js`. The shape that requires reading multiple regions to understand:
+All logic is in `URLClean.user.js`; search for function names, not line numbers. Non-obvious parts:
 
-- **Metadata header** (top of file): `@include` regexes and `@exclude`s declare which sites the script runs on.
-- **Parameter registry** (~lines 54–72): per-site regexes naming which query params to strip
-  (`googleParams`, `amazonParams`, `ebayParams`, etc.). This is the data you edit to change _what_ gets removed.
-- **Site dispatch** (~lines 78–219): host regexes detect the current site and route to its handlers.
-- **Cleaning engine** (~lines 498–629): one `clean<Site>()` per site applies that site's param regex.
-  The recurring idiom is `.replace("?","?&").replace(params,"").replace("&","")` — prefix every param with
-  `&`, delete the matched params, then fix up the leading separator. `cleanUtm()` strips all `utm_*` globally.
-- **Live link cleaning** (~lines 241–265): a `MutationObserver` (`cleanLinks`/`cleanLinksAlways`) rewrites
-  links as the page adds them; per-site `parser<Site>()` functions (~303–450) also strip click-tracking
-  attributes (`onmousedown`, `jsaction`).
-- **Current-page rewrite**: `setCurrUrl()` cleans `location.href` via `history.replaceState()`
-  (passing `history.state` through). `watchAddress()` re-runs a site's address-bar cleaner on
-  YouTube's `yt-navigate-finish` and the Navigation API's `navigatesuccess` (no polling);
-  Google instead relies on its `pushState`/`replaceState` patch.
-- **Redirect decoders** (`cleanRedir()`, `cleanEbayPulsar()`) return `null` when there is no
-  target or it isn't `http`/`https`; every caller must keep the original link in that case.
-  Each link in a sweep is processed in its own `try`, so one bad link can't stop the rest.
+- `cleanParams()` is the shared idiom: `.replace("?","?&").replace(regex,"").replace("&","")` prefixes every param with `&`, deletes the matched params, then fixes the leading separator. `cleanUtm()` strips all `utm_*` globally.
+- Redirect decoders (`cleanRedir()`, `cleanEbayPulsar()`) return `null` when there is no target or it isn't `http`/`https`; every caller must keep the original link in that case. Each link in a sweep is processed in its own `try`, so one bad link can't stop the rest.
 
-To add a site: add an anchored `@include` regex (only the real domain and its subdomains; `test/hardening.test.js` checks look-alikes), a param regex in the registry, a `clean<Site>()`, and (if needed) a
-`parser<Site>()`, then wire it into site dispatch.
+To add a site:
+
+1. Add an anchored `@include` regex (real domain and subdomains only; `test/hardening.test.js` checks look-alikes).
+2. Add a param regex to the parameter registry and a `clean<Site>()` calling `cleanParams()`.
+3. Add a `parser<Site>()` if the site needs click-tracking attributes stripped.
+4. Wire it into site dispatch and add tests.
 
 ## Rules
 
-- **Bump `@version` on every user-facing change** (see Definition of done), or installed
-  copies never update.
-- Never rename `URLClean.user.js` or change `@namespace`: Greasy Fork and the managers key
-  installs on them.
-- Public identity is `dividedby` only: no real name or personal email in code, headers, docs or
-  commits. Commit as `dividedby <64715420+dividedby@users.noreply.github.com>`.
+- Bump `@version` on every user-facing change, or installed copies never update. A user-facing change also moves `CHANGELOG.md`, `README.md` and `greasyfork-description.md` in the same PR: see the `release` skill.
+- Never rename `URLClean.user.js` or change `@namespace`: Greasy Fork and the managers key installs on them.
+- Public identity is `dividedby` only: no real name or personal email in code, headers, docs or commits. Commit as `dividedby <64715420+dividedby@users.noreply.github.com>`.
 - Pushing to `main` is a release once Greasy Fork syncs from it: unfinished work goes on a branch.
 
-## Userscript engineering
+## Where things live
 
-Before changing a `.user.js`, read [`docs/agents/userscript-guidelines.md`](docs/agents/userscript-guidelines.md),
-the full checklist (shared by all the dividedby userscript repos). The rules that matter most:
+| Topic                                                          | File                                                                                                      |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Userscript engineering checklist                               | global `~/.claude/rules/userscripts.md`; full version `docs/agents/userscript-guidelines.md`              |
+| Deliberate exceptions (subframes, Google history patch)        | `.claude/rules/userscripts-local.md`                                                                      |
+| Definition of done / release steps                             | `.claude/skills/release/SKILL.md`                                                                         |
+| Issue tracker, triage labels, domain docs, changelog guideline | `docs/agents/{issue-tracker,triage-labels,domain,changelog-guideline}.md`; root `CONTEXT.md`, `docs/adr/` |
 
-- **Smallest reliable change.** Preserve existing behavior, fix the problem at hand without
-  unrelated rewrites, and add no dependency, build step or abstraction without a reason.
-- **Metadata.** Narrow `@match`; only the `@grant`s actually used (`@grant none` stated
-  explicitly); no wildcard `@connect`; `@run-at` chosen by need. Never change `@namespace` or
-  the update URLs.
-- **Untrusted input** (page text, network responses, anything read back from storage) never
-  goes into `innerHTML`: build DOM with `textContent`. No `eval`, `new Function` or remote code.
-- **Validate stored values** (type and shape) before using them; keep storage keys namespaced.
-- **Safe to run twice** (a second install, re-initialization): no duplicate UI, listeners,
-  styles or observers.
-- **Observers and timers.** Observe the smallest stable root with filters, ignore the script's
-  own mutations, never poll without a bound, and read layout before writing it.
-- **Network and errors.** Time out, check status and response shape, ignore stale results; no
-  silent `catch {}` for unexpected errors (log with the script's prefix; leave a comment where
-  swallowing is intended, e.g. storage in private mode).
-- **Navigation.** `popstate` doesn't see `pushState`; redirects use `location.replace` so Back
-  still works; a patched page API keeps its arguments, `this` and return value.
-- **Validation.** Node/jsdom tests don't prove the script works in a manager: check it on the
-  real site and say exactly what was and wasn't tested.
-
-Deliberate exceptions here: it also runs in subframes (for Disqus comment embeds), and it
-patches `history.pushState`/`replaceState` on Google to clean Instant-search URLs; any change
-there must keep the original arguments, `this` and return value. Line references above are
-approximate; search for the function names.
-
-## Definition of done
-
-Every **user-facing change** (a new or changed param strip, a new site, a
-behavior fix) moves these four together in the same PR — never as a follow-up:
-
-- **`URLClean.user.js`** `@version` header — bump per semver (new capability →
-  minor, fix → patch).
-- **`CHANGELOG.md`** — entry under `## [Unreleased]`, rolled into a dated
-  `## [x.y.z]` section at release.
-- **`README.md`** — a `### x.y.z` entry under "What's new"; refresh the Examples
-  table when the change alters a shown site.
-- **`greasyfork-description.md`** — a matching `**New in x.y.z**` entry. This is
-  the GreasyFork listing copy; keep it in sync with the README (its own
-  Examples table too).
-
-Plus the usual: `node --test` passes, and new pure logic gets a characterization
-test. Internal-only changes (refactors, test-only, tooling) skip the README /
-GreasyFork entries and the version bump, but still get a `CHANGELOG.md` note when
-notable.
-
-## Agent skills
-
-### Issue tracker
-
-GitHub issues in `dividedby/General-URL-Cleaner-Revived` (via `gh`). See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-State: `needs-triage`, `ready-for-agent`, `ready-for-human`, `blocked`, `wontfix`. Category: `bug`, `enhancement`, `chore`, `epic`. Size: `size:S/M/L/XL`. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
-
-### Changelog
-
-See `docs/agents/changelog-guideline.md`.
-
-## Intake convention
-
-When I say **"file an idea"** or **"file an issue"** (unqualified), append an
-**enriched row** to this repo's [**Idea Inbox**](https://github.com/dividedby/General-URL-Cleaner-Revived/issues/18) issue (label
-`idea-inbox`, one per repo): the raw idea **plus the ambient context/links
-available right now** — the source file/issue/PR that prompted it and a sentence
-of why — as an unchecked item at the TOP of `## Ideas`. Do not grill or scope it
-yet; that happens at drain. The capture and drain protocol lives once in
-[`docs/agents/idea-inbox.md`](./docs/agents/idea-inbox.md) (the issue body is
-human-facing and carries no operating instructions).
-
-When I say **"file a _tracked_ issue"** — or hand you a **plainly-scoped bug** —
-skip the Inbox and file a `needs-triage` issue directly via `gh`.
-
-## Code style
-
-Formatting uses each tool's standard defaults, the same across all `dividedby` repos. Don't add style options or format by hand. Files format on edit through the post-edit hook. CI checks it in `.github/workflows/format.yml`.
-
-- **JS, TS, HTML, CSS, JSON, Markdown, YAML:** Prettier defaults. Run `pnpm format`, or `pnpm format:check` to check.
+Ideas: Idea Inbox is issue #18 (label idea-inbox); protocol in docs/agents/idea-inbox.md.

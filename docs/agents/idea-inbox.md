@@ -4,7 +4,9 @@ The canonical, single source for how an agent operates the repo's **Idea Inbox**
 issue (label `idea-inbox`, one per repo). The Inbox body is **human-facing** — the
 live `## Ideas` list plus a collapsed `✅ Actioned` window — and carries no
 operating instructions; those live here, discovered via the body's breadcrumb.
-The Inbox stays a **convention**, not a skill or a hook: this doc plus the
+Capture goes through the `idea-intake` skill (dividedby/skills), which defers to
+this doc; this doc stays the protocol and drain source, and overrides the skill
+where they differ. Drain stays a convention, not a skill or a hook: this doc plus the
 breadcrumb are the discovery path.
 
 ## Discovery — the breadcrumb
