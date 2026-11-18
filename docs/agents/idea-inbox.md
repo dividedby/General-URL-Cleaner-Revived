@@ -58,7 +58,7 @@ end-to-end, adapting to what _this_ idea needs:
 3. **Pick only the steps it needs** — do not run the whole pipeline by rote. Choose
    from:
    - `/grill-with-docs` — when the idea is fuzzy or contends with the domain model
-     (CONTEXT.md / ADRs); build shared understanding first.
+     (GLOSSARY.md / ADRs); build shared understanding first.
    - `/to-spec` — when it's big enough to warrant a spec before issues.
    - `/to-tickets` — to carve it into independently-grabbable tracked work.
      A small, clear idea may need only `/to-tickets`.

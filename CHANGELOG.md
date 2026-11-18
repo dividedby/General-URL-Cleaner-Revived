@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Internal: the domain glossary `CONTEXT.md` is renamed to `GLOSSARY.md`, the name the upstream `grilling`, `domain-modeling`, `tdd`, `to-spec` and `to-tickets` skills now read; `docs/agents/domain.md` (including `CONTEXT-MAP.md` → `GLOSSARY-MAP.md`), `docs/agents/idea-inbox.md` and the instruction files point at it. No behavior change.
 - Internal: code brought to the shared style (const/let, strict equality, 2-space indentation). No behavior change.
 - Internal: `CLAUDE.md` slimmed; path-scoped rule and `release` skill added under `.claude/`, which `.gitignore` now tracks (except local files). No behavior change.
 

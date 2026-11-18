@@ -33,11 +33,11 @@ To add a site:
 
 ## Where things live
 
-| Topic                                                          | File                                                                                                      |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Userscript engineering checklist                               | global `~/.claude/rules/userscripts.md`; full version `docs/agents/userscript-guidelines.md`              |
-| Deliberate exceptions (subframes, Google history patch)        | `.claude/rules/userscripts-local.md`                                                                      |
-| Definition of done / release steps                             | `.claude/skills/release/SKILL.md`                                                                         |
-| Issue tracker, triage labels, domain docs, changelog guideline | `docs/agents/{issue-tracker,triage-labels,domain,changelog-guideline}.md`; root `CONTEXT.md`, `docs/adr/` |
+| Topic                                                          | File                                                                                                       |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Userscript engineering checklist                               | global `~/.claude/rules/userscripts.md`; full version `docs/agents/userscript-guidelines.md`               |
+| Deliberate exceptions (subframes, Google history patch)        | `.claude/rules/userscripts-local.md`                                                                       |
+| Definition of done / release steps                             | `.claude/skills/release/SKILL.md`                                                                          |
+| Issue tracker, triage labels, domain docs, changelog guideline | `docs/agents/{issue-tracker,triage-labels,domain,changelog-guideline}.md`; root `GLOSSARY.md`, `docs/adr/` |
 
 Ideas: Idea Inbox is issue #18 (label idea-inbox); protocol in docs/agents/idea-inbox.md.
