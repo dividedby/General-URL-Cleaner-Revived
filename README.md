@@ -130,7 +130,7 @@ Editing what gets cleaned:
 To add a site: add an `@include`, a param regex, a `clean<Site>()`, and (if
 needed) a `parser<Site>()`, then wire it into site dispatch. See
 [`CLAUDE.md`](./CLAUDE.md) for the add-a-site recipe and
-[`CONTEXT.md`](./CONTEXT.md) for terminology.
+[`GLOSSARY.md`](./GLOSSARY.md) for terminology.
 
 ### Tests
 
