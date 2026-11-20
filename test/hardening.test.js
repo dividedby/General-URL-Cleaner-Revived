@@ -126,11 +126,11 @@ describe("history patch (changeState)", () => {
   function fakeHistory() {
     const calls = [];
     const hist = {
-      pushState(state, title, url) {
+      pushState() {
         calls.push({ name: "push", self: this, args: [...arguments] });
         return "push-ret";
       },
-      replaceState(state, title, url) {
+      replaceState() {
         calls.push({ name: "replace", self: this, args: [...arguments] });
         return "replace-ret";
       },
