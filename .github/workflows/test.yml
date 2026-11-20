@@ -17,3 +17,13 @@ jobs:
         with:
           node-version: 22
       - run: node --test
+
+  # Merge gate: the one CI check the default-branch ruleset requires. Always
+  # runs; fails only when a needed job failed or was cancelled (skipped passes).
+  ci-ok:
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
