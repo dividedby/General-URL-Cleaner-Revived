@@ -672,7 +672,7 @@
     if (parts.length < 2) return url;
     const kept = parts[1].split(/[&;]/g).filter((p) => {
       const name = p.split("=")[0];
-      return keep.includes(name) || /_browse-bin$/.test(name);
+      return keep.includes(name) || name.endsWith("_browse-bin");
     });
     return parts[0] + (kept.length ? `?${kept.join("&")}` : "");
   }
@@ -726,7 +726,7 @@
       const base = _domAvailable ? location.href : undefined;
       const protocol = new URL(target, base).protocol;
       if (protocol !== "http:" && protocol !== "https:") return null;
-    } catch (err) {
+    } catch {
       return null; // malformed encoding or unparseable URL: not a usable target
     }
     return target;
@@ -757,7 +757,7 @@
       const pars = urlparts[1].split(/[&;]/g);
       //reverse iteration as may be destructive
       for (let i = pars.length; (i -= 1) >= 0;) {
-        if (/^utm_/.test(pars[i])) {
+        if (pars[i].startsWith("utm_")) {
           pars.splice(i, 1);
         }
       }

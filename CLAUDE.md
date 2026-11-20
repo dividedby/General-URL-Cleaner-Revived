@@ -8,7 +8,7 @@ A single Greasemonkey/Tampermonkey **userscript** (`URLClean.user.js`) that stri
 
 - `node --test`: unit tests for the pure cleaners and redirect decoders (`test/*.test.js|mjs`, exported from the script via a guarded `module.exports` block). Run it plain: passing a directory (`node --test test/`) fails on Node 22. CI: `.github/workflows/test.yml` (Node 22).
 - `pnpm format:check` (`pnpm format` to fix): Prettier defaults; CI: `.github/workflows/format.yml`.
-- Lint: no linter; `pnpm format:check` is the only static check.
+- Lint: `pnpm lint` (oxlint, default rules, warnings fail; CI `lint` job in `.github/workflows/test.yml`). Secret scan: gitleaks over the commits in a change (CI `secret-scan` job, same workflow).
 - The DOM paths (MutationObserver, live link parsing, click-tracking attributes) are manual in-browser testing only.
 
 ## Architecture
